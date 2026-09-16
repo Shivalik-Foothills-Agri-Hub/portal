@@ -28,7 +28,7 @@
   .lang-bar label { font-size: 0.8rem; font-weight: 700; color: var(--brand); margin: 0; }
   .lang-bar select { width: auto; padding: 6px 12px; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; cursor: pointer; }
 
-  /* Natural Logo Header with Breathing Room */
+  /* Natural Logo Header */
   header { 
     background: var(--brand); 
     color: #fff; 
@@ -59,6 +59,48 @@
   .section-card { background: var(--card); border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
   .section-card h2 { font-size: 1rem; color: var(--brand); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-bottom: 14px; }
   
+  /* Profile Retrieval Bar */
+  .retrieve-tray {
+    background: #e8f5e9;
+    border: 1.5px solid #c8e6c9;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 16px;
+  }
+  .retrieve-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .btn-lookup-toggle {
+    background: #ffffff;
+    color: var(--accent);
+    border: 1.5px solid var(--accent);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .lookup-input-group {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+  }
+  .btn-lookup-fetch {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 640px) { 
     .form-grid { grid-template-columns: 1fr; }
@@ -86,7 +128,8 @@
   .consent-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 12px; font-size: 0.76rem; color: #475569; line-height: 1.45; margin-bottom: 16px; }
 
   .submit-bar { margin-top: 20px; padding-bottom: 16px; }
-  .btn-submit { width: 100%; background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+  .btn-submit { width: 100%; background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: background 0.2s; }
+  .btn-submit.update-mode { background: #0284c7; }
 </style>
 </head>
 <body>
@@ -102,7 +145,6 @@
     </select>
   </div>
 
-  <!-- HEADER WITH FULL UNCLIPPED ARTWORK -->
   <header>
     <img src="logo.jpeg" alt="Shivalik Foothills Unified Community Circle" class="header-logo" onerror="this.style.display='none'">
     <div class="header-text">
@@ -116,20 +158,22 @@
     <!-- 1. IDENTITY & REGION -->
     <div class="section-card">
       <h2 data-i18n="sec_identity">👤 1. Member Identity & Locality</h2>
-<div style="background:#e8f5e9; border:1px solid #c8e6c9; padding:12px; border-radius:8px; margin-bottom:14px;">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <span style="font-size:0.85rem; font-weight:700; color:#1b4332;">Already registered?</span>
-    <button type="button" onclick="toggleEditMode()" style="padding:4px 10px; font-size:0.75rem; border-radius:4px; border:1px solid #2d6a4f; background:#fff; color:#2d6a4f; cursor:pointer; font-weight:600;">
-      🔍 Retrieve & Edit Profile
-    </button>
-  </div>
-  <div id="retrieveBox" style="display:none; margin-top:8px;">
-    <input type="tel" id="lookup_phone" placeholder="Enter registered WhatsApp number" style="width:70%; display:inline-block; padding:7px;">
-    <button type="button" onclick="fetchFarmerDetails()" style="width:26%; padding:7px; background:#2d6a4f; color:#fff; border:none; border-radius:4px; font-weight:700; cursor:pointer;">
-      Load
-    </button>
-  </div>
-</div>
+
+      <!-- PROFILE RETRIEVAL / EDIT BOX -->
+      <div class="retrieve-tray">
+        <div class="retrieve-header">
+          <span style="font-size:0.84rem; font-weight:700; color:var(--brand);" data-i18n="lbl_already_reg">Already registered with the Hub?</span>
+          <button type="button" class="btn-lookup-toggle" onclick="toggleLookupBox()" data-i18n="btn_toggle_lookup">🔍 Retrieve & Edit Profile</button>
+        </div>
+        <div id="lookupContainer" style="display:none;">
+          <div class="lookup-input-group">
+            <input type="tel" id="lookup_phone" placeholder="Enter your 10-digit WhatsApp number" style="margin-bottom:0;">
+            <button type="button" class="btn-lookup-fetch" onclick="fetchFarmerProfile()" data-i18n="btn_load_record">📥 Load My Record</button>
+          </div>
+          <p id="lookup_status" style="font-size:0.75rem; margin-top:6px; color:#1e293b; font-weight:600;"></p>
+        </div>
+      </div>
+
       <div class="form-grid">
         <div class="form-field">
           <label data-i18n="lbl_name">Member / Farmer Name *</label>
@@ -279,6 +323,10 @@
         <div class="form-field full" style="background:#f8fafc; border:1.5px dashed #059669; padding:12px; border-radius:8px;">
           <label data-i18n="lbl_lab_file" style="color:#065f46;">📄 Upload Recent Lab Report (Soil, Water or Residue Test - PDF/Image, Max 5MB)</label>
           <input type="file" id="lab_file" accept=".pdf,image/*" style="border:none; background:transparent; padding:6px 0;">
+          <div id="existing_file_indicator" style="display:none; margin-top:6px; font-size:0.75rem;">
+            <span style="color:#059669; font-weight:700;">✓ Existing report linked on Drive:</span> 
+            <a id="existing_file_link" href="#" target="_blank" style="color:#0284c7; text-decoration:underline; font-weight:600;">View File</a>
+          </div>
           <p data-i18n="lbl_lab_hint" style="font-size:0.72rem; color:#64748b; margin-top:2px;">
             Stored safely in the collaborative archive for verified consumer traceability.
           </p>
@@ -318,7 +366,7 @@
       🔒 <b>Data Governance & Mutual Trust:</b> In accordance with digital data privacy principles, sensitive KYC identifiers and raw lab certifications remain restricted to cluster coordination stewards. Crop volumes, land boundaries, and shared equipment are visible across cluster peers to coordinate joint logistics, machinery pooling, and verified consumer traceability.
     </div>
 
-    <!-- STATIC SUBMIT BUTTON AT BOTTOM OF FORM -->
+    <!-- SUBMIT / UPDATE BUTTON -->
     <div class="submit-bar">
       <button type="submit" class="btn-submit" id="submitBtn" data-i18n="btn_submit">💾 Submit Profile to Collaborative Registry</button>
     </div>
@@ -328,15 +376,20 @@
 
 <script>
   // ⚠️ PASTE YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL HERE:
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
+  const SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
 
   let currentLang = 'en';
+  let isUpdateMode = false;
+  let cachedExistingFileUrl = "";
 
   const translations = {
     en: {
       app_title: "Shivalik Foothills Producers Collaborative Hub",
       app_sub: "ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ • किसान साझ केंद्र • Unified Community Circle (Est. 2026)",
       sec_identity: "👤 1. Member Identity & Locality",
+      lbl_already_reg: "Already registered with the Hub?",
+      btn_toggle_lookup: "🔍 Retrieve & Edit Profile",
+      btn_load_record: "📥 Load My Record",
       lbl_name: "Member / Farmer Name *",
       lbl_phone: "WhatsApp Contact Number *",
       lbl_id: "Member Reference ID (Optional)",
@@ -375,12 +428,16 @@
       lbl_workforce: "On-Farm Workforce (Family + Regular Help)",
       lbl_labour_deficit: "Peak Labour Deficit Months (For Work Sharing)",
       lbl_consent: "🔒 <b>Data Governance & Mutual Trust:</b> In accordance with digital data privacy principles, sensitive KYC identifiers and raw lab certifications remain restricted to cluster coordination stewards. Crop volumes, land boundaries, and shared equipment are visible across cluster peers to coordinate joint logistics, machinery pooling, and verified consumer traceability.",
-      btn_submit: "💾 Submit Profile to Collaborative Registry"
+      btn_submit: "💾 Submit Profile to Collaborative Registry",
+      btn_update_mode: "🔄 Update Existing Profile Record"
     },
     pa: {
       app_title: "ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿਲਜ਼ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ",
       app_sub: "ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ, ਸੈਟੇਲਾਈਟ ਖੇਤ ਮੈਪਿੰਗ ਅਤੇ ਸਿੱਧਾ ਬਾਜ਼ਾਰ ਸੰਪਰਕ (Est. 2026)",
       sec_identity: "👤 1. ਮੈਂਬਰ ਦਾ ਵੇਰਵਾ ਅਤੇ ਇਲਾਕਾ",
+      lbl_already_reg: "ਕੀ ਤੁਸੀਂ ਪਹਿਲਾਂ ਹੀ ਰਜਿਸਟਰਡ ਹੋ?",
+      btn_toggle_lookup: "🔍 ਰਿਕਾਰਡ ਲੱਭੋ ਅਤੇ ਸੋਧੋ",
+      btn_load_record: "📥 ਮੇਰਾ ਰਿਕਾਰਡ ਖੋਲ੍ਹੋ",
       lbl_name: "ਕਿਸਾਨ / ਮੈਂਬਰ ਦਾ ਪੂਰਾ ਨਾਂ *",
       lbl_phone: "ਵਟਸਐਪ ਸੰਪਰਕ ਨੰਬਰ *",
       lbl_id: "ਮੈਂਬਰ ਰੈਫਰੈਂਸ ਨੰਬਰ (ਮਰਜ਼ੀ ਮੁਤਾਬਕ)",
@@ -419,12 +476,16 @@
       lbl_workforce: "ਖੇਤ ਦੇ ਕਾਮੇ (ਪਰਿਵਾਰਕ + ਪੱਕੇ)",
       lbl_labour_deficit: "ਮਜ਼ਦੂਰਾਂ ਦੀ ਵੱਧ ਘਾਟ ਵਾਲੇ ਮਹੀਨੇ",
       lbl_consent: "🔒 <b>ਡੇਟਾ ਸੁਰੱਖਿਆ ਅਤੇ ਆਪਸੀ ਭਰੋਸਾ:</b> ਸਰਕਾਰੀ ਪਛਾਣ ਪੱਤਰ ਅਤੇ ਲੈਬ ਸਰਟੀਫਿਕੇਟ ਸਿਰਫ਼ ਕੋਆਰਡੀਨੇਟਰ ਕੋਲ ਸੁਰੱਖਿਅਤ ਰਹਿਣਗੇ। ਫ਼ਸਲਾਂ ਦਾ ਵੇਰਵਾ, ਰਕਬਾ ਅਤੇ ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਮੈਂਬਰਾਂ ਨਾਲ ਸਾਂਝੀ ਕੀਤੀ ਜਾਵੇਗੀ ਤਾਂ ਜੋ ਮੰਡੀਕਰਨ ਸੁਖਾਲਾ ਹੋ ਸਕੇ।",
-      btn_submit: "💾 ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ ਰਜਿਸਟਰ ਵਿੱਚ ਦਰਜ ਕਰੋ"
+      btn_submit: "💾 ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ ਰਜਿਸਟਰ ਵਿੱਚ ਦਰਜ ਕਰੋ",
+      btn_update_mode: "🔄 ਮੌਜੂਦਾ ਰਿਕਾਰਡ ਅਪਡੇਟ ਕਰੋ"
     },
     hi: {
       app_title: "शिवालिक तलहटी किसान साझ केंद्र",
       app_sub: "पारस्परिक संसाधन साझाकरण, सैटेलाइट खेत मैपिंग और सीधा बाजार संपर्क (Est. 2026)",
       sec_identity: "👤 1. सदस्य विवरण और इलाका",
+      lbl_already_reg: "क्या आप पहले से पंजीकृत हैं?",
+      btn_toggle_lookup: "🔍 रिकॉर्ड खोजें और अपडेट करें",
+      btn_load_record: "📥 मेरा रिकॉर्ड खोलें",
       lbl_name: "किसान / सदस्य का पूरा नाम *",
       lbl_phone: "व्हाट्सएप संपर्क नंबर *",
       lbl_id: "सदस्य संदर्भ आईडी (वैकल्पिक)",
@@ -463,7 +524,8 @@
       lbl_workforce: "खेत के कामगार (पारिवारिक + स्थायी)",
       lbl_labour_deficit: "मजदूरों की अधिक कमी वाले महीने",
       lbl_consent: "🔒 <b>डेटा सुरक्षा और पारस्परिक विश्वास:</b> सरकारी पहचान पत्र और मूल लैब प्रमाणपत्र केवल समन्वयकों के पास सुरक्षित रहेंगे। फसलों का विवरण, भूमि सीमाएं और साझा उपकरण सदस्यों के साथ साझा किए जाएंगे ताकि विपणन सुगम हो सके।",
-      btn_submit: "💾 किसान साझ केंद्र रजिस्टर में दर्ज करें"
+      btn_submit: "💾 किसान साझ केंद्र रजिस्टर में दर्ज करें",
+      btn_update_mode: "🔄 मौजूदा रिकॉर्ड अपडेट करें"
     }
   };
 
@@ -485,7 +547,114 @@
     if (btn) {
       btn.innerText = isDrawing ? dict.btn_draw_active : dict.btn_draw;
     }
+
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+      submitBtn.innerText = isUpdateMode ? dict.btn_update_mode : dict.btn_submit;
+    }
+
     renderParcelTray();
+  }
+
+  function toggleLookupBox() {
+    const box = document.getElementById('lookupContainer');
+    box.style.display = box.style.display === 'none' ? 'block' : 'none';
+  }
+
+  function fetchFarmerProfile() {
+    const phoneInput = document.getElementById('lookup_phone').value.trim();
+    const statusMsg = document.getElementById('lookup_status');
+
+    if (!phoneInput || phoneInput.length < 10) {
+      statusMsg.style.color = "#dc2626";
+      statusMsg.innerText = "Please enter a valid 10-digit WhatsApp number.";
+      return;
+    }
+
+    statusMsg.style.color = "#2563eb";
+    statusMsg.innerText = "🔍 Searching collaborative registry...";
+
+    fetch(`${SCRIPT_URL}?action=getProfile&phone=${encodeURIComponent(phoneInput)}`)
+      .then(res => res.json())
+      .then(res => {
+        if (res.status === "found") {
+          statusMsg.style.color = "#059669";
+          statusMsg.innerText = "✅ Profile record loaded successfully! You can now edit any details or mapped plots.";
+          populateFormWithProfile(res.profile);
+        } else {
+          statusMsg.style.color = "#dc2626";
+          statusMsg.innerText = "❌ No existing registration found with this WhatsApp number.";
+        }
+      })
+      .catch(err => {
+        statusMsg.style.color = "#dc2626";
+        statusMsg.innerText = "Error fetching record: " + err;
+      });
+  }
+
+  function populateFormWithProfile(p) {
+    document.getElementById('name').value = p.name || '';
+    document.getElementById('phone').value = p.phone || '';
+    if (p.village) document.getElementById('village').value = p.village;
+    if (p.district) document.getElementById('district').value = p.district;
+    if (p.legal_preference) document.getElementById('legal_preference').value = p.legal_preference;
+    if (p.npop_status) document.getElementById('npop_status').value = p.npop_status;
+    if (p.npop_agency) document.getElementById('npop_agency').value = p.npop_agency;
+    if (p.cert_vintage) document.getElementById('cert_vintage').value = p.cert_vintage;
+    if (p.npop_cert_no && p.npop_cert_no !== 'N/A') document.getElementById('npop_cert_no').value = p.npop_cert_no;
+    if (p.crops) document.getElementById('crops').value = p.crops;
+    if (p.horticulture) document.getElementById('horticulture').value = p.horticulture;
+    if (p.soc) document.getElementById('soc_ph').value = p.soc;
+    if (p.water_source) document.getElementById('water_source').value = p.water_source;
+    if (p.livestock_count) document.getElementById('livestock_count').value = p.livestock_count;
+    if (p.machinery_owned) document.getElementById('machinery_owned').value = p.machinery_owned;
+    if (p.machinery_needed) document.getElementById('machinery_needed').value = p.machinery_needed;
+    if (p.processing_facilities && p.processing_facilities !== 'None') document.getElementById('processing_facilities').value = p.processing_facilities;
+    if (p.workforce) document.getElementById('workforce').value = p.workforce;
+    if (p.labour_deficit) document.getElementById('labour_deficit').value = p.labour_deficit;
+
+    // Preserve linked lab report if present
+    if (p.lab_report_link && p.lab_report_link.startsWith('http')) {
+      cachedExistingFileUrl = p.lab_report_link;
+      const ind = document.getElementById('existing_file_indicator');
+      const lk = document.getElementById('existing_file_link');
+      lk.href = p.lab_report_link;
+      ind.style.display = 'block';
+    }
+
+    // Reconstruct parcels on map
+    if (p.parcels && p.parcels.length > 0) {
+      completedParcels.forEach(c => { if (c.layerRef) map.removeLayer(c.layerRef); });
+      completedParcels = [];
+
+      p.parcels.forEach((parcel, idx) => {
+        if (Array.isArray(parcel.geojson) && parcel.geojson.length >= 3) {
+          const color = parcelColors[idx % parcelColors.length];
+          const poly = L.polygon(parcel.geojson, { color: color, weight: 3, fillColor: color, fillOpacity: 0.4 }).addTo(map);
+          poly.bindPopup(`<b>${parcel.parcel_name}</b><br>Area: ${parcel.acres}`).openPopup();
+
+          completedParcels.push({
+            parcel_name: parcel.parcel_name,
+            acres: parcel.acres,
+            lat: parcel.lat,
+            lng: parcel.lng,
+            geojson: parcel.geojson,
+            layerRef: poly
+          });
+        }
+      });
+
+      renderParcelTray();
+      if (completedParcels.length > 0) {
+        map.fitBounds(L.featureGroup(completedParcels.map(x => x.layerRef)).getBounds(), { padding: [30, 30] });
+      }
+    }
+
+    // Set Update State
+    isUpdateMode = true;
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.classList.add('update-mode');
+    submitBtn.innerText = translations[currentLang].btn_update_mode;
   }
 
   let map;
@@ -654,6 +823,8 @@
     let cumulative = completedParcels.reduce((sum, p) => sum + (parseFloat(p.acres) || 0), 0).toFixed(2);
 
     const basePayload = {
+      mode: isUpdateMode ? "update" : "create",
+      existing_file_url: cachedExistingFileUrl,
       name: document.getElementById('name').value,
       phone: document.getElementById('phone').value,
       id_number: document.getElementById('id_number').value,
@@ -700,7 +871,7 @@
       if (file.size > 5 * 1024 * 1024) {
         alert("File size exceeds 5MB limit. Please upload a smaller file or photo.");
         btn.disabled = false;
-        btn.innerText = translations[currentLang].btn_submit;
+        btn.innerText = isUpdateMode ? translations[currentLang].btn_update_mode : translations[currentLang].btn_submit;
         return;
       }
       const reader = new FileReader();
@@ -723,16 +894,19 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     }).then(() => {
-      alert(currentLang === 'pa' ? `✅ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਸਫ਼ਲ! ${completedParcels.length} ਖੇਤ (${cumulative} ਏਕੜ) ਦਰਜ ਹੋ ਗਏ ਹਨ।` :
-            currentLang === 'hi' ? `✅ पंजीकरण सफल! ${completedParcels.length} खेत (${cumulative} एकड़) दर्ज हो चुके हैं।` :
-            `✅ Registration Successful! Logged ${completedParcels.length} plot(s) totaling ${cumulative} Acres.`);
+      const actionMsg = isUpdateMode 
+        ? (currentLang === 'pa' ? "ਰਿਕਾਰਡ ਸਫ਼ਲਤਾਪੂਰਵਕ ਅੱਪਡੇਟ ਕੀਤਾ ਗਿਆ!" : currentLang === 'hi' ? "रिकॉर्ड सफलतापूर्वक अपडेट किया गया!" : "Profile updated successfully!")
+        : (currentLang === 'pa' ? "ਨਵੀਂ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਸਫ਼ਲ!" : currentLang === 'hi' ? "नया पंजीकरण सफल!" : "Registration Successful!");
+
+      alert(`✅ ${actionMsg} (${completedParcels.length} plot(s), ${cumulative} Acres).`);
       btn.disabled = false;
-      btn.innerText = translations[currentLang].btn_submit;
+      btn.innerText = isUpdateMode ? translations[currentLang].btn_update_mode : translations[currentLang].btn_submit;
 
       const headerTitle = currentLang === 'pa' ? "*🌾 ਸ਼ਿਵਾਲਿਕ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ*" : 
                           currentLang === 'hi' ? "*🌾 शिवालिक किसान साझ केंद्र*" : 
                           "*🌾 SHIVALIK PRODUCERS COLLABORATIVE*";
       const summary = `${headerTitle}\n` +
+                      `• Mode: ${isUpdateMode ? 'Profile Update' : 'New Registration'}\n` +
                       `• Member: ${payload.name}\n` +
                       `• Certified Agency: ${payload.npop_agency} (Since ${payload.cert_vintage})\n` +
                       `• Plots Mapped: ${completedParcels.length}\n` +
