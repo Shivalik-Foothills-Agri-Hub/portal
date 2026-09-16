@@ -23,20 +23,46 @@
   body { background: var(--bg); color: var(--text); padding: 12px; line-height: 1.4; }
   .shell { max-width: 820px; margin: 0 auto; padding-bottom: 70px; }
   
-  /* Tri-Lingual Selector Bar */
+  /* Language Selector Bar */
   .lang-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px; }
   .lang-bar label { font-size: 0.8rem; font-weight: 700; color: var(--brand); margin: 0; }
   .lang-bar select { width: auto; padding: 6px 12px; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; cursor: pointer; }
 
-  header { background: var(--brand); color: #fff; padding: 20px; border-radius: 12px; margin-bottom: 16px; text-align: center; }
-  header h1 { font-size: 1.25rem; margin-bottom: 4px; }
-  header p { font-size: 0.85rem; color: #b7e4c7; }
+  /* Header with Original Medallion */
+  header { 
+    background: var(--brand); 
+    color: #fff; 
+    padding: 16px 20px; 
+    border-radius: 12px; 
+    margin-bottom: 16px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 16px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+  }
+  .header-logo {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2.5px solid #d4a373;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.35);
+    flex-shrink: 0;
+  }
+  .header-text { text-align: left; }
+  .header-text h1 { font-size: 1.25rem; margin-bottom: 4px; font-weight: 800; }
+  .header-text p { font-size: 0.82rem; color: #b7e4c7; }
   
   .section-card { background: var(--card); border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
   .section-card h2 { font-size: 1rem; color: var(--brand); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-bottom: 14px; }
   
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-  @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
+  @media (max-width: 600px) { 
+    .form-grid { grid-template-columns: 1fr; }
+    header { flex-direction: column; text-align: center; }
+    .header-text { text-align: center; }
+  }
   .form-field { margin-bottom: 12px; }
   .form-field.full { grid-column: span 2; }
   @media (max-width: 600px) { .form-field.full { grid-column: span 1; } }
@@ -75,8 +101,11 @@
   </div>
 
   <header>
-    <h1 data-i18n="app_title">🌱 Shivalik Foothills Producers Collaborative Hub</h1>
-    <p data-i18n="app_sub">Peer Resource Sharing, Multi-Plot Satellite Mapping & Joint Market Access</p>
+    <img src="logo.jpeg" alt="Shivalik Foothills Unified Community Circle" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-text">
+      <h1 data-i18n="app_title">🌱 Shivalik Foothills Producers Collaborative Hub</h1>
+      <p data-i18n="app_sub">ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ &bull; किसान साझ केंद्र &bull; Unified Community Circle (Est. 2026)</p>
+    </div>
   </header>
 
   <form id="registryForm" onsubmit="handleRegistration(event)">
@@ -267,7 +296,7 @@
       </div>
     </div>
 
-    <!-- DATA PRIVACY & MUTUAL CONSENT NOTICE (DPDPA ALIGNED) -->
+    <!-- DATA GOVERNANCE & CONSENT (DPDPA ALIGNED) -->
     <div class="consent-box" data-i18n="lbl_consent">
       🔒 <b>Data Governance & Mutual Trust:</b> In accordance with digital data privacy principles, sensitive KYC identifiers and raw lab certifications remain restricted to cluster coordination stewards. Crop volumes, land boundaries, and shared equipment are visible across cluster peers to coordinate joint logistics, machinery pooling, and verified consumer traceability.
     </div>
@@ -288,7 +317,7 @@
   const translations = {
     en: {
       app_title: "🌱 Shivalik Foothills Producers Collaborative Hub",
-      app_sub: "Peer Resource Sharing, Multi-Plot Satellite Mapping & Joint Market Access",
+      app_sub: "ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ • किसान साझ केंद्र • Unified Community Circle (Est. 2026)",
       sec_identity: "👤 1. Member Identity & Locality",
       lbl_name: "Member / Farmer Name *",
       lbl_phone: "WhatsApp Contact Number *",
@@ -332,7 +361,7 @@
     },
     pa: {
       app_title: "🌱 ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿਲਜ਼ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ",
-      app_sub: "ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ, ਸੈਟੇਲਾਈਟ ਖੇਤ ਮੈਪਿੰਗ ਅਤੇ ਸਿੱਧਾ ਬਾਜ਼ਾਰ ਸੰਪਰਕ",
+      app_sub: "ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ, ਸੈਟੇਲਾਈਟ ਖੇਤ ਮੈਪਿੰਗ ਅਤੇ ਸਿੱਧਾ ਬਾਜ਼ਾਰ ਸੰਪਰਕ (Est. 2026)",
       sec_identity: "👤 1. ਮੈਂਬਰ ਦਾ ਵੇਰਵਾ ਅਤੇ ਇਲਾਕਾ",
       lbl_name: "ਕਿਸਾਨ / ਮੈਂਬਰ ਦਾ ਪੂਰਾ ਨਾਂ *",
       lbl_phone: "ਵਟਸਐਪ ਸੰਪਰਕ ਨੰਬਰ *",
@@ -376,7 +405,7 @@
     },
     hi: {
       app_title: "🌱 शिवालिक तलहटी किसान साझ केंद्र",
-      app_sub: "पारस्परिक संसाधन साझाकरण, सैटेलाइट खेत मैपिंग और सीधा बाजार संपर्क",
+      app_sub: "पारस्परिक संसाधन साझाकरण, सैटेलाइट खेत मैपिंग और सीधा बाजार संपर्क (Est. 2026)",
       sec_identity: "👤 1. सदस्य विवरण और इलाका",
       lbl_name: "किसान / सदस्य का पूरा नाम *",
       lbl_phone: "व्हाट्सएप संपर्क नंबर *",
@@ -647,7 +676,6 @@
     btn.disabled = true;
     btn.innerText = "⏳ Encoding & Transmitting Record...";
 
-    // File handling
     const fileInput = document.getElementById('lab_file');
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
