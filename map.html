@@ -47,23 +47,23 @@
     border: 1px solid #c8e6c9;
     margin-right: 4px;
   }
-  .kandi-legend-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 4px 9px;
-    border-radius: 12px;
-    font-size: 0.72rem;
+  .kandi-btn-link {
+    display: block;
+    text-align: center;
+    background: #dc2626;
+    color: #ffffff !important;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-size: 0.75rem;
     font-weight: 700;
-    background: #fef2f2;
-    color: #991b1b;
-    border: 1px dashed #ef4444;
     text-decoration: none;
-    margin-top: 6px;
-    transition: background 0.2s;
+    margin-top: 8px;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+    transition: background 0.2s, transform 0.1s;
   }
-  .kandi-legend-badge:hover {
-    background: #fee2e2;
+  .kandi-btn-link:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
   }
 
   /* Custom Popup Styling */
@@ -88,13 +88,11 @@
     <span class="stat-badge" id="lbl-total-farms">Plots: 0</span>
     <span class="stat-badge" id="lbl-total-acres">Acreage: 0.00 Ac</span>
   </div>
-  <div>
-    <a href="https://punjab.gov.in/" target="_blank" 
-       class="kandi-legend-badge" 
-       title="Notified under Punjab Land Improvement & Kandi Watershed Framework">
-      📍 Notified Kandi Tract (Govt of Punjab Gazette) ↗
-    </a>
-  </div>
+  
+  <!-- Direct Clickable Government Portal Button -->
+  <a href="https://punjab.gov.in/" target="_blank" class="kandi-btn-link">
+    🏛️ View Official Punjab Govt Portal (Kandi Zone) ↗
+  </a>
 </div>
 
 <div id="map"></div>
@@ -160,7 +158,7 @@
     ]
   };
 
-  // Styled Kandi Layer with Statutory Reference Popup
+  // Styled Kandi Layer with Direct Government Link Inside Popup
   const kandiLayer = L.geoJSON(kandiFootprintGeoJSON, {
     style: {
       color: "#dc2626",
@@ -179,9 +177,9 @@
       <div style="border-top:1px dashed #cbd5e1; padding-top:6px; font-size:0.74rem;">
         <b>Statutory References:</b><br>
         • Department of Soil & Water Conservation / Irrigation, Punjab<br>
-        • Punjab Land Improvement & Kandi Watershed Project (KWADP)<br>
-        <a href="https://punjab.gov.in/" target="_blank" style="color:#0284c7; text-decoration:underline; font-weight:600; display:inline-block; margin-top:4px;">
-          🔗 Official Punjab Govt Portal (punjab.gov.in)
+        • Punjab Land Improvement & Kandi Watershed Project (KWADP)<br><br>
+        <a href="https://punjab.gov.in/" target="_blank" style="color:#ffffff; background:#dc2626; padding:4px 8px; border-radius:4px; text-decoration:none; font-weight:700; display:inline-block;">
+          🏛️ Visit Official Punjab Govt Portal ↗
         </a>
       </div>
     </div>
