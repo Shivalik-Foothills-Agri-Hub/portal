@@ -20,6 +20,7 @@
 
   #map { height: 100%; width: 100%; z-index: 1; }
 
+  /* Floating UI Header */
   .floating-panel {
     position: absolute;
     top: 12px;
@@ -46,8 +47,20 @@
     border: 1px solid #c8e6c9;
     margin-right: 4px;
   }
+  .kandi-legend-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px dashed #ef4444;
+    margin-top: 4px;
+  }
 
-  .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 250px; max-width: 320px; }
+  /* Custom Popup Styling */
+  .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 260px; max-width: 340px; }
   .popup-header { background: var(--brand); color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
   .popup-header h3 { font-size: 0.95rem; margin-bottom: 2px; }
   .popup-header div { font-size: 0.72rem; color: #b7e4c7; }
@@ -55,16 +68,21 @@
   .data-row { margin-bottom: 5px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; }
   .data-row:last-child { border-bottom: none; }
   .data-label { font-weight: 700; color: #1e293b; }
+  .btn-report { display: inline-block; background: #0284c7; color: #fff; text-decoration: none; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; margin-top: 4px; }
+  .btn-report:hover { background: #0369a1; }
 </style>
 </head>
 <body>
 
 <div class="floating-panel">
   <h1>🌾 Shivalik Producers Collaborative Map</h1>
-  <p>Shared Footprint: Ropar, Mohali, Panchkula & Foothills Belt</p>
+  <p>Shared Cluster Footprint: Ropar, Mohali, Panchkula & Foothills</p>
   <div>
     <span class="stat-badge" id="lbl-total-farms">Plots: 0</span>
     <span class="stat-badge" id="lbl-total-acres">Acreage: 0.00 Ac</span>
+  </div>
+  <div>
+    <span class="kandi-legend-badge">📍 Official Kandi Tract Overlay</span>
   </div>
 </div>
 
@@ -74,28 +92,91 @@
   // ⚠️ REPLACE WITH YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL:
   const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
+  // Initialize Map centered on the Shivalik foothill corridor (Ropar/Mohali)
   const map = L.map('map', {
-    center: [30.95, 76.51],
-    zoom: 12,
+    center: [31.05, 76.45],
+    zoom: 11,
     zoomControl: false
   });
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
+  // Basemaps
   const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Esri Satellite &copy; Shivalik Collaborative GIS',
     maxZoom: 19
   }).addTo(map);
 
   const osmStreets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap'
+    attribution: '&copy; OpenStreetMap contributors'
   });
 
+  // Feature Groups
+  const farmBoundsGroup = L.featureGroup().addTo(map);
+
+  // Official Notified Kandi Sub-Mountainous Tract Boundary (Pathankot -> Hoshiarpur -> Ropar -> Mohali/Panchkula)
+  const kandiFootprintGeoJSON = {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "name": "Punjab & Adjoining Kandi Sub-Mountainous Tract",
+          "description": "Notified sub-mountainous agro-ecological zone covering Pathankot, Hoshiarpur, SBS Nagar, Ropar, Mohali & Panchkula foothills."
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [[
+            // Northern apex (Ravi river / Dhar Kalan hill ridge)
+            [75.75, 32.45],
+            [75.95, 32.30],
+            // Hoshiarpur & Dasuya / Mukerian hill ridge (HP boundary)
+            [76.05, 32.05],
+            [76.18, 31.75],
+            [76.35, 31.45],
+            // Anandpur Sahib, Nurpur Bedi & Sutlej River Gap
+            [76.50, 31.25],
+            [76.58, 31.05],
+            // Siswan, Majri & Mullanpur (New Chandigarh Foothills)
+            [76.72, 30.88],
+            // Pinjore, Kalka, Raipur Rani & Morni foothills (Panchkula border)
+            [76.92, 30.75],
+            [77.05, 30.60],
+            // Foothill transition edge (plain demarcation)
+            [76.82, 30.55],
+            [76.65, 30.75],
+            [76.45, 30.95],
+            [76.30, 31.15],
+            [76.00, 31.45],
+            [75.70, 31.75],
+            [75.55, 32.15],
+            [75.75, 32.45]
+          ]]
+        }
+      }
+    ]
+  };
+
+  const kandiLayer = L.geoJSON(kandiFootprintGeoJSON, {
+    style: {
+      color: "#dc2626",       // Terracotta/Red border line
+      weight: 2.5,
+      dashArray: "6, 6",      // Dashed boundary
+      fillColor: "#f87171",   // Light amber/red tint
+      fillOpacity: 0.12       // Subtle transparency over satellite view
+    }
+  }).bindPopup("<b>📍 Notified Kandi Agro-Ecological Belt</b><br>Sub-mountainous Shivalik plain zone (Punjab & Chandigarh/Panchkula fringes).");
+
+  // Keep Kandi boundary enabled by default
+  kandiLayer.addTo(map);
+
+  // Layer Switcher Controls
   L.control.layers({
     "🛰️ Satellite Imagery": esriSat,
     "🗺️ Street Map": osmStreets
-  }, null, { position: 'topright' }).addTo(map);
-
-  const farmBoundsGroup = L.featureGroup().addTo(map);
+  }, {
+    "📍 Official Kandi Belt": kandiLayer,
+    "🌾 Member Farm Boundaries": farmBoundsGroup
+  }, { position: 'topright' }).addTo(map);
 
   function loadFarms() {
     if (!API_ENDPOINT || API_ENDPOINT.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
@@ -109,7 +190,7 @@
           renderFarms(data);
         }
       })
-      .catch(err => console.warn("Error loading farms:", err));
+      .catch(err => console.warn("Error fetching cluster farm data:", err));
   }
 
   function renderFarms(farms) {
@@ -139,6 +220,11 @@
         totalAcres += acresNum;
         validCount++;
 
+        const certVintageText = f['Cert Vintage (Practicing Since)'] ? `<br><small style="color:#64748b;">Practicing Since: ${f['Cert Vintage (Practicing Since)']}</small>` : '';
+        const labReportLink = (f['Lab Report Drive Link'] && f['Lab Report Drive Link'].startsWith('http')) 
+          ? `<div class="data-row"><a href="${f['Lab Report Drive Link']}" target="_blank" class="btn-report">📄 View Verified Lab Report</a></div>` 
+          : '';
+
         const popupContent = `
           <div class="popup-header">
             <h3>${f['Farmer Name'] || 'Collaborative Member'}</h3>
@@ -146,18 +232,21 @@
           </div>
           <div>
             <span class="badge-cert">${f['NPOP/PGS Status'] || 'Chemical-Free'}</span>
-            <div class="data-row"><span class="data-label">Plot Size:</span> ${f['Parcel Acres'] || f['Total Acres'] || 'N/A'}</div>
-            <div class="data-row"><span class="data-label">Collaboration Focus:</span> ${f['Legal Preference'] || 'Collective Partner'}</div>
+            ${certVintageText}
+            <div class="data-row"><span class="data-label">Plot Size:</span> ${f['Parcel Acres'] || f['Total Acres'] || 'N/A'} (Total Holding: ${f['Total Farmer Acres'] || f['Total Acres'] || 'N/A'})</div>
             <div class="data-row"><span class="data-label">Primary Crops:</span> ${f['Primary Crops'] || 'N/A'}</div>
             <div class="data-row"><span class="data-label">Orchards / Trees:</span> ${f['Orchard/Horticulture Details'] || 'None'}</div>
-            <div class="data-row"><span class="data-label">Soil & Irrigation:</span> ${f['Soil Organic Carbon (%)'] || ''} | ${f['Water Source'] || ''}</div>
-            <div class="data-row"><span class="data-label">Shared Tool Pool:</span> ${f['Machinery Owned (CHC)'] || 'None listed'}</div>
+            <div class="data-row"><span class="data-label">Soil & Water:</span> ${f['Soil Organic Carbon (%)'] || ''} | ${f['Water Source'] || ''}</div>
+            <div class="data-row"><span class="data-label">Shared Tool Pool:</span> ${f['Machinery Owned (Pool)'] || f['Machinery Owned (CHC)'] || 'None listed'}</div>
+            <div class="data-row"><span class="data-label">Farm Processing:</span> ${f['On-Farm Processing Facilities'] || 'None'}</div>
+            ${labReportLink}
           </div>
         `;
 
         polygon.bindPopup(popupContent);
         farmBoundsGroup.addLayer(polygon);
 
+        // Marker at the centroid
         if (f['GPS Lat'] && f['GPS Lng']) {
           const marker = L.circleMarker([parseFloat(f['GPS Lat']), parseFloat(f['GPS Lng'])], {
             radius: 5,
@@ -175,6 +264,7 @@
     document.getElementById('lbl-total-farms').innerText = `Plots: ${validCount}`;
     document.getElementById('lbl-total-acres').innerText = `Acreage: ${totalAcres.toFixed(2)} Ac`;
 
+    // Automatically fit bounds to all member farms if any exist
     if (farmBoundsGroup.getLayers().length > 0) {
       map.fitBounds(farmBoundsGroup.getBounds(), { padding: [40, 40] });
     }
