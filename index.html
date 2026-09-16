@@ -23,12 +23,10 @@
   body { background: var(--bg); color: var(--text); padding: 12px; line-height: 1.4; }
   .shell { max-width: 860px; margin: 0 auto; padding-bottom: 40px; }
   
-  /* Language Selector Bar */
   .lang-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px; }
   .lang-bar label { font-size: 0.8rem; font-weight: 700; color: var(--brand); margin: 0; }
   .lang-bar select { width: auto; padding: 6px 12px; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; cursor: pointer; }
 
-  /* Natural Logo Header */
   header { 
     background: var(--brand); 
     color: #fff; 
@@ -59,7 +57,6 @@
   .section-card { background: var(--card); border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
   .section-card h2 { font-size: 1rem; color: var(--brand); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-bottom: 14px; }
   
-  /* Profile Retrieval Bar */
   .retrieve-tray {
     background: #e8f5e9;
     border: 1.5px solid #c8e6c9;
@@ -127,10 +124,38 @@
   .btn-map.active { background: #d90429; border-color: #d90429; color: #fff; }
   .btn-parcel-add { background: #059669; border-color: #059669; color: #fff; }
   
-  .parcel-tray { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 10px; }
+  /* Per-Plot Attribute Card */
+  .active-plot-drawer {
+    background: #f8fafc;
+    border: 2px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px;
+    margin-top: 12px;
+  }
+  .active-plot-drawer h3 {
+    font-size: 0.92rem;
+    color: var(--brand);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .parcel-tray { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 12px; }
   .parcel-tray h3 { font-size: 0.85rem; color: var(--brand); margin-bottom: 6px; display: flex; justify-content: space-between; }
-  .parcel-pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #cbd5e0; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; margin: 3px 4px 3px 0; font-weight: 600; }
-  .parcel-pill button { background: none; border: none; color: #d90429; font-weight: 800; cursor: pointer; }
+  
+  .parcel-item-card {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .parcel-item-info { font-size: 0.78rem; line-height: 1.35; }
+  .parcel-item-info b { color: var(--brand); }
+  .btn-del-plot { background: none; border: none; color: #dc2626; font-size: 1.1rem; font-weight: 800; cursor: pointer; padding: 4px 8px; }
 
   .consent-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 12px; font-size: 0.76rem; color: #475569; line-height: 1.45; margin-bottom: 16px; }
 
@@ -162,19 +187,18 @@
 
   <form id="registryForm" onsubmit="handleRegistration(event)">
 
-    <!-- 1. IDENTITY & REGION -->
+    <!-- 1. MEMBER IDENTITY -->
     <div class="section-card">
       <h2 data-i18n="sec_identity">👤 1. Member Identity & Locality</h2>
 
-      <!-- PROFILE RETRIEVAL / EDIT BOX -->
       <div class="retrieve-tray">
         <div class="retrieve-header">
           <span style="font-size:0.84rem; font-weight:700; color:var(--brand);" data-i18n="lbl_already_reg">Already registered with the Hub?</span>
           <button type="button" class="btn-lookup-toggle" onclick="toggleLookupBox()" data-i18n="btn_toggle_lookup">🔍 Retrieve & Edit Profile</button>
         </div>
         <div id="lookupContainer" style="display:none; margin-top:10px;">
-          <div class="lookup-input-group" style="display:flex; gap:8px;">
-            <input type="tel" id="lookup_phone" placeholder="Enter your 10-digit WhatsApp number" style="flex:1; margin-bottom:0;">
+          <div class="lookup-input-group">
+            <input type="tel" id="lookup_phone" placeholder="Enter your 10-digit WhatsApp number" style="margin-bottom:0;">
             <button type="button" class="btn-lookup-fetch" onclick="fetchFarmerProfile()" data-i18n="btn_load_record">📥 Load My Record</button>
           </div>
           <p id="lookup_status" style="font-size:0.75rem; margin-top:6px; color:#1e293b; font-weight:600;"></p>
@@ -214,47 +238,84 @@
       </div>
     </div>
 
-    <!-- 2. SATELLITE GIS MAPPING -->
+    <!-- 2. MULTI-PLOT SATELLITE MAPPING & PER-PLOT CROPS/SOIL -->
     <div class="section-card">
-      <h2 data-i18n="sec_map">🛰️ 2. Multi-Plot Satellite Land Mapping</h2>
+      <h2 data-i18n="sec_map">🛰️ 2. Multi-Plot Mapping & Independent Field Details</h2>
       <p data-i18n="map_guide" style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
-        Draw your first plot, tap <b>"Save & Add Another Plot"</b>, pan to any disconnected plots, and draw them to log your entire holding.
+        Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save & Add Another Plot"</b>.
       </p>
 
       <div class="map-actions">
         <button type="button" class="btn-map" onclick="locateGPS()" data-i18n="btn_gps">📍 Find GPS Location</button>
         <button type="button" class="btn-map" id="btnDraw" onclick="toggleDrawTool()" data-i18n="btn_draw">✏️ Tap Corners to Draw Field</button>
-        <button type="button" class="btn-map btn-parcel-add" onclick="saveCurrentParcel()" data-i18n="btn_add_plot">➕ Save & Add Another Plot</button>
+        <button type="button" class="btn-map btn-parcel-add" onclick="saveCurrentParcel()" data-i18n="btn_add_plot">➕ Save This Plot to Holding</button>
         <button type="button" class="btn-map" onclick="clearActiveDrawing()" data-i18n="btn_clear">🗑️ Clear Active Sketch</button>
       </div>
 
       <div id="map"></div>
 
+      <!-- ACTIVE PLOT ATTRIBUTES DRAWER (Independent Attributes) -->
+      <div class="active-plot-drawer">
+        <h3>
+          <span>Active Plot Details</span>
+          <span id="active_sketch_acres_badge" style="color:#059669; font-weight:700;">Area: 0.00 Acres</span>
+        </h3>
+        <div class="form-grid">
+          <div class="form-field">
+            <label>Plot Tag / Local Name *</label>
+            <input type="text" id="active_parcel_name" value="Plot 1 (Home Field)">
+          </div>
+          <div class="form-field">
+            <label>Irrigation System for this Plot</label>
+            <select id="plot_water_source">
+              <option value="Deep Tubewell + Drip">Deep Tubewell + Drip Network</option>
+              <option value="Elevated Diggi + Gravity Drip">Elevated Diggi (Farm Pond) + Gravity Drip</option>
+              <option value="Deep Tubewell + Flood">Deep Tubewell + Flood</option>
+              <option value="Rainfed Only" selected>Rainfed Only / Monsoon Dependent</option>
+            </select>
+          </div>
+          <div class="form-field full">
+            <label>Primary Crops on this Specific Plot *</label>
+            <input type="text" id="plot_crops" placeholder="e.g. Khapli Wheat, Turmeric, Ginger, Sugarcane">
+          </div>
+          <div class="form-field full">
+            <label>Orchards / Trees on this Specific Plot</label>
+            <input type="text" id="plot_horticulture" placeholder="e.g. Mixed Citrus (80 trees), Bamboo buffer">
+          </div>
+          <div class="form-field">
+            <label>Soil Organic Carbon (SOC %) & pH</label>
+            <input type="text" id="plot_soc" placeholder="e.g. SOC 0.72%, pH 7.4">
+          </div>
+          <div class="form-field">
+            <label>Desi Cattle / Livestock Managed at this Plot</label>
+            <input type="text" id="plot_livestock" placeholder="e.g. 2 cows (or 0)">
+          </div>
+          <div class="form-field full" style="background:#fff; border:1px dashed #059669; padding:8px; border-radius:6px;">
+            <label style="color:#065f46;">📄 Plot Lab Report (Soil/Water Test - PDF/Image, Max 5MB)</label>
+            <input type="file" id="plot_lab_file" accept=".pdf,image/*" style="border:none; padding:4px 0;">
+            <div id="plot_existing_report" style="display:none; font-size:0.75rem; margin-top:4px;">
+              <span style="color:#059669; font-weight:700;">✓ Linked Report:</span> 
+              <a id="plot_report_link" href="#" target="_blank" style="color:#0284c7; text-decoration:underline; font-weight:600;">View File</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVED PARCELS LIST -->
       <div class="parcel-tray">
         <h3>
           <span data-i18n="lbl_inventory">Mapped Plots Inventory</span>
           <span id="total-cumulative-acres" style="color:var(--brand);">Cumulative: 0.00 Acres</span>
         </h3>
         <div id="parcel-pills-list">
-          <span data-i18n="lbl_no_plots" style="font-size:0.75rem; color:#64748b;">No plot saved yet. Tap field corners and click "Save & Add Another Plot".</span>
-        </div>
-      </div>
-
-      <div class="form-grid" style="margin-top:10px;">
-        <div class="form-field">
-          <label data-i18n="lbl_active_plot_tag">Active Plot Tag / Name</label>
-          <input type="text" id="active_parcel_name" placeholder="e.g. Home Plot / Riverbed Plot" value="Plot 1 (Main)">
-        </div>
-        <div class="form-field">
-          <label data-i18n="lbl_active_area">Active Sketch Area</label>
-          <input type="text" id="active_sketch_acres" readonly placeholder="0.00 Acres" style="background:#edf2f7; font-weight:700;">
+          <span style="font-size:0.75rem; color:#64748b;">No plots saved yet. Sketch a field, fill details, and click "Save This Plot to Holding".</span>
         </div>
       </div>
     </div>
 
-    <!-- 3. COLLABORATION FOCUS & CERTIFICATION VINTAGE -->
+    <!-- 3. COLLABORATION & CERTIFICATION -->
     <div class="section-card">
-      <h2 data-i18n="sec_collab">🤝 3. Collaboration Focus & Certification Vintage</h2>
+      <h2 data-i18n="sec_collab">🤝 3. Collaboration Focus & Certification</h2>
       <div class="form-grid">
         <div class="form-field full" style="background:#f1f5f9; padding:10px; border-radius:6px; border:1px dashed #94a3b8;">
           <label data-i18n="lbl_focus">Primary Collaboration Interest *</label>
@@ -296,54 +357,9 @@
       </div>
     </div>
 
-    <!-- 4. CROPS, SOIL HEALTH, WATER & LAB REPORTS -->
+    <!-- 4. SHARED MACHINERY & LABOUR POOL -->
     <div class="section-card">
-      <h2 data-i18n="sec_crops">🌾 4. Crops, Soil Health, Water & Lab Verifications</h2>
-      <div class="form-grid">
-        <div class="form-field full">
-          <label data-i18n="lbl_crops">Main Crops & Varieties Cultivated</label>
-          <input type="text" id="crops" placeholder="e.g. Khapli Wheat, Sugarcane, Basmati, Turmeric, Ginger, Pulses">
-        </div>
-        <div class="form-field full">
-          <label data-i18n="lbl_trees">Orchards, Agro-Forestry & Multipurpose Trees</label>
-          <input type="text" id="horticulture" placeholder="e.g. Mixed Fruit Orchard (150 trees), Native Mini-Forest, Bamboo">
-        </div>
-        <div class="form-field">
-          <label data-i18n="lbl_soc">Soil Organic Carbon (SOC %) & pH</label>
-          <input type="text" id="soc_ph" placeholder="e.g. SOC 0.65%, pH 7.6">
-        </div>
-        <div class="form-field">
-          <label data-i18n="lbl_water">Primary Irrigation System</label>
-          <select id="water_source">
-            <option value="Deep Tubewell + Drip">Deep Tubewell + Drip Network</option>
-            <option value="Elevated Diggi + Gravity Drip">Elevated Diggi (Farm Pond) + Gravity Drip</option>
-            <option value="Deep Tubewell + Flood">Deep Tubewell + Flood</option>
-            <option value="Rainfed Only">Entirely Rainfed / Monsoon Dependent</option>
-          </select>
-        </div>
-        <div class="form-field full">
-          <label data-i18n="lbl_livestock">Desi Cattle / Livestock Count (for Bio-Inputs & Manure)</label>
-          <input type="text" id="livestock_count" placeholder="e.g. 4 Sahiwal cows, 2 buffaloes (or 0 if none)">
-        </div>
-        
-        <!-- SECURE LAB REPORT UPLOAD -->
-        <div class="form-field full" style="background:#f8fafc; border:1.5px dashed #059669; padding:12px; border-radius:8px;">
-          <label data-i18n="lbl_lab_file" style="color:#065f46;">📄 Upload Recent Lab Report (Soil, Water or Residue Test - PDF/Image, Max 5MB)</label>
-          <input type="file" id="lab_file" accept=".pdf,image/*" style="border:none; background:transparent; padding:6px 0;">
-          <div id="existing_file_indicator" style="display:none; margin-top:6px; font-size:0.75rem;">
-            <span style="color:#059669; font-weight:700;">✓ Existing report linked on Drive:</span> 
-            <a id="existing_file_link" href="#" target="_blank" style="color:#0284c7; text-decoration:underline; font-weight:600;">View File</a>
-          </div>
-          <p data-i18n="lbl_lab_hint" style="font-size:0.72rem; color:#64748b; margin-top:2px;">
-            Stored safely in the collaborative archive for verified consumer traceability.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- 5. SHARED MACHINERY POOL & PROCESSING ASSETS -->
-    <div class="section-card">
-      <h2 data-i18n="sec_machinery">🚜 5. Shared Machinery Pool & Processing Assets</h2>
+      <h2 data-i18n="sec_machinery">🚜 4. Shared Machinery Pool & Processing Assets</h2>
       <div class="form-grid">
         <div class="form-field full">
           <label data-i18n="lbl_machinery_owned">Equipment / Tools You Own & Can Share in the Pool</label>
@@ -368,12 +384,10 @@
       </div>
     </div>
 
-    <!-- DATA PRIVACY NOTICE -->
     <div class="consent-box" data-i18n="lbl_consent">
       🔒 <b>Data Governance & Mutual Trust:</b> In accordance with digital data privacy principles, sensitive KYC identifiers and raw lab certifications remain restricted to cluster coordination stewards. Crop volumes, land boundaries, and shared equipment are visible across cluster peers to coordinate joint logistics, machinery pooling, and verified consumer traceability.
     </div>
 
-    <!-- SUBMIT / UPDATE BUTTON -->
     <div class="submit-bar">
       <button type="submit" class="btn-submit" id="submitBtn" data-i18n="btn_submit">💾 Submit Profile to Collaborative Registry</button>
     </div>
@@ -387,7 +401,6 @@
 
   let currentLang = 'en';
   let isUpdateMode = false;
-  let cachedExistingFileUrl = "";
 
   const translations = {
     en: {
@@ -402,33 +415,22 @@
       lbl_id: "Member Reference ID (Optional)",
       lbl_district: "Region / District *",
       lbl_village: "Village, Tehsil & Postal Address *",
-      sec_map: "🛰️ 2. Multi-Plot Satellite Land Mapping",
-      map_guide: 'Draw your first plot, tap <b>"Save & Add Another Plot"</b>, pan to any disconnected plots, and draw them to log your entire holding.',
+      sec_map: "🛰️ 2. Multi-Plot Mapping & Independent Field Details",
+      map_guide: 'Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save & Add Another Plot"</b>.',
       btn_gps: "📍 Find GPS Location",
       btn_draw: "✏️ Tap Corners to Draw Field",
       btn_draw_active: "🛑 Finish Active Sketch",
-      btn_add_plot: "➕ Save & Add Another Plot",
+      btn_add_plot: "➕ Save This Plot to Holding",
       btn_clear: "🗑️ Clear Active Sketch",
       lbl_inventory: "Mapped Plots Inventory",
-      lbl_no_plots: 'No plot saved yet. Tap field corners and click "Save & Add Another Plot".',
-      lbl_active_plot_tag: "Active Plot Tag / Name",
-      lbl_active_area: "Active Sketch Area",
       lbl_cumulative: "Cumulative",
-      sec_collab: "🤝 3. Collaboration Focus & Certification Vintage",
+      sec_collab: "🤝 3. Collaboration Focus & Certification",
       lbl_focus: "Primary Collaboration Interest *",
       lbl_cert_status: "Production / Verification Method",
       lbl_cert_agency: "Certification Body",
       lbl_cert_vintage: "Practicing / Certified Since (Month & Year) *",
       lbl_scope_no: "Scope Certificate / Reg No. (if any)",
-      sec_crops: "🌾 4. Crops, Soil Health, Water & Lab Verifications",
-      lbl_crops: "Main Crops & Varieties Cultivated",
-      lbl_trees: "Orchards, Agro-Forestry & Multipurpose Trees",
-      lbl_soc: "Soil Organic Carbon (SOC %) & pH",
-      lbl_water: "Primary Irrigation System",
-      lbl_livestock: "Desi Cattle / Livestock Count (for Bio-Inputs & Manure)",
-      lbl_lab_file: "📄 Upload Recent Lab Report (Soil, Water or Residue Test - PDF/Image, Max 5MB)",
-      lbl_lab_hint: "Stored safely in the collaborative archive for verified consumer traceability.",
-      sec_machinery: "🚜 5. Shared Machinery Pool & Processing Assets",
+      sec_machinery: "🚜 4. Shared Machinery Pool & Processing Assets",
       lbl_machinery_owned: "Equipment / Tools You Own & Can Share in the Pool",
       lbl_machinery_needed: "Equipment You Need from the Group Tool Pool",
       lbl_processing: "On-Farm Value Addition & Processing Facilities",
@@ -450,33 +452,22 @@
       lbl_id: "ਮੈਂਬਰ ਰੈਫਰੈਂਸ ਨੰਬਰ (ਮਰਜ਼ੀ ਮੁਤਾਬਕ)",
       lbl_district: "ਇਲਾਕਾ / ਜ਼ਿਲ੍ਹਾ *",
       lbl_village: "ਪਿੰਡ, ਤਹਿਸੀਲ ਅਤੇ ਡਾਕਖਾਨਾ *",
-      sec_map: "🛰️ 2. ਸੈਟੇਲਾਈਟ ਰਾਹੀਂ ਜ਼ਮੀਨ ਦੀ ਮੈਪਿੰਗ",
-      map_guide: 'ਪਹਿਲਾ ਖੇਤ ਬਣਾਓ, <b>"ਸੰਭਾਲੋ ਅਤੇ ਹੋਰ ਖੇਤ ਜੋੜੋ"</b> ਦਬਾਓ, ਅਤੇ ਦੂਜੇ ਖੇਤਾਂ ਨੂੰ ਨਕਸ਼ੇ \'ਤੇ ਨਿਸ਼ਾਨਬੱਧ ਕਰੋ।',
+      sec_map: "🛰️ 2. ਸੈਟੇਲਾਈਟ ਜ਼ਮੀਨ ਮੈਪਿੰਗ ਅਤੇ ਖੇਤਾਂ ਦਾ ਵੱਖਰਾ ਵੇਰਵਾ",
+      map_guide: 'ਸੈਟੇਲਾਈਟ ਨਕਸ਼ੇ \'ਤੇ ਖੇਤ ਬਣਾਓ, ਉਸ ਖੇਤ ਦੀਆਂ ਫ਼ਸਲਾਂ, ਪਾਣੀ ਤੇ ਲੈਬ ਰਿਪੋਰਟ ਭਰੋ, ਫਿਰ <b>"ਖੇਤ ਸੂਚੀ ਵਿੱਚ ਦਰਜ ਕਰੋ"</b> ਦਬਾਓ।',
       btn_gps: "📍 ਮੇਰਾ ਖੇਤ ਲੱਭੋ (GPS)",
       btn_draw: "✏️ ਵੱਟਾਂ 'ਤੇ ਟੈਪ ਕਰਕੇ ਨਿਸ਼ਾਨ ਲਗਾਓ",
       btn_draw_active: "🛑 ਨਿਸ਼ਾਨ ਲਗਾਉਣਾ ਬੰਦ ਕਰੋ",
-      btn_add_plot: "➕ ਸੰਭਾਲੋ ਅਤੇ ਹੋਰ ਖੇਤ ਜੋੜੋ",
+      btn_add_plot: "➕ ਇਹ ਖੇਤ ਸੂਚੀ ਵਿੱਚ ਦਰਜ ਕਰੋ",
       btn_clear: "🗑️ ਕੱਚਾ ਨਕਸ਼ਾ ਹਟਾਓ",
       lbl_inventory: "ਦਰਜ ਕੀਤੇ ਖੇਤਾਂ ਦੀ ਸੂਚੀ",
-      lbl_no_plots: 'ਕੋਈ ਖੇਤ ਨਹੀਂ ਜੁੜਿਆ। ਵੱਟਾਂ \'ਤੇ ਨਿਸ਼ਾਨ ਲਗਾ ਕੇ "ਸੰਭਾਲੋ ਅਤੇ ਹੋਰ ਖੇਤ ਜੋੜੋ" ਦਬਾਓ।',
-      lbl_active_plot_tag: "ਖੇਤ ਦਾ ਨਾਂ / ਪਛਾਣ",
-      lbl_active_area: "ਮੌਜੂਦਾ ਨਿਸ਼ਾਨਬੱਧ ਰਕਬਾ",
       lbl_cumulative: "ਕੁੱਲ ਰਕਬਾ",
-      sec_collab: "🤝 3. ਸਾਂਝੇਦਾਰੀ ਦਾ ਮਕਸਦ ਅਤੇ ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਸਮਾਂ",
+      sec_collab: "🤝 3. ਸਾਂਝੇਦਾਰੀ ਦਾ ਮਕਸਦ ਅਤੇ ਪ੍ਰਮਾਣੀਕਰਨ",
       lbl_focus: "ਸਾਂਝੇਦਾਰੀ ਦੀ ਮੁੱਖ ਤਰਜੀਹ *",
       lbl_cert_status: "ਖੇਤੀ / ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਤਰੀਕਾ",
       lbl_cert_agency: "ਪ੍ਰਮਾਣੀਕਰਨ ਅਦਾਰਾ (ਜਿਵੇਂ ਪੰਜਾਬ ਐਗਰੋ)",
       lbl_cert_vintage: "ਕੁਦਰਤੀ ਖੇਤੀ ਕਦੋਂ ਤੋਂ ਕਰ ਰਹੇ ਹੋ (ਮਹੀਨਾ ਅਤੇ ਸਾਲ) *",
       lbl_scope_no: "ਸਕੋਪ ਸਰਟੀਫਿਕੇਟ / ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਨੰਬਰ",
-      sec_crops: "🌾 4. ਫ਼ਸਲਾਂ, ਮਿੱਟੀ ਦੀ ਪਰਖ, ਪਾਣੀ ਅਤੇ ਲੈਬ ਰਿਪੋਰਟ",
-      lbl_crops: "ਮੁੱਖ ਫ਼ਸਲਾਂ ਅਤੇ ਕਿਸਮਾਂ",
-      lbl_trees: "ਬਾਗ਼, ਰੁੱਖ ਅਤੇ ਬਾਂਸ ਆਦਿ",
-      lbl_soc: "ਮਿੱਟੀ ਦਾ ਔਰਗੈਨਿਕ ਕਾਰਬਨ (SOC %) ਤੇ pH",
-      lbl_water: "ਸਿੰਚਾਈ ਦਾ ਮੁੱਖ ਸਾਧਨ",
-      lbl_livestock: "ਦੇਸੀ ਗਊਆਂ / ਪਸ਼ੂਆਂ ਦੀ ਗਿਣਤੀ (ਖਾਦ ਅਤੇ ਜੀਵਾਮ੍ਰਿਤ ਲਈ)",
-      lbl_lab_file: "📄 ਲੈਬ ਟੈਸਟ ਰਿਪੋਰਟ ਅਪਲੋਡ ਕਰੋ (ਮਿੱਟੀ, ਪਾਣੀ ਜਾਂ ਰਹਿੰਦ-ਖੂਹੰਦ ਟੈਸਟ - ਵੱਧ ਤੋਂ ਵੱਧ 5MB)",
-      lbl_lab_hint: "ਖਪਤਕਾਰਾਂ ਦੇ ਭਰੋਸੇ ਅਤੇ ਪ੍ਰਮਾਣਿਕਤਾ ਲਈ ਸਾਂਝੇ ਰਿਕਾਰਡ ਵਿੱਚ ਸੁਰੱਖਿਅਤ ਰਹੇਗੀ।",
-      sec_machinery: "🚜 5. ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਅਤੇ ਪ੍ਰੋਸੈਸਿੰਗ ਸਾਧਨ",
+      sec_machinery: "🚜 4. ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਅਤੇ ਪ੍ਰੋਸੈਸਿੰਗ ਸਾਧਨ",
       lbl_machinery_owned: "ਸੰਦ ਜੋ ਤੁਹਾਡੇ ਕੋਲ ਹਨ ਅਤੇ ਸਮੂਹ ਨਾਲ ਸਾਂਝੇ ਕਰ ਸਕਦੇ ਹੋ",
       lbl_machinery_needed: "ਸੰਦ ਜਿਨ੍ਹਾਂ ਦੀ ਤੁਹਾਨੂੰ ਲੋੜ ਹੈ",
       lbl_processing: "ਖੇਤ 'ਤੇ ਪ੍ਰੋਸੈਸਿੰਗ ਸਹੂਲਤ (ਗੁੜ ਵਾਲਾ ਵੇਲਣਾ, ਆਟਾ ਚੱਕੀ, ਡਰਾਇਰ ਆਦਿ)",
@@ -498,33 +489,22 @@
       lbl_id: "सदस्य संदर्भ आईडी (वैकल्पिक)",
       lbl_district: "क्षेत्र / जिला *",
       lbl_village: "गांव, तहसील और डाक पता *",
-      sec_map: "🛰️ 2. सैटेलाइट द्वारा जमीन की मैपिंग",
-      map_guide: 'पहला खेत बनाएं, <b>"सहेजें और दूसरा खेत जोड़ें"</b> दबाएं, और अन्य खेतों को नक्शे पर चिह्नित करें।',
+      sec_map: "🛰️ 2. सैटेलाइट जमीन मैपिंग और खेतों का स्वतंत्र विवरण",
+      map_guide: 'सैटेलाइट नक्शे पर खेत बनाएं, उस खेत की फसलें, पानी व लैब रिपोर्ट भरें, फिर <b>"खेत सूची में सहेजें"</b> दबाएं।',
       btn_gps: "📍 मेरा खेत ढूंढें (GPS)",
       btn_draw: "✏️ मेड़ों पर टैप करके निशान लगाएं",
       btn_draw_active: "🛑 निशान लगाना पूरा करें",
-      btn_add_plot: "➕ सहेजें और दूसरा खेत जोड़ें",
+      btn_add_plot: "➕ यह खेत सूची में सहेजें",
       btn_clear: "🗑️ कच्चा नक्शा हटाएं",
       lbl_inventory: "दर्ज किए गए खेतों की सूची",
-      lbl_no_plots: 'कोई खेत नहीं जुड़ा। मेड़ों पर निशान लगाकर "सहेजें और दूसरा खेत जोड़ें" दबाएं।',
-      lbl_active_plot_tag: "खेत का नाम / पहचान",
-      lbl_active_area: "वर्तमान चिह्नित रकबा",
       lbl_cumulative: "कुल रकबा",
-      sec_collab: "🤝 3. साझेदारी का उद्देश्य और प्रमाणीकरण की अवधि",
+      sec_collab: "🤝 3. साझेदारी का उद्देश्य और प्रमाणीकरण",
       lbl_focus: "साझेदारी की मुख्य प्राथमिकता *",
       lbl_cert_status: "खेती / प्रमाणीकरण का तरीका",
       lbl_cert_agency: "प्रमाणीकरण संस्था (जैसे पंजाब एग्रो)",
       lbl_cert_vintage: "प्राकृतिक खेती कब से कर रहे हैं (माह एवं वर्ष) *",
       lbl_scope_no: "स्कोप सर्टिफिकेट / पंजीकरण संख्या",
-      sec_crops: "🌾 4. फसलें, मिट्टी की सेहत, पानी और लैब रिपोर्ट",
-      lbl_crops: "मुख्य फसलें और किस्में",
-      lbl_trees: "बाग, पेड़ एवं बांस आदि",
-      lbl_soc: "मिट्टी का जैविक कार्बन (SOC %) व pH",
-      lbl_water: "सिंचाई का मुख्य साधन",
-      lbl_livestock: "देशी गोवंश / पशुओं की संख्या (खाद एवं जीवामृत हेतु)",
-      lbl_lab_file: "📄 लैब टेस्ट रिपोर्ट अपलोड करें (मिट्टी, पानी या अवशेष परीक्षण - अधिकतम 5MB)",
-      lbl_lab_hint: "उपभोक्ताओं के विश्वास और सत्यापन के लिए साझा रिकॉर्ड में सुरक्षित रहेगी।",
-      sec_machinery: "🚜 5. साझा मशीनरी और प्रसंस्करण उपकरण",
+      sec_machinery: "🚜 4. साझा मशीनरी और प्रसंस्करण उपकरण",
       lbl_machinery_owned: "उपकरण जो आपके पास हैं और समूह में साझा कर सकते हैं",
       lbl_machinery_needed: "उपकरण जिनकी आपको आवश्यकता है",
       lbl_processing: "खेत पर प्रसंस्करण सुविधाएं (गुड़ कोहलू, आटा चक्की, सोलर ड्रायर आदि)",
@@ -551,19 +531,14 @@
     });
 
     const btn = document.getElementById('btnDraw');
-    if (btn) {
-      btn.innerText = isDrawing ? dict.btn_draw_active : dict.btn_draw;
-    }
+    if (btn) btn.innerText = isDrawing ? dict.btn_draw_active : dict.btn_draw;
 
     const submitBtn = document.getElementById('submitBtn');
-    if (submitBtn) {
-      submitBtn.innerText = isUpdateMode ? dict.btn_update_mode : dict.btn_submit;
-    }
+    if (submitBtn) submitBtn.innerText = isUpdateMode ? dict.btn_update_mode : dict.btn_submit;
 
     renderParcelTray();
   }
 
-  // ROBUST TOGGLE IMPLEMENTATION
   function toggleLookupBox() {
     const box = document.getElementById('lookupContainer');
     if (!box) return;
@@ -582,18 +557,18 @@
     }
 
     statusMsg.style.color = "#2563eb";
-    statusMsg.innerText = "🔍 Searching collaborative registry...";
+    statusMsg.innerText = "🔍 Fetching record from registry...";
 
     fetch(`${SCRIPT_URL}?action=getProfile&phone=${encodeURIComponent(phoneInput)}`)
       .then(res => res.json())
       .then(res => {
         if (res.status === "found") {
           statusMsg.style.color = "#059669";
-          statusMsg.innerText = "✅ Profile record loaded successfully! You can now edit any details or mapped plots.";
+          statusMsg.innerText = "✅ Profile loaded! You can update farm plots, crops, or member attributes.";
           populateFormWithProfile(res.profile);
         } else {
           statusMsg.style.color = "#dc2626";
-          statusMsg.innerText = "❌ No existing registration found with this WhatsApp number.";
+          statusMsg.innerText = "❌ No registration found for this number.";
         }
       })
       .catch(err => {
@@ -605,6 +580,7 @@
   function populateFormWithProfile(p) {
     document.getElementById('name').value = p.name || '';
     document.getElementById('phone').value = p.phone || '';
+    if (p.id_number) document.getElementById('id_number').value = p.id_number;
     if (p.village) document.getElementById('village').value = p.village;
     if (p.district) document.getElementById('district').value = p.district;
     if (p.legal_preference) document.getElementById('legal_preference').value = p.legal_preference;
@@ -612,25 +588,13 @@
     if (p.npop_agency) document.getElementById('npop_agency').value = p.npop_agency;
     if (p.cert_vintage) document.getElementById('cert_vintage').value = p.cert_vintage;
     if (p.npop_cert_no && p.npop_cert_no !== 'N/A') document.getElementById('npop_cert_no').value = p.npop_cert_no;
-    if (p.crops) document.getElementById('crops').value = p.crops;
-    if (p.horticulture) document.getElementById('horticulture').value = p.horticulture;
-    if (p.soc) document.getElementById('soc_ph').value = p.soc;
-    if (p.water_source) document.getElementById('water_source').value = p.water_source;
-    if (p.livestock_count) document.getElementById('livestock_count').value = p.livestock_count;
     if (p.machinery_owned) document.getElementById('machinery_owned').value = p.machinery_owned;
     if (p.machinery_needed) document.getElementById('machinery_needed').value = p.machinery_needed;
     if (p.processing_facilities && p.processing_facilities !== 'None') document.getElementById('processing_facilities').value = p.processing_facilities;
     if (p.workforce) document.getElementById('workforce').value = p.workforce;
     if (p.labour_deficit) document.getElementById('labour_deficit').value = p.labour_deficit;
 
-    if (p.lab_report_link && p.lab_report_link.startsWith('http')) {
-      cachedExistingFileUrl = p.lab_report_link;
-      const ind = document.getElementById('existing_file_indicator');
-      const lk = document.getElementById('existing_file_link');
-      lk.href = p.lab_report_link;
-      ind.style.display = 'block';
-    }
-
+    // Load independent parcels onto map and state
     if (p.parcels && p.parcels.length > 0) {
       completedParcels.forEach(c => { if (c.layerRef) map.removeLayer(c.layerRef); });
       completedParcels = [];
@@ -639,11 +603,18 @@
         if (Array.isArray(parcel.geojson) && parcel.geojson.length >= 3) {
           const color = parcelColors[idx % parcelColors.length];
           const poly = L.polygon(parcel.geojson, { color: color, weight: 3, fillColor: color, fillOpacity: 0.4 }).addTo(map);
-          poly.bindPopup(`<b>${parcel.parcel_name}</b><br>Area: ${parcel.acres}`).openPopup();
+          poly.bindPopup(`<b>${parcel.parcel_name}</b><br>Crops: ${parcel.crops || 'N/A'}<br>Area: ${parcel.acres}`).openPopup();
 
           completedParcels.push({
             parcel_name: parcel.parcel_name,
             acres: parcel.acres,
+            crops: parcel.crops,
+            horticulture: parcel.horticulture,
+            soc: parcel.soc,
+            soil_ph: parcel.soil_ph,
+            water_source: parcel.water_source,
+            livestock_count: parcel.livestock_count,
+            existing_file_url: parcel.lab_report_link,
             lat: parcel.lat,
             lng: parcel.lng,
             geojson: parcel.geojson,
@@ -696,7 +667,7 @@
 
         const sqMeters = calculateSphericalArea(activePoints);
         currentActiveAcres = (sqMeters / 4046.86).toFixed(2);
-        document.getElementById('active_sketch_acres').value = currentActiveAcres + " Acres";
+        document.getElementById('active_sketch_acres_badge').innerText = "Area: " + currentActiveAcres + " Acres";
       }
     });
   });
@@ -716,39 +687,82 @@
 
   function saveCurrentParcel() {
     if (activePoints.length < 3) {
-      alert(currentLang === 'pa' ? "ਕਿਰਪਾ ਕਰਕੇ ਖੇਤ ਦੇ ਘੱਟੋ-ਘੱਟ 3 ਕੋਨੇ ਮੈਪ 'ਤੇ ਚੁਣੋ।" : 
-            currentLang === 'hi' ? "कृपया खेत के कम से कम 3 कोने मैप पर चुनें।" : 
-            "Please tap at least 3 boundary corners on the map before saving this plot.");
+      alert("Please tap at least 3 boundary corners on the satellite map before saving this plot.");
       return;
     }
 
     const parcelName = document.getElementById('active_parcel_name').value.trim() || `Plot ${completedParcels.length + 1}`;
+    const crops = document.getElementById('plot_crops').value.trim();
+    if (!crops) {
+      alert("Please enter the primary crops cultivated specifically on this plot.");
+      return;
+    }
+
     const centroid = activePolygon.getBounds().getCenter();
     const color = parcelColors[completedParcels.length % parcelColors.length];
 
     const savedPoly = L.polygon(activePoints, { color: color, weight: 3, fillColor: color, fillOpacity: 0.4 }).addTo(map);
-    savedPoly.bindPopup(`<b>${parcelName}</b><br>Area: ${currentActiveAcres} Acres`).openPopup();
+    savedPoly.bindPopup(`<b>${parcelName}</b><br>Crops: ${crops}<br>Area: ${currentActiveAcres} Acres`).openPopup();
 
-    completedParcels.push({
+    const newParcel = {
       parcel_name: parcelName,
       acres: currentActiveAcres + " Acres",
+      crops: crops,
+      horticulture: document.getElementById('plot_horticulture').value.trim(),
+      water_source: document.getElementById('plot_water_source').value,
+      soc: document.getElementById('plot_soc').value.trim(),
+      soil_ph: "Field Recorded",
+      livestock_count: document.getElementById('plot_livestock').value.trim() || "0",
+      existing_file_url: "None Provided",
       lat: centroid.lat.toFixed(5),
       lng: centroid.lng.toFixed(5),
       geojson: activePoints,
       layerRef: savedPoly
-    });
+    };
 
+    // Check for plot-specific lab report upload
+    const fileInput = document.getElementById('plot_lab_file');
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        alert("Plot report exceeds 5MB limit. Please upload a smaller file.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        newParcel.fileData = e.target.result;
+        newParcel.fileName = file.name;
+        newParcel.fileType = file.type;
+        finishAddingParcel(newParcel);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      finishAddingParcel(newParcel);
+    }
+  }
+
+  function finishAddingParcel(newParcel) {
+    completedParcels.push(newParcel);
+
+    // Reset active sketch tools
     activeMarkers.forEach(m => map.removeLayer(m));
     activeMarkers = [];
     if (activePolygon) map.removeLayer(activePolygon);
     activePolygon = null;
     activePoints = [];
     currentActiveAcres = 0;
-    document.getElementById('active_sketch_acres').value = "";
-    
-    document.getElementById('active_parcel_name').value = `Plot ${completedParcels.length + 1}`;
-    if (isDrawing) toggleDrawTool();
+    document.getElementById('active_sketch_acres_badge').innerText = "Area: 0.00 Acres";
 
+    // Reset drawer fields for next parcel
+    document.getElementById('active_parcel_name').value = `Plot ${completedParcels.length + 1}`;
+    document.getElementById('plot_crops').value = "";
+    document.getElementById('plot_horticulture').value = "";
+    document.getElementById('plot_soc').value = "";
+    document.getElementById('plot_livestock').value = "";
+    document.getElementById('plot_lab_file').value = "";
+    document.getElementById('plot_existing_report').style.display = "none";
+
+    if (isDrawing) toggleDrawTool();
     renderParcelTray();
   }
 
@@ -759,7 +773,7 @@
     if (activePolygon) map.removeLayer(activePolygon);
     activePolygon = null;
     currentActiveAcres = 0;
-    document.getElementById('active_sketch_acres').value = "";
+    document.getElementById('active_sketch_acres_badge').innerText = "Area: 0.00 Acres";
   }
 
   function removeSavedParcel(idx) {
@@ -774,7 +788,7 @@
     let total = 0;
 
     if (completedParcels.length === 0) {
-      tray.innerHTML = `<span style="font-size:0.75rem; color:#64748b;">${dict.lbl_no_plots}</span>`;
+      tray.innerHTML = `<span style="font-size:0.75rem; color:#64748b;">No plots saved yet. Sketch a field, fill details, and click "Save This Plot to Holding".</span>`;
       document.getElementById('total-cumulative-acres').innerText = `${dict.lbl_cumulative}: 0.00 Acres`;
       return;
     }
@@ -782,10 +796,15 @@
     tray.innerHTML = completedParcels.map((p, i) => {
       const ac = parseFloat(p.acres) || 0;
       total += ac;
-      return `<span class="parcel-pill">
-        📍 ${p.parcel_name}: <b>${p.acres}</b> 
-        <button type="button" onclick="removeSavedParcel(${i})">✕</button>
-      </span>`;
+      return `
+        <div class="parcel-item-card">
+          <div class="parcel-item-info">
+            <b>📍 ${p.parcel_name}</b> (${p.acres})<br>
+            <span>🌾 Crops: ${p.crops || 'N/A'}</span> &bull; <span>💧 ${p.water_source}</span>
+          </div>
+          <button type="button" class="btn-del-plot" onclick="removeSavedParcel(${i})">✕</button>
+        </div>
+      `;
     }).join('');
 
     document.getElementById('total-cumulative-acres').innerText = `${dict.lbl_cumulative}: ${total.toFixed(2)} Acres`;
@@ -815,14 +834,8 @@
   function handleRegistration(e) {
     e.preventDefault();
 
-    if (activePoints.length >= 3) {
-      saveCurrentParcel();
-    }
-
     if (completedParcels.length === 0) {
-      alert(currentLang === 'pa' ? "ਕਿਰਪਾ ਕਰਕੇ ਘੱਟੋ-ਘੱਟ ਇੱਕ ਖੇਤ ਨਕਸ਼ੇ 'ਤੇ ਮੈਪ ਕਰੋ।" : 
-            currentLang === 'hi' ? "कृपया कम से कम एक खेत नक्शे पर चिह्नित करें।" : 
-            "Please map at least one field plot on the satellite map before submitting.");
+      alert("Please map and save at least one farm plot on the satellite map before submitting.");
       return;
     }
 
@@ -831,95 +844,68 @@
 
     const basePayload = {
       mode: isUpdateMode ? "update" : "create",
-      existing_file_url: cachedExistingFileUrl,
       name: document.getElementById('name').value,
       phone: document.getElementById('phone').value,
       id_number: document.getElementById('id_number').value,
       district: document.getElementById('district').value,
       village: document.getElementById('village').value,
       total_acres: cumulative + " Acres",
-      parcels: completedParcels.map(p => ({
-        parcel_name: p.parcel_name,
-        acres: p.acres,
-        lat: p.lat,
-        lng: p.lng,
-        geojson: p.geojson
-      })),
       legal_preference: document.getElementById('legal_preference').value,
       npop_status: document.getElementById('npop_status').value,
       npop_agency: document.getElementById('npop_agency').value,
       cert_vintage: document.getElementById('cert_vintage').value,
       npop_cert_no: document.getElementById('npop_cert_no').value || "N/A",
-      crops: document.getElementById('crops').value,
-      horticulture: document.getElementById('horticulture').value,
-      soc: document.getElementById('soc_ph').value,
-      soil_ph: "Field Recorded",
-      soil_test_date: new Date().toLocaleDateString(),
-      water_source: document.getElementById('water_source').value,
-      livestock_count: document.getElementById('livestock_count').value || "0",
       machinery_owned: document.getElementById('machinery_owned').value,
       machinery_needed: document.getElementById('machinery_needed').value,
       processing_facilities: document.getElementById('processing_facilities').value || "None",
       workforce: document.getElementById('workforce').value,
-      labour_deficit: document.getElementById('labour_deficit').value
+      labour_deficit: document.getElementById('labour_deficit').value,
+      parcels: completedParcels.map(p => ({
+        parcel_name: p.parcel_name,
+        acres: p.acres,
+        crops: p.crops,
+        horticulture: p.horticulture,
+        water_source: p.water_source,
+        soc: p.soc,
+        soil_ph: p.soil_ph,
+        livestock_count: p.livestock_count,
+        existing_file_url: p.existing_file_url || "None Provided",
+        fileData: p.fileData,
+        fileName: p.fileName,
+        fileType: p.fileType,
+        lat: p.lat,
+        lng: p.lng,
+        geojson: p.geojson
+      }))
     };
 
     if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
-      alert("Plots saved locally! Please update SCRIPT_URL with your active Google Apps Script link.");
+      alert("Please configure your SCRIPT_URL with your active Google Apps Script link.");
       return;
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ Encoding & Transmitting Record...";
+    btn.innerText = "⏳ Transmitting Holding Record...";
 
-    const fileInput = document.getElementById('lab_file');
-    if (fileInput.files.length > 0) {
-      const file = fileInput.files[0];
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size exceeds 5MB limit. Please upload a smaller file or photo.");
-        btn.disabled = false;
-        btn.innerText = isUpdateMode ? translations[currentLang].btn_update_mode : translations[currentLang].btn_submit;
-        return;
-      }
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        basePayload.fileData = event.target.result;
-        basePayload.fileName = file.name;
-        basePayload.fileType = file.type;
-        executePost(basePayload, cumulative, btn);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      executePost(basePayload, cumulative, btn);
-    }
-  }
-
-  function executePost(payload, cumulative, btn) {
     fetch(SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(basePayload)
     }).then(() => {
-      const actionMsg = isUpdateMode 
-        ? (currentLang === 'pa' ? "ਰਿਕਾਰਡ ਸਫ਼ਲਤਾਪੂਰਵਕ ਅੱਪਡੇਟ ਕੀਤਾ ਗਿਆ!" : currentLang === 'hi' ? "रिकॉर्ड सफलतापूर्वक अपडेट किया गया!" : "Profile updated successfully!")
-        : (currentLang === 'pa' ? "ਨਵੀਂ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਸਫ਼ਲ!" : currentLang === 'hi' ? "नया पंजीकरण सफल!" : "Registration Successful!");
-
-      alert(`✅ ${actionMsg} (${completedParcels.length} plot(s), ${cumulative} Acres).`);
+      const actionMsg = isUpdateMode ? "Profile updated successfully!" : "Registration Successful!";
+      alert(`✅ ${actionMsg} Logged ${completedParcels.length} plot(s) totaling ${cumulative} Acres.`);
       btn.disabled = false;
       btn.innerText = isUpdateMode ? translations[currentLang].btn_update_mode : translations[currentLang].btn_submit;
 
-      const headerTitle = currentLang === 'pa' ? "*🌾 ਸ਼ਿਵਾਲਿਕ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ*" : 
-                          currentLang === 'hi' ? "*🌾 शिवालिक किसान साझ केंद्र*" : 
-                          "*🌾 SHIVALIK PRODUCERS COLLABORATIVE*";
+      const headerTitle = "*🌾 SHIVALIK PRODUCERS COLLABORATIVE*";
       const summary = `${headerTitle}\n` +
                       `• Mode: ${isUpdateMode ? 'Profile Update' : 'New Registration'}\n` +
-                      `• Member: ${payload.name}\n` +
-                      `• Certified Agency: ${payload.npop_agency} (Since ${payload.cert_vintage})\n` +
+                      `• Member: ${basePayload.name}\n` +
                       `• Plots Mapped: ${completedParcels.length}\n` +
                       `• Total Holding: ${cumulative} Acres\n` +
-                      `• Locality: ${payload.village} (${payload.district})\n` +
-                      `• Focus: ${payload.legal_preference}`;
+                      `• Locality: ${basePayload.village} (${basePayload.district})\n` +
+                      `• Focus: ${basePayload.legal_preference}`;
       window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, '_blank');
     }).catch(err => {
       alert("Transmission Error: " + err);
