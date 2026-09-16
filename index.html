@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Shivalik Foothills Farm Registry & GIS Hub</title>
+<title>Shivalik Foothills Farm Registry & Multi-Plot GIS Hub</title>
 
-<!-- Leaflet GIS Engine (CSS & JS) -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<!-- Leaflet GIS Engine -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <style>
   :root {
@@ -21,49 +21,46 @@
   }
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { background: var(--bg); color: var(--text); padding: 12px; line-height: 1.4; }
-  .shell { max-width: 800px; margin: 0 auto; padding-bottom: 70px; }
+  .shell { max-width: 820px; margin: 0 auto; padding-bottom: 70px; }
   header { background: var(--brand); color: #fff; padding: 20px; border-radius: 12px; margin-bottom: 16px; text-align: center; }
   header h1 { font-size: 1.25rem; margin-bottom: 4px; }
   header p { font-size: 0.85rem; color: #b7e4c7; }
+  
   .section-card { background: var(--card); border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
   .section-card h2 { font-size: 1rem; color: var(--brand); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-bottom: 14px; }
+  
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 600px) { .form-grid { grid-template-columns: 1fr; } }
   .form-field { margin-bottom: 12px; }
   .form-field.full { grid-column: span 2; }
   @media (max-width: 600px) { .form-field.full { grid-column: span 1; } }
+  
   label { display: block; font-size: 0.8rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
   input, select, textarea { width: 100%; padding: 9px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.88rem; background: #fff; }
-  input:focus, select:focus, textarea:focus { border-color: var(--accent); outline: none; }
-  
-  /* Robust map container styling */
-  #map { 
-    height: 380px !important; 
-    min-height: 380px; 
-    width: 100%; 
-    border-radius: 8px; 
-    border: 2px solid #2d6a4f; 
-    margin: 10px 0; 
-    position: relative; 
-    z-index: 1;
-    background: #e2e8f0;
-  }
+
+  /* GIS Map & Parcel Drawer */
+  #map { height: 380px; width: 100%; border-radius: 8px; border: 2px solid var(--accent); margin: 8px 0; background: #e2e8f0; }
   .map-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
-  .btn-map { padding: 8px 14px; font-size: 0.82rem; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; transition: all 0.2s; }
+  .btn-map { padding: 8px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; }
   .btn-map.active { background: #d90429; border-color: #d90429; color: #fff; }
-  .btn-map:hover { opacity: 0.9; }
+  .btn-parcel-add { background: #059669; border-color: #059669; color: #fff; }
+  
+  /* Parcel Inventory List */
+  .parcel-tray { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 10px; }
+  .parcel-tray h3 { font-size: 0.85rem; color: var(--brand); margin-bottom: 6px; display: flex; justify-content: space-between; }
+  .parcel-pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #cbd5e0; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; margin: 3px 4px 3px 0; font-weight: 600; }
+  .parcel-pill button { background: none; border: none; color: #d90429; font-weight: 800; cursor: pointer; }
 
   .submit-bar { position: sticky; bottom: 10px; z-index: 1000; }
   .btn-submit { width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
-  .btn-submit:hover { background: var(--brand); }
 </style>
 </head>
 <body>
 
 <div class="shell">
   <header>
-    <h1>🌱 Shivalik Foothills Farm Registry & GIS Hub</h1>
-    <p>Collective Agro-Intelligence: Geospatial, Soil, Machinery & Governance</p>
+    <h1>🌱 Shivalik Foothills Farm Registry & Multi-Plot GIS Hub</h1>
+    <p>Collective Agro-Intelligence: Multi-Parcel Boundary, Soil, Machinery & Governance</p>
   </header>
 
   <form id="registryForm" onsubmit="handleRegistration(event)">
@@ -85,49 +82,58 @@
           <input type="text" id="id_number" placeholder="Optional">
         </div>
         <div class="form-field">
-          <label>District *</label>
+          <label>Home District *</label>
           <select id="district" required>
             <option value="Rupnagar (Ropar)">Rupnagar (Ropar)</option>
             <option value="SAS Nagar (Mohali)">SAS Nagar (Mohali)</option>
             <option value="Hoshiarpur">Hoshiarpur</option>
             <option value="Pathankot">Pathankot</option>
-            <option value="Gurdaspur">Gurdaspur</option>
             <option value="SBS Nagar (Nawanshahr)">SBS Nagar (Nawanshahr)</option>
             <option value="Panchkula (HR)">Panchkula (HR)</option>
-            <option value="Ambala / Yamunanagar (HR)">Ambala / Yamunanagar (HR)</option>
-            <option value="Chandigarh">Chandigarh</option>
           </select>
         </div>
         <div class="form-field full">
-          <label>Village, Tehsil & Postal Address *</label>
-          <input type="text" id="village" required placeholder="Village, Landmark, Post Office">
+          <label>Permanent Residential Address / Village *</label>
+          <input type="text" id="village" required placeholder="Village, Tehsil, Landmark">
         </div>
       </div>
     </div>
 
-    <!-- 2. SATELLITE GIS BOUNDARY -->
+    <!-- 2. MULTI-PARCEL SATELLITE GIS MAPPING -->
     <div class="section-card">
-      <h2>🛰️ 2. Satellite Land Boundary (GIS)</h2>
+      <h2>🛰️ 2. Multi-Parcel Satellite Land Mapping (GIS)</h2>
       <p style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
-        Use <b>"Find My Field"</b> to zoom to your GPS location, or zoom into your farm manually. Tap <b>"Draw Field Boundary"</b> and click each corner of your field on the satellite picture.
+        Have separate plots in different spots? Draw the first field, tap <b>"Save & Add Another Plot"</b>, pan to your second field, and draw it.
       </p>
+
       <div class="map-actions">
-        <button type="button" class="btn-map" onclick="locateGPS()">📍 Find My Field (GPS)</button>
-        <button type="button" class="btn-map" id="btnDraw" onclick="toggleDrawTool()">✏️ Tap Corners to Draw Boundary</button>
-        <button type="button" class="btn-map" onclick="resetMap()">🗑️ Clear Boundary</button>
+        <button type="button" class="btn-map" onclick="locateGPS()">📍 Find Current GPS Location</button>
+        <button type="button" class="btn-map" id="btnDraw" onclick="toggleDrawTool()">✏️ Tap Corners to Draw Field</button>
+        <button type="button" class="btn-map btn-parcel-add" onclick="saveCurrentParcel()">➕ Save & Add Another Plot</button>
+        <button type="button" class="btn-map" onclick="clearActiveDrawing()">🗑️ Clear Active Sketch</button>
       </div>
-      
-      <!-- Leaflet Map Container -->
+
       <div id="map"></div>
 
-      <div class="form-grid">
+      <!-- Live Parcel Inventory Table -->
+      <div class="parcel-tray">
+        <h3>
+          <span>Mapped Parcels Inventory</span>
+          <span id="total-cumulative-acres" style="color:var(--brand);">Cumulative: 0.00 Acres</span>
+        </h3>
+        <div id="parcel-pills-list">
+          <span style="font-size:0.75rem; color:#64748b;">No parcel saved yet. Tap field corners and click "Save & Add Another Plot".</span>
+        </div>
+      </div>
+
+      <div class="form-grid" style="margin-top:10px;">
         <div class="form-field">
-          <label>Mapped Area (Auto-Calculated)</label>
-          <input type="text" id="acres" readonly placeholder="0.00 Acres" style="background:#edf2f7; font-weight:700; color:var(--brand);">
+          <label>Active Parcel Name/Tag</label>
+          <input type="text" id="active_parcel_name" placeholder="e.g. Home Plot / Khairabad Hill Plot" value="Parcel 1 (Main)">
         </div>
         <div class="form-field">
-          <label>Center GPS Coordinates</label>
-          <input type="text" id="coords" readonly placeholder="Lat, Lng" style="background:#edf2f7;">
+          <label>Active Sketch Area</label>
+          <input type="text" id="active_sketch_acres" readonly placeholder="0.00 Acres" style="background:#edf2f7; font-weight:700;">
         </div>
       </div>
     </div>
@@ -139,25 +145,25 @@
         <div class="form-field full" style="background:#f1f5f9; padding:10px; border-radius:6px; border:1px dashed #94a3b8;">
           <label>Preferred Legal Model & Role *</label>
           <select id="legal_preference" required>
-            <option value="FPC - Equity Contributor">FPC (Farmer Producer Company) - Ready to contribute founding share capital</option>
-            <option value="FPC - Active Supplier">FPC (Farmer Producer Company) - Prefer participating as a supplier/member</option>
-            <option value="Society - Founding Member">Farmer Cooperative Society - Prefer cooperative model with share capital</option>
-            <option value="Society - User Member">Farmer Cooperative Society - Will use CHC and provide produce</option>
-            <option value="Undecided / Either">Neutral - Comfortable with whatever the majority decides</option>
+            <option value="Society - User Member">Farmer Cooperative Society - User Member (CHC + Supply)</option>
+            <option value="Society - Founding Member">Farmer Cooperative Society - Founding Shareholder</option>
+            <option value="FPC - Equity Contributor">FPC (Farmer Producer Company) - Founding Equity Contributor</option>
+            <option value="FPC - Active Supplier">FPC (Farmer Producer Company) - Active Supply Member</option>
+            <option value="Undecided / Either">Neutral - Support majority decision</option>
           </select>
         </div>
         <div class="form-field">
           <label>Organic / NPOP Certification Status</label>
           <select id="npop_status">
-            <option value="Certified NPOP">Certified Organic (NPOP Standard)</option>
+            <option value="Certified NPOP">Certified Organic (NPOP Export Standard)</option>
             <option value="In-Conversion C1/C2/C3">In-Conversion (C1 / C2 / C3)</option>
             <option value="PGS-India Certified">PGS-India Certified</option>
-            <option value="Chemical-Free Uncertified" selected>Chemical-Free / Desi (Uncertified)</option>
+            <option value="Chemical-Free Uncertified">Chemical-Free / Desi (Uncertified)</option>
           </select>
         </div>
         <div class="form-field">
-          <label>Cert Agency & Scope Reg No. (if any)</label>
-          <input type="text" id="npop_agency" placeholder="e.g. OneCert / None">
+          <label>Certification Agency / Scope Reg No.</label>
+          <input type="text" id="npop_agency" placeholder="e.g. SGS India / OneCert">
         </div>
       </div>
     </div>
@@ -167,129 +173,98 @@
       <h2>🌾 4. Crops, Soil Health & Water Security</h2>
       <div class="form-grid">
         <div class="form-field full">
-          <label>Primary Crops & Acreage</label>
-          <input type="text" id="crops" placeholder="e.g. Khapli Wheat (2 Ac), Turmeric (1 Ac), Pulses">
+          <label>Primary Crops Across All Parcels</label>
+          <input type="text" id="crops" placeholder="e.g. Sugarcane, Khapli Wheat, Basmati Rice, Turmeric">
         </div>
         <div class="form-field full">
-          <label>Horticulture / Orchards / Bamboo / Trees</label>
-          <input type="text" id="horticulture" placeholder="e.g. Kinnow (40 trees), Mango, Amla, Bamboo">
+          <label>Horticulture / Orchards / Multipurpose Trees</label>
+          <input type="text" id="horticulture" placeholder="e.g. 150 Mixed Fruit Trees, Mini-Forest (700 Native Plants)">
         </div>
         <div class="form-field">
           <label>Soil Organic Carbon (SOC %) & pH</label>
-          <input type="text" id="soc_ph" placeholder="e.g. SOC 0.55%, pH 7.2">
+          <input type="text" id="soc_ph" placeholder="e.g. SOC 0.60%, pH 7.8">
         </div>
         <div class="form-field">
           <label>Primary Irrigation System</label>
           <select id="water_source">
+            <option value="Deep Tubewell + Drip">Deep Tubewell + Drip Network</option>
             <option value="Elevated Diggi + Gravity Drip">Elevated Diggi (Farm Pond) + Gravity Drip</option>
-            <option value="Deep Tubewell + Drip">Deep Tubewell + Precision Drip</option>
             <option value="Deep Tubewell + Flood">Deep Tubewell + Flood</option>
-            <option value="Rainfed Only">Rainfed Only (Vulnerable to dry spells)</option>
+            <option value="Rainfed Only">Entirely Rainfed / Choes dependent</option>
           </select>
-        </div>
-        <div class="form-field full">
-          <label>Uphill Diggi Storage Capacity</label>
-          <input type="text" id="diggi_capacity" placeholder="e.g. 50,000 Litres (or 0 if none)">
         </div>
       </div>
     </div>
 
-    <!-- 5. CHC MACHINERY, WORKFORCE & LOGISTICS -->
+    <!-- 5. CHC MACHINERY & MARKET ROUTE -->
     <div class="section-card">
-      <h2>🚜 5. Custom Hiring (CHC) & Market Linkage</h2>
+      <h2>🚜 5. Custom Hiring (CHC) & Market Offtake</h2>
       <div class="form-grid">
         <div class="form-field full">
           <label>Machinery You Own & Can Share in FPC CHC</label>
-          <input type="text" id="machinery_owned" placeholder="e.g. 45HP Tractor, Rotary Weeder, Bed Former">
+          <input type="text" id="machinery_owned" placeholder="e.g. BCS 8HP Weeder, Shredder, Compost Screener">
         </div>
         <div class="form-field full">
-          <label>Machinery You Wish to Rent from CHC</label>
-          <input type="text" id="machinery_needed" placeholder="e.g. Terrace trencher, turmeric boiler/polisher">
+          <label>Machinery Needed from CHC</label>
+          <input type="text" id="machinery_needed" placeholder="e.g. 50HP Tractor, Bed Maker">
         </div>
         <div class="form-field">
-          <label>Total Farm Workers / Labour</label>
-          <input type="number" id="workforce" placeholder="e.g. 2">
+          <label>Total Workforce (Family + Permanent)</label>
+          <input type="number" id="workforce" placeholder="e.g. 4">
         </div>
         <div class="form-field">
           <label>Peak Labour Deficit Months</label>
-          <input type="text" id="labour_deficit" placeholder="e.g. April, October">
-        </div>
-        <div class="form-field full">
-          <label>Current Produce Offtake Channel</label>
-          <select id="market_route">
-            <option value="Committed to Collective (Tricity FPC)">Committed to Collective FPC (Tricity Direct Retail)</option>
-            <option value="Independent Farmgate">Own Farmgate / Private Consumer Base</option>
-            <option value="Wholesale Mandi">Wholesale Spot Mandi (Local Commission Agent)</option>
-          </select>
-        </div>
-        <div class="form-field full">
-          <label>Value Addition Done / Govt Schemes Availed</label>
-          <input type="text" id="govt_schemes" placeholder="e.g. Gur processing; Availed PM-KUSUM solar pump">
+          <input type="text" id="labour_deficit" placeholder="e.g. April, October, November">
         </div>
       </div>
     </div>
 
     <div class="submit-bar">
-      <button type="submit" class="btn-submit" id="submitBtn">💾 Submit Profile to Shared FPC Registry</button>
+      <button type="submit" class="btn-submit" id="submitBtn">💾 Submit Complete Holding to Master FPC Registry</button>
     </div>
 
   </form>
 </div>
 
 <script>
-  // ⚠️ SCRIPT URL: Replace with your Google Apps Script URL when ready.
+  // ⚠️ SCRIPT URL: Replace with your deployed Google Apps Script /exec URL
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
-  let map, boundaryPolygon;
-  let boundaryPoints = [];
-  let pointMarkers = [];
+  let map;
+  let activePoints = [];
+  let activeMarkers = [];
+  let activePolygon = null;
   let isDrawing = false;
-  let calculatedAcres = "0.00";
+  let currentActiveAcres = 0;
 
-  // Safe initialization after DOM elements load completely
+  // Master array holding all parcels drawn by this farmer
+  let completedParcels = [];
+  const parcelColors = ['#00ff88', '#f59e0b', '#06b6d4', '#ec4899', '#8b5cf6'];
+
   window.addEventListener('DOMContentLoaded', function() {
-    // Center at Rupnagar / Kandi belt coordinates: [30.97, 76.53]
-    map = L.map('map', {
-      center: [30.9753, 76.5273],
-      zoom: 12,
-      zoomControl: true
-    });
+    map = L.map('map', { center: [30.9503, 76.5055], zoom: 13, zoomControl: true });
 
-    // High-Resolution Esri World Imagery (Satellite)
-    const satLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Esri World Imagery &copy; Shivalik GIS Hub',
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+      attribution: 'Esri Satellite &copy; Shivalik GIS',
       maxZoom: 19
     }).addTo(map);
 
-    // Add OpenStreetMap layer toggle as a quick fallback
-    const osmLayer = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    });
-
-    L.control.layers({
-      "🛰️ High-Res Satellite": satLayer,
-      "🗺️ Street Map": osmLayer
-    }, null, { position: 'topright' }).addTo(map);
-
-    // Invalidate size ensures tiles re-render if loaded in flex/container
     setTimeout(() => { map.invalidateSize(); }, 500);
 
-    // Map click handler for drawing boundary
     map.on('click', function(e) {
       if (!isDrawing) return;
-      boundaryPoints.push(e.latlng);
+      activePoints.push(e.latlng);
 
-      const m = L.circleMarker(e.latlng, { radius: 6, color: '#ffff00', fillColor: '#ff0000', fillOpacity: 0.9 }).addTo(map);
-      pointMarkers.push(m);
+      const m = L.circleMarker(e.latlng, { radius: 5, color: '#ffff00', fillColor: '#ff0000', fillOpacity: 0.9 }).addTo(map);
+      activeMarkers.push(m);
 
-      if (boundaryPoints.length >= 3) {
-        if (boundaryPolygon) map.removeLayer(boundaryPolygon);
-        boundaryPolygon = L.polygon(boundaryPoints, { color: '#00ff88', weight: 3, fillColor: '#00ff88', fillOpacity: 0.4 }).addTo(map);
+      if (activePoints.length >= 3) {
+        if (activePolygon) map.removeLayer(activePolygon);
+        activePolygon = L.polygon(activePoints, { color: '#ffff00', weight: 2.5, fillColor: '#ffff00', fillOpacity: 0.35 }).addTo(map);
 
-        const sqMeters = calculateSphericalArea(boundaryPoints);
-        calculatedAcres = (sqMeters / 4046.86).toFixed(2);
-        document.getElementById('acres').value = calculatedAcres + " Acres";
-        document.getElementById('coords').value = e.latlng.lat.toFixed(5) + ", " + e.latlng.lng.toFixed(5);
+        const sqMeters = calculateSphericalArea(activePoints);
+        currentActiveAcres = (sqMeters / 4046.86).toFixed(2);
+        document.getElementById('active_sketch_acres').value = currentActiveAcres + " Acres";
       }
     });
   });
@@ -299,11 +274,88 @@
     const btn = document.getElementById('btnDraw');
     if (isDrawing) {
       btn.classList.add('active');
-      btn.innerText = "🛑 Finish Drawing Boundary";
+      btn.innerText = "🛑 Finish Active Sketch";
     } else {
       btn.classList.remove('active');
       btn.innerText = "✏️ Tap Corners to Draw Field";
     }
+  }
+
+  function saveCurrentParcel() {
+    if (activePoints.length < 3) {
+      alert("Please tap at least 3 boundary corners on the map before saving this parcel.");
+      return;
+    }
+
+    const parcelName = document.getElementById('active_parcel_name').value.trim() || `Parcel ${completedParcels.length + 1}`;
+    const centroid = activePolygon.getBounds().getCenter();
+    const color = parcelColors[completedParcels.length % parcelColors.length];
+
+    // Freeze current polygon in its permanent parcel color
+    const savedPoly = L.polygon(activePoints, { color: color, weight: 3, fillColor: color, fillOpacity: 0.4 }).addTo(map);
+    savedPoly.bindPopup(`<b>${parcelName}</b><br>Area: ${currentActiveAcres} Acres`).openPopup();
+
+    completedParcels.push({
+      parcel_name: parcelName,
+      acres: currentActiveAcres + " Acres",
+      lat: centroid.lat.toFixed(5),
+      lng: centroid.lng.toFixed(5),
+      geojson: activePoints,
+      layerRef: savedPoly
+    });
+
+    // Reset temporary drawing canvas
+    activeMarkers.forEach(m => map.removeLayer(m));
+    activeMarkers = [];
+    if (activePolygon) map.removeLayer(activePolygon);
+    activePolygon = null;
+    activePoints = [];
+    currentActiveAcres = 0;
+    document.getElementById('active_sketch_acres').value = "";
+    
+    // Increment default name for the next parcel
+    document.getElementById('active_parcel_name').value = `Parcel ${completedParcels.length + 1}`;
+    if (isDrawing) toggleDrawTool();
+
+    renderParcelTray();
+  }
+
+  function clearActiveDrawing() {
+    activePoints = [];
+    activeMarkers.forEach(m => map.removeLayer(m));
+    activeMarkers = [];
+    if (activePolygon) map.removeLayer(activePolygon);
+    activePolygon = null;
+    currentActiveAcres = 0;
+    document.getElementById('active_sketch_acres').value = "";
+  }
+
+  function removeSavedParcel(idx) {
+    map.removeLayer(completedParcels[idx].layerRef);
+    completedParcels.splice(idx, 1);
+    renderParcelTray();
+  }
+
+  function renderParcelTray() {
+    const tray = document.getElementById('parcel-pills-list');
+    let total = 0;
+
+    if (completedParcels.length === 0) {
+      tray.innerHTML = `<span style="font-size:0.75rem; color:#64748b;">No parcel saved yet. Tap field corners and click "Save & Add Another Plot".</span>`;
+      document.getElementById('total-cumulative-acres').innerText = `Cumulative: 0.00 Acres`;
+      return;
+    }
+
+    tray.innerHTML = completedParcels.map((p, i) => {
+      const ac = parseFloat(p.acres) || 0;
+      total += ac;
+      return `<span class="parcel-pill">
+        📍 ${p.parcel_name}: <b>${p.acres}</b> 
+        <button type="button" onclick="removeSavedParcel(${i})">✕</button>
+      </span>`;
+    }).join('');
+
+    document.getElementById('total-cumulative-acres').innerText = `Cumulative: ${total.toFixed(2)} Acres`;
   }
 
   function calculateSphericalArea(coords) {
@@ -318,35 +370,30 @@
   }
 
   function locateGPS() {
-    if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
-      return;
-    }
+    if (!navigator.geolocation) return alert("Geolocation not supported.");
     navigator.geolocation.getCurrentPosition(pos => {
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
       map.setView([lat, lng], 17);
-      map.invalidateSize();
-      L.marker([lat, lng]).addTo(map).bindPopup("<b>Your Field Location</b>").openPopup();
-      document.getElementById('coords').value = lat.toFixed(5) + ", " + lng.toFixed(5);
-    }, (err) => {
-      alert("Could not access GPS. Please ensure Location/GPS permission is enabled in your browser settings.");
-    }, { enableHighAccuracy: true });
-  }
-
-  function resetMap() {
-    boundaryPoints = [];
-    pointMarkers.forEach(m => map.removeLayer(m));
-    pointMarkers = [];
-    if (boundaryPolygon) map.removeLayer(boundaryPolygon);
-    boundaryPolygon = null;
-    document.getElementById('acres').value = "";
-    document.getElementById('coords').value = "";
+      L.marker([lat, lng]).addTo(map).bindPopup("Current Position").openPopup();
+    }, () => alert("Enable GPS permission."), { enableHighAccuracy: true });
   }
 
   function handleRegistration(e) {
     e.preventDefault();
+
+    // Auto-save any in-progress unsaved polygon
+    if (activePoints.length >= 3) {
+      saveCurrentParcel();
+    }
+
+    if (completedParcels.length === 0) {
+      alert("Please map at least one farm parcel on the satellite map before submitting.");
+      return;
+    }
+
     const btn = document.getElementById('submitBtn');
+    let cumulative = completedParcels.reduce((sum, p) => sum + (parseFloat(p.acres) || 0), 0).toFixed(2);
 
     const payload = {
       name: document.getElementById('name').value,
@@ -354,10 +401,14 @@
       id_number: document.getElementById('id_number').value,
       district: document.getElementById('district').value,
       village: document.getElementById('village').value,
-      acres: document.getElementById('acres').value || "Not mapped",
-      lat: (document.getElementById('coords').value.split(',')[0] || "").trim(),
-      lng: (document.getElementById('coords').value.split(',')[1] || "").trim(),
-      geojson: boundaryPoints,
+      total_acres: cumulative + " Acres",
+      parcels: completedParcels.map(p => ({
+        parcel_name: p.parcel_name,
+        acres: p.acres,
+        lat: p.lat,
+        lng: p.lng,
+        geojson: p.geojson
+      })),
       legal_preference: document.getElementById('legal_preference').value,
       npop_status: document.getElementById('npop_status').value,
       npop_agency: document.getElementById('npop_agency').value,
@@ -368,26 +419,23 @@
       soil_ph: "Captured in field",
       soil_test_date: new Date().toLocaleDateString(),
       water_source: document.getElementById('water_source').value,
-      diggi_capacity: document.getElementById('diggi_capacity').value,
-      water_tds: "N/A",
+      diggi_capacity: "N/A",
       machinery_owned: document.getElementById('machinery_owned').value,
       machinery_needed: document.getElementById('machinery_needed').value,
       workforce: document.getElementById('workforce').value,
       labour_deficit: document.getElementById('labour_deficit').value,
-      market_route: document.getElementById('market_route').value,
-      value_addition: document.getElementById('govt_schemes').value,
-      govt_schemes: document.getElementById('govt_schemes').value
+      market_route: "Committed to Collective (Tricity FPC)",
+      value_addition: "Captured",
+      govt_schemes: "N/A"
     };
 
-    // If script URL is still the placeholder, provide immediate user feedback
     if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
-      alert("Form works! (Please link your Google Apps Script URL in index.html to save rows into Google Sheets directly).");
-      openWhatsAppConfirmation(payload);
+      alert("Parcels captured locally! Please update SCRIPT_URL with your active Google Apps Script link.");
       return;
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ Saving into Master Sheet...";
+    btn.innerText = `⏳ Transmitting ${completedParcels.length} Parcels to Database...`;
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -395,25 +443,20 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     }).then(() => {
-      alert("✅ Registration Successful! Logged into the Master Database.");
+      alert(`✅ Registration Successful! Logged ${completedParcels.length} parcel(s) totaling ${cumulative} Acres.`);
       btn.disabled = false;
-      btn.innerText = "💾 Submit Profile to Shared FPC Registry";
-      openWhatsAppConfirmation(payload);
-    }).catch(err => {
-      alert("Error: " + err);
-      btn.disabled = false;
-      btn.innerText = "💾 Submit Profile to Shared FPC Registry";
-    });
-  }
+      btn.innerText = "💾 Submit Complete Holding to Master FPC Registry";
 
-  function openWhatsAppConfirmation(payload) {
-    const summary = `*🌾 SHIVALIK FARM REGISTRATION COMPLETED*\n` +
-                    `• Name: ${payload.name}\n` +
-                    `• Village: ${payload.village} (${payload.district})\n` +
-                    `• Mapped Area: ${payload.acres}\n` +
-                    `• Legal Vehicle Preference: ${payload.legal_preference}\n` +
-                    `• Shared CHC Implements: ${payload.machinery_owned || 'None'}`;
-    window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, '_blank');
+      const summary = `*🌾 SHIVALIK MULTI-PARCEL REGISTRATION*\n` +
+                      `• Farmer: ${payload.name}\n` +
+                      `• Total Parcels: ${completedParcels.length}\n` +
+                      `• Total Holding: ${cumulative} Acres\n` +
+                      `• Village: ${payload.village}`;
+      window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, '_blank');
+    }).catch(err => {
+      alert("Transmission Error: " + err);
+      btn.disabled = false;
+    });
   }
 </script>
 
