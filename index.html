@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Shivalik Foothills Farm Registry & Multi-Plot GIS Hub</title>
+<title>Shivalik Foothills Producers Collaborative Hub</title>
 
 <!-- Leaflet GIS Engine -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -38,14 +38,12 @@
   label { display: block; font-size: 0.8rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
   input, select, textarea { width: 100%; padding: 9px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.88rem; background: #fff; }
 
-  /* GIS Map & Parcel Drawer */
   #map { height: 380px; width: 100%; border-radius: 8px; border: 2px solid var(--accent); margin: 8px 0; background: #e2e8f0; }
   .map-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
   .btn-map { padding: 8px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; }
   .btn-map.active { background: #d90429; border-color: #d90429; color: #fff; }
   .btn-parcel-add { background: #059669; border-color: #059669; color: #fff; }
   
-  /* Parcel Inventory List */
   .parcel-tray { background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px; margin-top: 10px; }
   .parcel-tray h3 { font-size: 0.85rem; color: var(--brand); margin-bottom: 6px; display: flex; justify-content: space-between; }
   .parcel-pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #cbd5e0; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; margin: 3px 4px 3px 0; font-weight: 600; }
@@ -59,30 +57,30 @@
 
 <div class="shell">
   <header>
-    <h1>🌱 Shivalik Foothills Farm Registry & Multi-Plot GIS Hub</h1>
-    <p>Collective Agro-Intelligence: Multi-Parcel Boundary, Soil, Machinery & Governance</p>
+    <h1>🌱 Shivalik Foothills Producers Collaborative Hub</h1>
+    <p>Peer Resource Sharing, Multi-Plot Satellite Mapping & Joint Market Access</p>
   </header>
 
   <form id="registryForm" onsubmit="handleRegistration(event)">
 
-    <!-- 1. IDENTITY & GEOGRAPHY -->
+    <!-- 1. IDENTITY & REGION -->
     <div class="section-card">
-      <h2>👤 1. Farmer Identity & Geography</h2>
+      <h2>👤 1. Member Identity & Locality</h2>
       <div class="form-grid">
         <div class="form-field">
-          <label>Farmer Name *</label>
+          <label>Member / Farmer Name *</label>
           <input type="text" id="name" required placeholder="Full Name">
         </div>
         <div class="form-field">
-          <label>WhatsApp Mobile Number *</label>
-          <input type="tel" id="phone" required placeholder="10-digit mobile">
+          <label>WhatsApp Contact Number *</label>
+          <input type="tel" id="phone" required placeholder="10-digit mobile number">
         </div>
         <div class="form-field">
-          <label>Aadhaar / Farmer ID No.</label>
-          <input type="text" id="id_number" placeholder="Optional">
+          <label>Member Reference ID (Optional)</label>
+          <input type="text" id="id_number" placeholder="Optional identifier">
         </div>
         <div class="form-field">
-          <label>Home District *</label>
+          <label>Region / District *</label>
           <select id="district" required>
             <option value="Rupnagar (Ropar)">Rupnagar (Ropar)</option>
             <option value="SAS Nagar (Mohali)">SAS Nagar (Mohali)</option>
@@ -90,24 +88,26 @@
             <option value="Pathankot">Pathankot</option>
             <option value="SBS Nagar (Nawanshahr)">SBS Nagar (Nawanshahr)</option>
             <option value="Panchkula (HR)">Panchkula (HR)</option>
+            <option value="Ambala / Yamunanagar (HR)">Ambala / Yamunanagar (HR)</option>
+            <option value="Chandigarh">Chandigarh</option>
           </select>
         </div>
         <div class="form-field full">
-          <label>Permanent Residential Address / Village *</label>
-          <input type="text" id="village" required placeholder="Village, Tehsil, Landmark">
+          <label>Village, Tehsil & Postal Address *</label>
+          <input type="text" id="village" required placeholder="Village, Landmark, Post Office">
         </div>
       </div>
     </div>
 
-    <!-- 2. MULTI-PARCEL SATELLITE GIS MAPPING -->
+    <!-- 2. SATELLITE GIS MAPPING -->
     <div class="section-card">
-      <h2>🛰️ 2. Multi-Parcel Satellite Land Mapping (GIS)</h2>
+      <h2>🛰️ 2. Multi-Plot Satellite Land Mapping</h2>
       <p style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
-        Have separate plots in different spots? Draw the first field, tap <b>"Save & Add Another Plot"</b>, pan to your second field, and draw it.
+        Draw your first plot, tap <b>"Save & Add Another Plot"</b>, pan to any disconnected plots, and draw them to log your entire holding.
       </p>
 
       <div class="map-actions">
-        <button type="button" class="btn-map" onclick="locateGPS()">📍 Find Current GPS Location</button>
+        <button type="button" class="btn-map" onclick="locateGPS()">📍 Find GPS Location</button>
         <button type="button" class="btn-map" id="btnDraw" onclick="toggleDrawTool()">✏️ Tap Corners to Draw Field</button>
         <button type="button" class="btn-map btn-parcel-add" onclick="saveCurrentParcel()">➕ Save & Add Another Plot</button>
         <button type="button" class="btn-map" onclick="clearActiveDrawing()">🗑️ Clear Active Sketch</button>
@@ -115,21 +115,20 @@
 
       <div id="map"></div>
 
-      <!-- Live Parcel Inventory Table -->
       <div class="parcel-tray">
         <h3>
-          <span>Mapped Parcels Inventory</span>
+          <span>Mapped Plots Inventory</span>
           <span id="total-cumulative-acres" style="color:var(--brand);">Cumulative: 0.00 Acres</span>
         </h3>
         <div id="parcel-pills-list">
-          <span style="font-size:0.75rem; color:#64748b;">No parcel saved yet. Tap field corners and click "Save & Add Another Plot".</span>
+          <span style="font-size:0.75rem; color:#64748b;">No plot saved yet. Tap field corners and click "Save & Add Another Plot".</span>
         </div>
       </div>
 
       <div class="form-grid" style="margin-top:10px;">
         <div class="form-field">
-          <label>Active Parcel Name/Tag</label>
-          <input type="text" id="active_parcel_name" placeholder="e.g. Home Plot / Khairabad Hill Plot" value="Parcel 1 (Main)">
+          <label>Active Plot Tag / Name</label>
+          <input type="text" id="active_parcel_name" placeholder="e.g. Home Plot / Riverbed Plot" value="Plot 1 (Main)">
         </div>
         <div class="form-field">
           <label>Active Sketch Area</label>
@@ -138,51 +137,50 @@
       </div>
     </div>
 
-    <!-- 3. GOVERNANCE PREFERENCE & CERTIFICATION -->
+    <!-- 3. COLLABORATION FOCUS & VERIFICATION -->
     <div class="section-card">
-      <h2>🏛️ 3. Collective Vehicle Preference & Certification</h2>
+      <h2>🤝 3. Collaboration Focus & Production Practice</h2>
       <div class="form-grid">
         <div class="form-field full" style="background:#f1f5f9; padding:10px; border-radius:6px; border:1px dashed #94a3b8;">
-          <label>Preferred Legal Model & Role *</label>
+          <label>Primary Collaboration Interest *</label>
           <select id="legal_preference" required>
-            <option value="Society - User Member">Farmer Cooperative Society - User Member (CHC + Supply)</option>
-            <option value="Society - Founding Member">Farmer Cooperative Society - Founding Shareholder</option>
-            <option value="FPC - Equity Contributor">FPC (Farmer Producer Company) - Founding Equity Contributor</option>
-            <option value="FPC - Active Supplier">FPC (Farmer Producer Company) - Active Supply Member</option>
-            <option value="Undecided / Either">Neutral - Support majority decision</option>
+            <option value="Joint Marketing & Scale">Joint Marketing, Aggregation & Direct Consumer Supply</option>
+            <option value="Machinery & Tool Pooling">Shared Machinery, Tool Pool & Equipment Exchange</option>
+            <option value="Bio-Inputs & Seed Exchange">Bio-Inputs Sharing, Seed Preservation & Vermicompost</option>
+            <option value="Comprehensive Partner">Comprehensive Working Partner (Production + Machinery + Market)</option>
           </select>
         </div>
         <div class="form-field">
-          <label>Organic / NPOP Certification Status</label>
+          <label>Production / Verification Method</label>
           <select id="npop_status">
-            <option value="Certified NPOP">Certified Organic (NPOP Export Standard)</option>
-            <option value="In-Conversion C1/C2/C3">In-Conversion (C1 / C2 / C3)</option>
+            <option value="Certified NPOP">Certified Organic (Third-Party NPOP Standard)</option>
+            <option value="In-Conversion C1/C2/C3">In-Conversion (NPOP Audited)</option>
             <option value="PGS-India Certified">PGS-India Certified</option>
-            <option value="Chemical-Free Uncertified">Chemical-Free / Desi (Uncertified)</option>
+            <option value="Chemical-Free Traditional" selected>Chemical-Free / Traditional Desi Practices</option>
           </select>
         </div>
         <div class="form-field">
-          <label>Certification Agency / Scope Reg No.</label>
-          <input type="text" id="npop_agency" placeholder="e.g. SGS India / OneCert">
+          <label>Certification Body or Scope No. (if any)</label>
+          <input type="text" id="npop_agency" placeholder="e.g. SGS India / OneCert / None">
         </div>
       </div>
     </div>
 
-    <!-- 4. CROPS, SOIL & HYDRAULICS -->
+    <!-- 4. CROPS, SOIL & IRRIGATION -->
     <div class="section-card">
       <h2>🌾 4. Crops, Soil Health & Water Security</h2>
       <div class="form-grid">
         <div class="form-field full">
-          <label>Primary Crops Across All Parcels</label>
-          <input type="text" id="crops" placeholder="e.g. Sugarcane, Khapli Wheat, Basmati Rice, Turmeric">
+          <label>Main Crops & Varieties Cultivated</label>
+          <input type="text" id="crops" placeholder="e.g. Khapli Wheat, Sugarcane, Basmati, Turmeric, Ginger, Pulses">
         </div>
         <div class="form-field full">
-          <label>Horticulture / Orchards / Multipurpose Trees</label>
-          <input type="text" id="horticulture" placeholder="e.g. 150 Mixed Fruit Trees, Mini-Forest (700 Native Plants)">
+          <label>Orchards, Agro-Forestry & Multipurpose Trees</label>
+          <input type="text" id="horticulture" placeholder="e.g. Mixed Fruit Orchard (150 trees), Native Mini-Forest, Bamboo">
         </div>
         <div class="form-field">
           <label>Soil Organic Carbon (SOC %) & pH</label>
-          <input type="text" id="soc_ph" placeholder="e.g. SOC 0.60%, pH 7.8">
+          <input type="text" id="soc_ph" placeholder="e.g. SOC 0.65%, pH 7.6">
         </div>
         <div class="form-field">
           <label>Primary Irrigation System</label>
@@ -190,44 +188,44 @@
             <option value="Deep Tubewell + Drip">Deep Tubewell + Drip Network</option>
             <option value="Elevated Diggi + Gravity Drip">Elevated Diggi (Farm Pond) + Gravity Drip</option>
             <option value="Deep Tubewell + Flood">Deep Tubewell + Flood</option>
-            <option value="Rainfed Only">Entirely Rainfed / Choes dependent</option>
+            <option value="Rainfed Only">Entirely Rainfed / Monsoon Dependent</option>
           </select>
         </div>
       </div>
     </div>
 
-    <!-- 5. CHC MACHINERY & MARKET ROUTE -->
+    <!-- 5. SHARED MACHINERY & LABOUR -->
     <div class="section-card">
-      <h2>🚜 5. Custom Hiring (CHC) & Market Offtake</h2>
+      <h2>🚜 5. Shared Machinery Pool & Processing Assets</h2>
       <div class="form-grid">
         <div class="form-field full">
-          <label>Machinery You Own & Can Share in FPC CHC</label>
-          <input type="text" id="machinery_owned" placeholder="e.g. BCS 8HP Weeder, Shredder, Compost Screener">
+          <label>Equipment / Tools You Own & Can Share in the Pool</label>
+          <input type="text" id="machinery_owned" placeholder="e.g. BCS 8HP Power Weeder, Biomass Chipper, Compost Screener">
         </div>
         <div class="form-field full">
-          <label>Machinery Needed from CHC</label>
-          <input type="text" id="machinery_needed" placeholder="e.g. 50HP Tractor, Bed Maker">
+          <label>Equipment You Need from the Group Tool Pool</label>
+          <input type="text" id="machinery_needed" placeholder="e.g. Tractor Bed Maker, Turmeric Polisher/Boiler, Oil Expeller">
         </div>
         <div class="form-field">
-          <label>Total Workforce (Family + Permanent)</label>
-          <input type="number" id="workforce" placeholder="e.g. 4">
+          <label>On-Farm Workforce (Family + Regular Help)</label>
+          <input type="number" id="workforce" placeholder="e.g. 3">
         </div>
         <div class="form-field">
-          <label>Peak Labour Deficit Months</label>
-          <input type="text" id="labour_deficit" placeholder="e.g. April, October, November">
+          <label>Peak Labour Deficit Months (For Work Sharing)</label>
+          <input type="text" id="labour_deficit" placeholder="e.g. April (Wheat), October-November">
         </div>
       </div>
     </div>
 
     <div class="submit-bar">
-      <button type="submit" class="btn-submit" id="submitBtn">💾 Submit Complete Holding to Master FPC Registry</button>
+      <button type="submit" class="btn-submit" id="submitBtn">💾 Submit Profile to Collaborative Registry</button>
     </div>
 
   </form>
 </div>
 
 <script>
-  // ⚠️ SCRIPT URL: Replace with your deployed Google Apps Script /exec URL
+  // ⚠️ PASTE YOUR GOOGLE APPS SCRIPT /exec URL HERE:
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
   let map;
@@ -236,8 +234,6 @@
   let activePolygon = null;
   let isDrawing = false;
   let currentActiveAcres = 0;
-
-  // Master array holding all parcels drawn by this farmer
   let completedParcels = [];
   const parcelColors = ['#00ff88', '#f59e0b', '#06b6d4', '#ec4899', '#8b5cf6'];
 
@@ -245,7 +241,7 @@
     map = L.map('map', { center: [30.9503, 76.5055], zoom: 13, zoomControl: true });
 
     L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Esri Satellite &copy; Shivalik GIS',
+      attribution: 'Esri Satellite &copy; Shivalik Collaborative GIS',
       maxZoom: 19
     }).addTo(map);
 
@@ -283,15 +279,14 @@
 
   function saveCurrentParcel() {
     if (activePoints.length < 3) {
-      alert("Please tap at least 3 boundary corners on the map before saving this parcel.");
+      alert("Please tap at least 3 boundary corners on the map before saving this plot.");
       return;
     }
 
-    const parcelName = document.getElementById('active_parcel_name').value.trim() || `Parcel ${completedParcels.length + 1}`;
+    const parcelName = document.getElementById('active_parcel_name').value.trim() || `Plot ${completedParcels.length + 1}`;
     const centroid = activePolygon.getBounds().getCenter();
     const color = parcelColors[completedParcels.length % parcelColors.length];
 
-    // Freeze current polygon in its permanent parcel color
     const savedPoly = L.polygon(activePoints, { color: color, weight: 3, fillColor: color, fillOpacity: 0.4 }).addTo(map);
     savedPoly.bindPopup(`<b>${parcelName}</b><br>Area: ${currentActiveAcres} Acres`).openPopup();
 
@@ -304,7 +299,6 @@
       layerRef: savedPoly
     });
 
-    // Reset temporary drawing canvas
     activeMarkers.forEach(m => map.removeLayer(m));
     activeMarkers = [];
     if (activePolygon) map.removeLayer(activePolygon);
@@ -313,8 +307,7 @@
     currentActiveAcres = 0;
     document.getElementById('active_sketch_acres').value = "";
     
-    // Increment default name for the next parcel
-    document.getElementById('active_parcel_name').value = `Parcel ${completedParcels.length + 1}`;
+    document.getElementById('active_parcel_name').value = `Plot ${completedParcels.length + 1}`;
     if (isDrawing) toggleDrawTool();
 
     renderParcelTray();
@@ -341,7 +334,7 @@
     let total = 0;
 
     if (completedParcels.length === 0) {
-      tray.innerHTML = `<span style="font-size:0.75rem; color:#64748b;">No parcel saved yet. Tap field corners and click "Save & Add Another Plot".</span>`;
+      tray.innerHTML = `<span style="font-size:0.75rem; color:#64748b;">No plot saved yet. Tap field corners and click "Save & Add Another Plot".</span>`;
       document.getElementById('total-cumulative-acres').innerText = `Cumulative: 0.00 Acres`;
       return;
     }
@@ -375,20 +368,19 @@
       const lat = pos.coords.latitude;
       const lng = pos.coords.longitude;
       map.setView([lat, lng], 17);
-      L.marker([lat, lng]).addTo(map).bindPopup("Current Position").openPopup();
-    }, () => alert("Enable GPS permission."), { enableHighAccuracy: true });
+      L.marker([lat, lng]).addTo(map).bindPopup("Current GPS Position").openPopup();
+    }, () => alert("Enable GPS permissions."), { enableHighAccuracy: true });
   }
 
   function handleRegistration(e) {
     e.preventDefault();
 
-    // Auto-save any in-progress unsaved polygon
     if (activePoints.length >= 3) {
       saveCurrentParcel();
     }
 
     if (completedParcels.length === 0) {
-      alert("Please map at least one farm parcel on the satellite map before submitting.");
+      alert("Please map at least one field plot on the satellite map before submitting.");
       return;
     }
 
@@ -416,7 +408,7 @@
       crops: document.getElementById('crops').value,
       horticulture: document.getElementById('horticulture').value,
       soc: document.getElementById('soc_ph').value,
-      soil_ph: "Captured in field",
+      soil_ph: "Field Recorded",
       soil_test_date: new Date().toLocaleDateString(),
       water_source: document.getElementById('water_source').value,
       diggi_capacity: "N/A",
@@ -424,18 +416,18 @@
       machinery_needed: document.getElementById('machinery_needed').value,
       workforce: document.getElementById('workforce').value,
       labour_deficit: document.getElementById('labour_deficit').value,
-      market_route: "Committed to Collective (Tricity FPC)",
+      market_route: "Direct Collaborative Supply",
       value_addition: "Captured",
       govt_schemes: "N/A"
     };
 
     if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
-      alert("Parcels captured locally! Please update SCRIPT_URL with your active Google Apps Script link.");
+      alert("Plots saved locally! Please update SCRIPT_URL with your active Google Apps Script link.");
       return;
     }
 
     btn.disabled = true;
-    btn.innerText = `⏳ Transmitting ${completedParcels.length} Parcels to Database...`;
+    btn.innerText = `⏳ Submitting ${completedParcels.length} Plots to Registry...`;
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -443,15 +435,16 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     }).then(() => {
-      alert(`✅ Registration Successful! Logged ${completedParcels.length} parcel(s) totaling ${cumulative} Acres.`);
+      alert(`✅ Registration Successful! Logged ${completedParcels.length} plot(s) totaling ${cumulative} Acres.`);
       btn.disabled = false;
-      btn.innerText = "💾 Submit Complete Holding to Master FPC Registry";
+      btn.innerText = "💾 Submit Profile to Collaborative Registry";
 
-      const summary = `*🌾 SHIVALIK MULTI-PARCEL REGISTRATION*\n` +
-                      `• Farmer: ${payload.name}\n` +
-                      `• Total Parcels: ${completedParcels.length}\n` +
+      const summary = `*🌾 SHIVALIK PRODUCERS COLLABORATIVE*\n` +
+                      `• Member: ${payload.name}\n` +
+                      `• Plots Mapped: ${completedParcels.length}\n` +
                       `• Total Holding: ${cumulative} Acres\n` +
-                      `• Village: ${payload.village}`;
+                      `• Locality: ${payload.village} (${payload.district})\n` +
+                      `• Focus: ${payload.legal_preference}`;
       window.open(`https://wa.me/?text=${encodeURIComponent(summary)}`, '_blank');
     }).catch(err => {
       alert("Transmission Error: " + err);
