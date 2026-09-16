@@ -22,6 +22,12 @@
   * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
   body { background: var(--bg); color: var(--text); padding: 12px; line-height: 1.4; }
   .shell { max-width: 820px; margin: 0 auto; padding-bottom: 70px; }
+  
+  /* Language Selector Bar */
+  .lang-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px; }
+  .lang-bar label { font-size: 0.8rem; font-weight: 700; color: var(--brand); margin: 0; }
+  .lang-bar select { width: auto; padding: 6px 12px; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; cursor: pointer; }
+
   header { background: var(--brand); color: #fff; padding: 20px; border-radius: 12px; margin-bottom: 16px; text-align: center; }
   header h1 { font-size: 1.25rem; margin-bottom: 4px; }
   header p { font-size: 0.85rem; color: #b7e4c7; }
@@ -56,31 +62,41 @@
 <body>
 
 <div class="shell">
+  <!-- LANGUAGE SELECTOR -->
+  <div class="lang-bar">
+    <label for="langSwitcher">🌐 ਭਾਸ਼ਾ / Language / भाषा:</label>
+    <select id="langSwitcher" onchange="switchLanguage(this.value)">
+      <option value="en" selected>English</option>
+      <option value="pa">ਪੰਜਾਬੀ (ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ)</option>
+      <option value="hi">हिंदी (किसान साझ केंद्र)</option>
+    </select>
+  </div>
+
   <header>
-    <h1>🌱 Shivalik Foothills Producers Collaborative Hub</h1>
-    <p>Peer Resource Sharing, Multi-Plot Satellite Mapping & Joint Market Access</p>
+    <h1 data-i18n="app_title">🌱 Shivalik Foothills Producers Collaborative Hub</h1>
+    <p data-i18n="app_sub">Peer Resource Sharing, Multi-Plot Satellite Mapping & Joint Market Access</p>
   </header>
 
   <form id="registryForm" onsubmit="handleRegistration(event)">
 
     <!-- 1. IDENTITY & REGION -->
     <div class="section-card">
-      <h2>👤 1. Member Identity & Locality</h2>
+      <h2 data-i18n="sec_identity">👤 1. Member Identity & Locality</h2>
       <div class="form-grid">
         <div class="form-field">
-          <label>Member / Farmer Name *</label>
+          <label data-i18n="lbl_name">Member / Farmer Name *</label>
           <input type="text" id="name" required placeholder="Full Name">
         </div>
         <div class="form-field">
-          <label>WhatsApp Contact Number *</label>
+          <label data-i18n="lbl_phone">WhatsApp Contact Number *</label>
           <input type="tel" id="phone" required placeholder="10-digit mobile number">
         </div>
         <div class="form-field">
-          <label>Member Reference ID (Optional)</label>
+          <label data-i18n="lbl_id">Member Reference ID (Optional)</label>
           <input type="text" id="id_number" placeholder="Optional identifier">
         </div>
         <div class="form-field">
-          <label>Region / District *</label>
+          <label data-i18n="lbl_district">Region / District *</label>
           <select id="district" required>
             <option value="Rupnagar (Ropar)">Rupnagar (Ropar)</option>
             <option value="SAS Nagar (Mohali)">SAS Nagar (Mohali)</option>
@@ -93,7 +109,7 @@
           </select>
         </div>
         <div class="form-field full">
-          <label>Village, Tehsil & Postal Address *</label>
+          <label data-i18n="lbl_village">Village, Tehsil & Postal Address *</label>
           <input type="text" id="village" required placeholder="Village, Landmark, Post Office">
         </div>
       </div>
@@ -101,37 +117,37 @@
 
     <!-- 2. SATELLITE GIS MAPPING -->
     <div class="section-card">
-      <h2>🛰️ 2. Multi-Plot Satellite Land Mapping</h2>
-      <p style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
+      <h2 data-i18n="sec_map">🛰️ 2. Multi-Plot Satellite Land Mapping</h2>
+      <p data-i18n="map_guide" style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
         Draw your first plot, tap <b>"Save & Add Another Plot"</b>, pan to any disconnected plots, and draw them to log your entire holding.
       </p>
 
       <div class="map-actions">
-        <button type="button" class="btn-map" onclick="locateGPS()">📍 Find GPS Location</button>
-        <button type="button" class="btn-map" id="btnDraw" onclick="toggleDrawTool()">✏️ Tap Corners to Draw Field</button>
-        <button type="button" class="btn-map btn-parcel-add" onclick="saveCurrentParcel()">➕ Save & Add Another Plot</button>
-        <button type="button" class="btn-map" onclick="clearActiveDrawing()">🗑️ Clear Active Sketch</button>
+        <button type="button" class="btn-map" onclick="locateGPS()" data-i18n="btn_gps">📍 Find GPS Location</button>
+        <button type="button" class="btn-map" id="btnDraw" onclick="toggleDrawTool()" data-i18n="btn_draw">✏️ Tap Corners to Draw Field</button>
+        <button type="button" class="btn-map btn-parcel-add" onclick="saveCurrentParcel()" data-i18n="btn_add_plot">➕ Save & Add Another Plot</button>
+        <button type="button" class="btn-map" onclick="clearActiveDrawing()" data-i18n="btn_clear">🗑️ Clear Active Sketch</button>
       </div>
 
       <div id="map"></div>
 
       <div class="parcel-tray">
         <h3>
-          <span>Mapped Plots Inventory</span>
+          <span data-i18n="lbl_inventory">Mapped Plots Inventory</span>
           <span id="total-cumulative-acres" style="color:var(--brand);">Cumulative: 0.00 Acres</span>
         </h3>
         <div id="parcel-pills-list">
-          <span style="font-size:0.75rem; color:#64748b;">No plot saved yet. Tap field corners and click "Save & Add Another Plot".</span>
+          <span data-i18n="lbl_no_plots" style="font-size:0.75rem; color:#64748b;">No plot saved yet. Tap field corners and click "Save & Add Another Plot".</span>
         </div>
       </div>
 
       <div class="form-grid" style="margin-top:10px;">
         <div class="form-field">
-          <label>Active Plot Tag / Name</label>
+          <label data-i18n="lbl_active_plot_tag">Active Plot Tag / Name</label>
           <input type="text" id="active_parcel_name" placeholder="e.g. Home Plot / Riverbed Plot" value="Plot 1 (Main)">
         </div>
         <div class="form-field">
-          <label>Active Sketch Area</label>
+          <label data-i18n="lbl_active_area">Active Sketch Area</label>
           <input type="text" id="active_sketch_acres" readonly placeholder="0.00 Acres" style="background:#edf2f7; font-weight:700;">
         </div>
       </div>
@@ -139,10 +155,10 @@
 
     <!-- 3. COLLABORATION FOCUS & VERIFICATION -->
     <div class="section-card">
-      <h2>🤝 3. Collaboration Focus & Production Practice</h2>
+      <h2 data-i18n="sec_collab">🤝 3. Collaboration Focus & Production Practice</h2>
       <div class="form-grid">
         <div class="form-field full" style="background:#f1f5f9; padding:10px; border-radius:6px; border:1px dashed #94a3b8;">
-          <label>Primary Collaboration Interest *</label>
+          <label data-i18n="lbl_focus">Primary Collaboration Interest *</label>
           <select id="legal_preference" required>
             <option value="Joint Marketing & Scale">Joint Marketing, Aggregation & Direct Consumer Supply</option>
             <option value="Machinery & Tool Pooling">Shared Machinery, Tool Pool & Equipment Exchange</option>
@@ -151,7 +167,7 @@
           </select>
         </div>
         <div class="form-field">
-          <label>Production / Verification Method</label>
+          <label data-i18n="lbl_cert_status">Production / Verification Method</label>
           <select id="npop_status">
             <option value="Certified NPOP">Certified Organic (Third-Party NPOP Standard)</option>
             <option value="In-Conversion C1/C2/C3">In-Conversion (NPOP Audited)</option>
@@ -160,7 +176,7 @@
           </select>
         </div>
         <div class="form-field">
-          <label>Certification Body or Scope No. (if any)</label>
+          <label data-i18n="lbl_cert_agency">Certification Body or Scope No. (if any)</label>
           <input type="text" id="npop_agency" placeholder="e.g. SGS India / OneCert / None">
         </div>
       </div>
@@ -168,22 +184,22 @@
 
     <!-- 4. CROPS, SOIL & IRRIGATION -->
     <div class="section-card">
-      <h2>🌾 4. Crops, Soil Health & Water Security</h2>
+      <h2 data-i18n="sec_crops">🌾 4. Crops, Soil Health & Water Security</h2>
       <div class="form-grid">
         <div class="form-field full">
-          <label>Main Crops & Varieties Cultivated</label>
+          <label data-i18n="lbl_crops">Main Crops & Varieties Cultivated</label>
           <input type="text" id="crops" placeholder="e.g. Khapli Wheat, Sugarcane, Basmati, Turmeric, Ginger, Pulses">
         </div>
         <div class="form-field full">
-          <label>Orchards, Agro-Forestry & Multipurpose Trees</label>
+          <label data-i18n="lbl_trees">Orchards, Agro-Forestry & Multipurpose Trees</label>
           <input type="text" id="horticulture" placeholder="e.g. Mixed Fruit Orchard (150 trees), Native Mini-Forest, Bamboo">
         </div>
         <div class="form-field">
-          <label>Soil Organic Carbon (SOC %) & pH</label>
+          <label data-i18n="lbl_soc">Soil Organic Carbon (SOC %) & pH</label>
           <input type="text" id="soc_ph" placeholder="e.g. SOC 0.65%, pH 7.6">
         </div>
         <div class="form-field">
-          <label>Primary Irrigation System</label>
+          <label data-i18n="lbl_water">Primary Irrigation System</label>
           <select id="water_source">
             <option value="Deep Tubewell + Drip">Deep Tubewell + Drip Network</option>
             <option value="Elevated Diggi + Gravity Drip">Elevated Diggi (Farm Pond) + Gravity Drip</option>
@@ -196,37 +212,174 @@
 
     <!-- 5. SHARED MACHINERY & LABOUR -->
     <div class="section-card">
-      <h2>🚜 5. Shared Machinery Pool & Processing Assets</h2>
+      <h2 data-i18n="sec_machinery">🚜 5. Shared Machinery Pool & Processing Assets</h2>
       <div class="form-grid">
         <div class="form-field full">
-          <label>Equipment / Tools You Own & Can Share in the Pool</label>
+          <label data-i18n="lbl_machinery_owned">Equipment / Tools You Own & Can Share in the Pool</label>
           <input type="text" id="machinery_owned" placeholder="e.g. BCS 8HP Power Weeder, Biomass Chipper, Compost Screener">
         </div>
         <div class="form-field full">
-          <label>Equipment You Need from the Group Tool Pool</label>
+          <label data-i18n="lbl_machinery_needed">Equipment You Need from the Group Tool Pool</label>
           <input type="text" id="machinery_needed" placeholder="e.g. Tractor Bed Maker, Turmeric Polisher/Boiler, Oil Expeller">
         </div>
         <div class="form-field">
-          <label>On-Farm Workforce (Family + Regular Help)</label>
+          <label data-i18n="lbl_workforce">On-Farm Workforce (Family + Regular Help)</label>
           <input type="number" id="workforce" placeholder="e.g. 3">
         </div>
         <div class="form-field">
-          <label>Peak Labour Deficit Months (For Work Sharing)</label>
+          <label data-i18n="lbl_labour_deficit">Peak Labour Deficit Months (For Work Sharing)</label>
           <input type="text" id="labour_deficit" placeholder="e.g. April (Wheat), October-November">
         </div>
       </div>
     </div>
 
     <div class="submit-bar">
-      <button type="submit" class="btn-submit" id="submitBtn">💾 Submit Profile to Collaborative Registry</button>
+      <button type="submit" class="btn-submit" id="submitBtn" data-i18n="btn_submit">💾 Submit Profile to Collaborative Registry</button>
     </div>
 
   </form>
 </div>
 
 <script>
-  // ⚠️ PASTE YOUR GOOGLE APPS SCRIPT /exec URL HERE:
+  // ⚠️ PASTE YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL HERE:
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
+
+  let currentLang = 'en';
+
+  const translations = {
+    en: {
+      app_title: "🌱 Shivalik Foothills Producers Collaborative Hub",
+      app_sub: "Peer Resource Sharing, Multi-Plot Satellite Mapping & Joint Market Access",
+      sec_identity: "👤 1. Member Identity & Locality",
+      lbl_name: "Member / Farmer Name *",
+      lbl_phone: "WhatsApp Contact Number *",
+      lbl_id: "Member Reference ID (Optional)",
+      lbl_district: "Region / District *",
+      lbl_village: "Village, Tehsil & Postal Address *",
+      sec_map: "🛰️ 2. Multi-Plot Satellite Land Mapping",
+      map_guide: 'Draw your first plot, tap <b>"Save & Add Another Plot"</b>, pan to any disconnected plots, and draw them to log your entire holding.',
+      btn_gps: "📍 Find GPS Location",
+      btn_draw: "✏️ Tap Corners to Draw Field",
+      btn_draw_active: "🛑 Finish Active Sketch",
+      btn_add_plot: "➕ Save & Add Another Plot",
+      btn_clear: "🗑️ Clear Active Sketch",
+      lbl_inventory: "Mapped Plots Inventory",
+      lbl_no_plots: 'No plot saved yet. Tap field corners and click "Save & Add Another Plot".',
+      lbl_active_plot_tag: "Active Plot Tag / Name",
+      lbl_active_area: "Active Sketch Area",
+      lbl_cumulative: "Cumulative",
+      sec_collab: "🤝 3. Collaboration Focus & Production Practice",
+      lbl_focus: "Primary Collaboration Interest *",
+      lbl_cert_status: "Production / Verification Method",
+      lbl_cert_agency: "Certification Body or Scope No. (if any)",
+      sec_crops: "🌾 4. Crops, Soil Health & Water Security",
+      lbl_crops: "Main Crops & Varieties Cultivated",
+      lbl_trees: "Orchards, Agro-Forestry & Multipurpose Trees",
+      lbl_soc: "Soil Organic Carbon (SOC %) & pH",
+      lbl_water: "Primary Irrigation System",
+      sec_machinery: "🚜 5. Shared Machinery Pool & Processing Assets",
+      lbl_machinery_owned: "Equipment / Tools You Own & Can Share in the Pool",
+      lbl_machinery_needed: "Equipment You Need from the Group Tool Pool",
+      lbl_workforce: "On-Farm Workforce (Family + Regular Help)",
+      lbl_labour_deficit: "Peak Labour Deficit Months (For Work Sharing)",
+      btn_submit: "💾 Submit Profile to Collaborative Registry"
+    },
+    pa: {
+      app_title: "🌱 ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿਲਜ਼ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ",
+      app_sub: "ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ, ਸੈਟੇਲਾਈਟ ਖੇਤ ਮੈਪਿੰਗ ਅਤੇ ਸਿੱਧਾ ਬਾਜ਼ਾਰ ਸੰਪਰਕ",
+      sec_identity: "👤 1. ਮੈਂਬਰ ਦਾ ਵੇਰਵਾ ਅਤੇ ਇਲਾਕਾ",
+      lbl_name: "ਕਿਸਾਨ / ਮੈਂਬਰ ਦਾ ਪੂਰਾ ਨਾਂ *",
+      lbl_phone: "ਵਟਸਐਪ ਸੰਪਰਕ ਨੰਬਰ *",
+      lbl_id: "ਮੈਂਬਰ ਰੈਫਰੈਂਸ ਨੰਬਰ (ਮਰਜ਼ੀ ਮੁਤਾਬਕ)",
+      lbl_district: "ਇਲਾਕਾ / ਜ਼ਿਲ੍ਹਾ *",
+      lbl_village: "ਪਿੰਡ, ਤਹਿਸੀਲ ਅਤੇ ਡਾਕਖਾਨਾ *",
+      sec_map: "🛰️ 2. ਸੈਟੇਲਾਈਟ ਰਾਹੀਂ ਜ਼ਮੀਨ ਦੀ ਮੈਪਿੰਗ",
+      map_guide: 'ਪਹਿਲਾ ਖੇਤ ਬਣਾਓ, <b>"ਸੰਭਾਲੋ ਅਤੇ ਹੋਰ ਖੇਤ ਜੋੜੋ"</b> ਦਬਾਓ, ਅਤੇ ਦੂਜੇ ਖੇਤਾਂ ਨੂੰ ਨਕਸ਼ੇ \'ਤੇ ਨਿਸ਼ਾਨਬੱਧ ਕਰੋ।',
+      btn_gps: "📍 ਮੇਰਾ ਖੇਤ ਲੱਭੋ (GPS)",
+      btn_draw: "✏️ ਵੱਟਾਂ 'ਤੇ ਟੈਪ ਕਰਕੇ ਨਿਸ਼ਾਨ ਲਗਾਓ",
+      btn_draw_active: "🛑 ਨਿਸ਼ਾਨ ਲਗਾਉਣਾ ਬੰਦ ਕਰੋ",
+      btn_add_plot: "➕ ਸੰਭਾਲੋ ਅਤੇ ਹੋਰ ਖੇਤ ਜੋੜੋ",
+      btn_clear: "🗑️ ਕੱਚਾ ਨਕਸ਼ਾ ਹਟਾਓ",
+      lbl_inventory: "ਦਰਜ ਕੀਤੇ ਖੇਤਾਂ ਦੀ ਸੂਚੀ",
+      lbl_no_plots: 'ਕੋਈ ਖੇਤ ਨਹੀਂ ਜੁੜਿਆ। ਵੱਟਾਂ \'ਤੇ ਨਿਸ਼ਾਨ ਲਗਾ ਕੇ "ਸੰਭਾਲੋ ਅਤੇ ਹੋਰ ਖੇਤ ਜੋੜੋ" ਦਬਾਓ।',
+      lbl_active_plot_tag: "ਖੇਤ ਦਾ ਨਾਂ / ਪਛਾਣ",
+      lbl_active_area: "ਮੌਜੂਦਾ ਨਿਸ਼ਾਨਬੱਧ ਰਕਬਾ",
+      lbl_cumulative: "ਕੁੱਲ ਰਕਬਾ",
+      sec_collab: "🤝 3. ਸਾਂਝੇਦਾਰੀ ਦਾ ਮਕਸਦ ਅਤੇ ਖੇਤੀ ਢੰਗ",
+      lbl_focus: "ਸਾਂਝੇਦਾਰੀ ਦੀ ਮੁੱਖ ਤਰਜੀਹ *",
+      lbl_cert_status: "ਖੇਤੀ / ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਤਰੀਕਾ",
+      lbl_cert_agency: "ਪ੍ਰਮਾਣੀਕਰਨ ਅਦਾਰਾ (ਜੇ ਕੋਈ ਹੈ)",
+      sec_crops: "🌾 4. ਫ਼ਸਲਾਂ, ਮਿੱਟੀ ਦੀ ਪਰਖ ਅਤੇ ਪਾਣੀ",
+      lbl_crops: "ਮੁੱਖ ਫ਼ਸਲਾਂ ਅਤੇ ਕਿਸਮਾਂ",
+      lbl_trees: "ਬਾਗ਼, ਰੁੱਖ ਅਤੇ ਬਾਂਸ ਆਦਿ",
+      lbl_soc: "ਮਿੱਟੀ ਦਾ ਔਰਗੈਨਿਕ ਕਾਰਬਨ (SOC %) ਤੇ pH",
+      lbl_water: "ਸਿੰਚਾਈ ਦਾ ਮੁੱਖ ਸਾਧਨ",
+      sec_machinery: "🚜 5. ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਅਤੇ ਸੰਦ ਬੈਂਕ",
+      lbl_machinery_owned: "ਸੰਦ ਜੋ ਤੁਹਾਡੇ ਕੋਲ ਹਨ ਅਤੇ ਸਮੂਹ ਨਾਲ ਸਾਂਝੇ ਕਰ ਸਕਦੇ ਹੋ",
+      lbl_machinery_needed: "ਸੰਦ ਜਿਨ੍ਹਾਂ ਦੀ ਤੁਹਾਨੂੰ ਲੋੜ ਹੈ",
+      lbl_workforce: "ਖੇਤ ਦੇ ਕਾਮੇ (ਪਰਿਵਾਰਕ + ਪੱਕੇ)",
+      lbl_labour_deficit: "ਮਜ਼ਦੂਰਾਂ ਦੀ ਵੱਧ ਘਾਟ ਵਾਲੇ ਮਹੀਨੇ",
+      btn_submit: "💾 ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ ਰਜਿਸਟਰ ਵਿੱਚ ਦਰਜ ਕਰੋ"
+    },
+    hi: {
+      app_title: "🌱 शिवालिक तलहटी किसान साझ केंद्र",
+      app_sub: "पारस्परिक संसाधन साझाकरण, सैटेलाइट खेत मैपिंग और सीधा बाजार संपर्क",
+      sec_identity: "👤 1. सदस्य विवरण और इलाका",
+      lbl_name: "किसान / सदस्य का पूरा नाम *",
+      lbl_phone: "व्हाट्सएप संपर्क नंबर *",
+      lbl_id: "सदस्य संदर्भ आईडी (वैकल्पिक)",
+      lbl_district: "क्षेत्र / जिला *",
+      lbl_village: "गांव, तहसील और डाक पता *",
+      sec_map: "🛰️ 2. सैटेलाइट द्वारा जमीन की मैपिंग",
+      map_guide: 'पहला खेत बनाएं, <b>"सहेजें और दूसरा खेत जोड़ें"</b> दबाएं, और अन्य खेतों को नक्शे पर चिह्नित करें।',
+      btn_gps: "📍 मेरा खेत ढूंढें (GPS)",
+      btn_draw: "✏️ मेड़ों पर टैप करके निशान लगाएं",
+      btn_draw_active: "🛑 निशान लगाना पूरा करें",
+      btn_add_plot: "➕ सहेजें और दूसरा खेत जोड़ें",
+      btn_clear: "🗑️ कच्चा नक्शा हटाएं",
+      lbl_inventory: "दर्ज किए गए खेतों की सूची",
+      lbl_no_plots: 'कोई खेत नहीं जुड़ा। मेड़ों पर निशान लगाकर "सहेजें और दूसरा खेत जोड़ें" दबाएं।',
+      lbl_active_plot_tag: "खेत का नाम / पहचान",
+      lbl_active_area: "वर्तमान चिह्नित रकबा",
+      lbl_cumulative: "कुल रकबा",
+      sec_collab: "🤝 3. साझेदारी का उद्देश्य और खेती का तरीका",
+      lbl_focus: "साझेदारी की मुख्य प्राथमिकता *",
+      lbl_cert_status: "खेती / प्रमाणीकरण का तरीका",
+      lbl_cert_agency: "प्रमाणीकरण संस्था (यदि कोई हो)",
+      sec_crops: "🌾 4. फसलें, मिट्टी की सेहत और पानी",
+      lbl_crops: "मुख्य फसलें और किस्में",
+      lbl_trees: "बाग, पेड़ एवं बांस आदि",
+      lbl_soc: "मिट्टी का जैविक कार्बन (SOC %) व pH",
+      lbl_water: "सिंचाई का मुख्य साधन",
+      sec_machinery: "🚜 5. साझा मशीनरी और कृषि उपकरण बैंक",
+      lbl_machinery_owned: "उपकरण जो आपके पास हैं और समूह में साझा कर सकते हैं",
+      lbl_machinery_needed: "उपकरण जिनकी आपको आवश्यकता है",
+      lbl_workforce: "खेत के कामगार (पारिवारिक + स्थायी)",
+      lbl_labour_deficit: "मजदूरों की अधिक कमी वाले महीने",
+      btn_submit: "💾 किसान साझ केंद्र रजिस्टर में दर्ज करें"
+    }
+  };
+
+  function switchLanguage(lang) {
+    currentLang = lang;
+    const dict = translations[lang] || translations.en;
+    document.querySelectorAll("[data-i18n]").forEach(el => {
+      const key = el.getAttribute("data-i18n");
+      if (dict[key]) {
+        if (el.tagName === "INPUT" || el.tagName === "TEXTAREA") {
+          el.placeholder = dict[key];
+        } else {
+          el.innerHTML = dict[key];
+        }
+      }
+    });
+
+    const btn = document.getElementById('btnDraw');
+    if (btn) {
+      btn.innerText = isDrawing ? dict.btn_draw_active : dict.btn_draw;
+    }
+    renderParcelTray();
+  }
 
   let map;
   let activePoints = [];
@@ -268,18 +421,21 @@
   function toggleDrawTool() {
     isDrawing = !isDrawing;
     const btn = document.getElementById('btnDraw');
+    const dict = translations[currentLang] || translations.en;
     if (isDrawing) {
       btn.classList.add('active');
-      btn.innerText = "🛑 Finish Active Sketch";
+      btn.innerText = dict.btn_draw_active;
     } else {
       btn.classList.remove('active');
-      btn.innerText = "✏️ Tap Corners to Draw Field";
+      btn.innerText = dict.btn_draw;
     }
   }
 
   function saveCurrentParcel() {
     if (activePoints.length < 3) {
-      alert("Please tap at least 3 boundary corners on the map before saving this plot.");
+      alert(currentLang === 'pa' ? "ਕਿਰਪਾ ਕਰਕੇ ਖੇਤ ਦੇ ਘੱਟੋ-ਘੱਟ 3 ਕੋਨੇ ਮੈਪ 'ਤੇ ਚੁਣੋ।" : 
+            currentLang === 'hi' ? "कृपया खेत के कम से कम 3 कोने मैप पर चुनें।" : 
+            "Please tap at least 3 boundary corners on the map before saving this plot.");
       return;
     }
 
@@ -331,11 +487,12 @@
 
   function renderParcelTray() {
     const tray = document.getElementById('parcel-pills-list');
+    const dict = translations[currentLang] || translations.en;
     let total = 0;
 
     if (completedParcels.length === 0) {
-      tray.innerHTML = `<span style="font-size:0.75rem; color:#64748b;">No plot saved yet. Tap field corners and click "Save & Add Another Plot".</span>`;
-      document.getElementById('total-cumulative-acres').innerText = `Cumulative: 0.00 Acres`;
+      tray.innerHTML = `<span style="font-size:0.75rem; color:#64748b;">${dict.lbl_no_plots}</span>`;
+      document.getElementById('total-cumulative-acres').innerText = `${dict.lbl_cumulative}: 0.00 Acres`;
       return;
     }
 
@@ -348,7 +505,7 @@
       </span>`;
     }).join('');
 
-    document.getElementById('total-cumulative-acres').innerText = `Cumulative: ${total.toFixed(2)} Acres`;
+    document.getElementById('total-cumulative-acres').innerText = `${dict.lbl_cumulative}: ${total.toFixed(2)} Acres`;
   }
 
   function calculateSphericalArea(coords) {
@@ -369,7 +526,7 @@
       const lng = pos.coords.longitude;
       map.setView([lat, lng], 17);
       L.marker([lat, lng]).addTo(map).bindPopup("Current GPS Position").openPopup();
-    }, () => alert("Enable GPS permissions."), { enableHighAccuracy: true });
+    }, () => alert("Please enable GPS permissions."), { enableHighAccuracy: true });
   }
 
   function handleRegistration(e) {
@@ -380,7 +537,9 @@
     }
 
     if (completedParcels.length === 0) {
-      alert("Please map at least one field plot on the satellite map before submitting.");
+      alert(currentLang === 'pa' ? "ਕਿਰਪਾ ਕਰਕੇ ਘੱਟੋ-ਘੱਟ ਇੱਕ ਖੇਤ ਨਕਸ਼ੇ 'ਤੇ ਮੈਪ ਕਰੋ।" : 
+            currentLang === 'hi' ? "कृपया कम से कम एक खेत नक्शे पर चिह्नित करें।" : 
+            "Please map at least one field plot on the satellite map before submitting.");
       return;
     }
 
@@ -427,7 +586,7 @@
     }
 
     btn.disabled = true;
-    btn.innerText = `⏳ Submitting ${completedParcels.length} Plots to Registry...`;
+    btn.innerText = "⏳ Transmitting...";
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -435,11 +594,17 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     }).then(() => {
-      alert(`✅ Registration Successful! Logged ${completedParcels.length} plot(s) totaling ${cumulative} Acres.`);
+      alert(currentLang === 'pa' ? `✅ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਸਫ਼ਲ! ${completedParcels.length} ਖੇਤ (${cumulative} ਏਕੜ) ਦਰਜ ਹੋ ਗਏ ਹਨ।` :
+            currentLang === 'hi' ? `✅ पंजीकरण सफल! ${completedParcels.length} खेत (${cumulative} एकड़) दर्ज हो चुके हैं।` :
+            `✅ Registration Successful! Logged ${completedParcels.length} plot(s) totaling ${cumulative} Acres.`);
       btn.disabled = false;
-      btn.innerText = "💾 Submit Profile to Collaborative Registry";
+      const dict = translations[currentLang] || translations.en;
+      btn.innerText = dict.btn_submit;
 
-      const summary = `*🌾 SHIVALIK PRODUCERS COLLABORATIVE*\n` +
+      const headerTitle = currentLang === 'pa' ? "*🌾 ਸ਼ਿਵਾਲਿਕ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ*" : 
+                          currentLang === 'hi' ? "*🌾 शिवालिक किसान साझ केंद्र*" : 
+                          "*🌾 SHIVALIK PRODUCERS COLLABORATIVE*";
+      const summary = `${headerTitle}\n` +
                       `• Member: ${payload.name}\n` +
                       `• Plots Mapped: ${completedParcels.length}\n` +
                       `• Total Holding: ${cumulative} Acres\n` +
