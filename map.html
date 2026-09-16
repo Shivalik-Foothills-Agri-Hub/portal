@@ -34,8 +34,24 @@
     max-width: 390px;
     border: 1px solid var(--border);
   }
-  .floating-panel h1 { font-size: 1.05rem; color: var(--brand); font-weight: 700; margin-bottom: 2px; }
-  .floating-panel p { font-size: 0.75rem; color: #475569; margin-bottom: 8px; }
+  .header-brand-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  .map-logo {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #d4a373;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+    flex-shrink: 0;
+  }
+  .floating-panel h1 { font-size: 1.05rem; color: var(--brand); font-weight: 700; margin: 0; }
+  .floating-panel p { font-size: 0.74rem; color: #475569; margin: 2px 0 0 0; }
+  
   .stat-badge {
     display: inline-block;
     padding: 3px 8px;
@@ -54,7 +70,7 @@
     color: #ffffff !important;
     padding: 7px 12px;
     border-radius: 6px;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     font-weight: 700;
     text-decoration: none;
     margin-top: 8px;
@@ -82,9 +98,15 @@
 <body>
 
 <div class="floating-panel">
-  <h1>🌾 Shivalik Producers Collaborative Map</h1>
-  <p>Shared Cluster Footprint: Ropar, Mohali, Panchkula & Foothills</p>
-  <div>
+  <div class="header-brand-row">
+    <img src="logo.jpeg" alt="Community Circle Logo" class="map-logo" onerror="this.style.display='none'">
+    <div>
+      <h1>🌾 Shivalik Producers Collaborative</h1>
+      <p>ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ &bull; Unified Community Circle (Est. 2026)</p>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 4px;">
     <span class="stat-badge" id="lbl-total-farms">Plots: 0</span>
     <span class="stat-badge" id="lbl-total-acres">Acreage: 0.00 Ac</span>
   </div>
