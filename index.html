@@ -23,7 +23,7 @@
   body { background: var(--bg); color: var(--text); padding: 12px; line-height: 1.4; }
   .shell { max-width: 820px; margin: 0 auto; padding-bottom: 70px; }
   
-  /* Language Selector Bar */
+  /* Tri-Lingual Selector Bar */
   .lang-bar { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-bottom: 12px; }
   .lang-bar label { font-size: 0.8rem; font-weight: 700; color: var(--brand); margin: 0; }
   .lang-bar select { width: auto; padding: 6px 12px; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; cursor: pointer; }
@@ -54,6 +54,8 @@
   .parcel-tray h3 { font-size: 0.85rem; color: var(--brand); margin-bottom: 6px; display: flex; justify-content: space-between; }
   .parcel-pill { display: inline-flex; align-items: center; gap: 6px; background: #fff; border: 1px solid #cbd5e0; padding: 4px 8px; border-radius: 6px; font-size: 0.75rem; margin: 3px 4px 3px 0; font-weight: 600; }
   .parcel-pill button { background: none; border: none; color: #d90429; font-weight: 800; cursor: pointer; }
+
+  .consent-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 12px; font-size: 0.76rem; color: #475569; line-height: 1.45; margin-bottom: 16px; }
 
   .submit-bar { position: sticky; bottom: 10px; z-index: 1000; }
   .btn-submit { width: 100%; background: var(--accent); color: #fff; border: none; padding: 14px; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
@@ -153,9 +155,9 @@
       </div>
     </div>
 
-    <!-- 3. COLLABORATION FOCUS & VERIFICATION -->
+    <!-- 3. COLLABORATION FOCUS & CERTIFICATION VINTAGE -->
     <div class="section-card">
-      <h2 data-i18n="sec_collab">🤝 3. Collaboration Focus & Production Practice</h2>
+      <h2 data-i18n="sec_collab">🤝 3. Collaboration Focus & Certification Vintage</h2>
       <div class="form-grid">
         <div class="form-field full" style="background:#f1f5f9; padding:10px; border-radius:6px; border:1px dashed #94a3b8;">
           <label data-i18n="lbl_focus">Primary Collaboration Interest *</label>
@@ -176,15 +178,30 @@
           </select>
         </div>
         <div class="form-field">
-          <label data-i18n="lbl_cert_agency">Certification Body or Scope No. (if any)</label>
-          <input type="text" id="npop_agency" placeholder="e.g. SGS India / OneCert / None">
+          <label data-i18n="lbl_cert_agency">Certification Body</label>
+          <select id="npop_agency">
+            <option value="Punjab Agro (PAGREXCO)">Punjab Agro (PAGREXCO)</option>
+            <option value="SGS India">SGS India</option>
+            <option value="OneCert International">OneCert International</option>
+            <option value="Aditi Organic">Aditi Organic</option>
+            <option value="PGS-India Local Group">PGS-India Local Group</option>
+            <option value="Desi / Traditional (Uncertified)">Desi / Traditional (Uncertified)</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label data-i18n="lbl_cert_vintage">Practicing / Certified Since (Month & Year) *</label>
+          <input type="month" id="cert_vintage" required>
+        </div>
+        <div class="form-field">
+          <label data-i18n="lbl_scope_no">Scope Certificate / Reg No. (if any)</label>
+          <input type="text" id="npop_cert_no" placeholder="e.g. ORG/SC/1203/000348">
         </div>
       </div>
     </div>
 
-    <!-- 4. CROPS, SOIL & IRRIGATION -->
+    <!-- 4. CROPS, SOIL HEALTH, WATER & LAB REPORTS -->
     <div class="section-card">
-      <h2 data-i18n="sec_crops">🌾 4. Crops, Soil Health & Water Security</h2>
+      <h2 data-i18n="sec_crops">🌾 4. Crops, Soil Health, Water & Lab Verifications</h2>
       <div class="form-grid">
         <div class="form-field full">
           <label data-i18n="lbl_crops">Main Crops & Varieties Cultivated</label>
@@ -207,10 +224,23 @@
             <option value="Rainfed Only">Entirely Rainfed / Monsoon Dependent</option>
           </select>
         </div>
+        <div class="form-field full">
+          <label data-i18n="lbl_livestock">Desi Cattle / Livestock Count (for Bio-Inputs & Manure)</label>
+          <input type="text" id="livestock_count" placeholder="e.g. 4 Sahiwal cows, 2 buffaloes (or 0 if none)">
+        </div>
+        
+        <!-- SECURE LAB REPORT UPLOAD -->
+        <div class="form-field full" style="background:#f8fafc; border:1.5px dashed #059669; padding:12px; border-radius:8px;">
+          <label data-i18n="lbl_lab_file" style="color:#065f46;">📄 Upload Recent Lab Report (Soil, Water or Residue Test - PDF/Image, Max 5MB)</label>
+          <input type="file" id="lab_file" accept=".pdf,image/*" style="border:none; background:transparent; padding:6px 0;">
+          <p data-i18n="lbl_lab_hint" style="font-size:0.72rem; color:#64748b; margin-top:2px;">
+            Stored safely in the collaborative archive for verified consumer traceability.
+          </p>
+        </div>
       </div>
     </div>
 
-    <!-- 5. SHARED MACHINERY & LABOUR -->
+    <!-- 5. SHARED MACHINERY POOL & PROCESSING ASSETS -->
     <div class="section-card">
       <h2 data-i18n="sec_machinery">🚜 5. Shared Machinery Pool & Processing Assets</h2>
       <div class="form-grid">
@@ -221,6 +251,10 @@
         <div class="form-field full">
           <label data-i18n="lbl_machinery_needed">Equipment You Need from the Group Tool Pool</label>
           <input type="text" id="machinery_needed" placeholder="e.g. Tractor Bed Maker, Turmeric Polisher/Boiler, Oil Expeller">
+        </div>
+        <div class="form-field full">
+          <label data-i18n="lbl_processing">On-Farm Value Addition & Processing Facilities</label>
+          <input type="text" id="processing_facilities" placeholder="e.g. Jaggery pan (Kohlu), Solar dehydrator, Flour mill, Honey extractor">
         </div>
         <div class="form-field">
           <label data-i18n="lbl_workforce">On-Farm Workforce (Family + Regular Help)</label>
@@ -233,6 +267,11 @@
       </div>
     </div>
 
+    <!-- DATA PRIVACY & MUTUAL CONSENT NOTICE (DPDPA ALIGNED) -->
+    <div class="consent-box" data-i18n="lbl_consent">
+      🔒 <b>Data Governance & Mutual Trust:</b> In accordance with digital data privacy principles, sensitive KYC identifiers and raw lab certifications remain restricted to cluster coordination stewards. Crop volumes, land boundaries, and shared equipment are visible across cluster peers to coordinate joint logistics, machinery pooling, and verified consumer traceability.
+    </div>
+
     <div class="submit-bar">
       <button type="submit" class="btn-submit" id="submitBtn" data-i18n="btn_submit">💾 Submit Profile to Collaborative Registry</button>
     </div>
@@ -242,7 +281,7 @@
 
 <script>
   // ⚠️ PASTE YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL HERE:
-  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
+  const SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
 
   let currentLang = 'en';
 
@@ -268,20 +307,27 @@
       lbl_active_plot_tag: "Active Plot Tag / Name",
       lbl_active_area: "Active Sketch Area",
       lbl_cumulative: "Cumulative",
-      sec_collab: "🤝 3. Collaboration Focus & Production Practice",
+      sec_collab: "🤝 3. Collaboration Focus & Certification Vintage",
       lbl_focus: "Primary Collaboration Interest *",
       lbl_cert_status: "Production / Verification Method",
-      lbl_cert_agency: "Certification Body or Scope No. (if any)",
-      sec_crops: "🌾 4. Crops, Soil Health & Water Security",
+      lbl_cert_agency: "Certification Body",
+      lbl_cert_vintage: "Practicing / Certified Since (Month & Year) *",
+      lbl_scope_no: "Scope Certificate / Reg No. (if any)",
+      sec_crops: "🌾 4. Crops, Soil Health, Water & Lab Verifications",
       lbl_crops: "Main Crops & Varieties Cultivated",
       lbl_trees: "Orchards, Agro-Forestry & Multipurpose Trees",
       lbl_soc: "Soil Organic Carbon (SOC %) & pH",
       lbl_water: "Primary Irrigation System",
+      lbl_livestock: "Desi Cattle / Livestock Count (for Bio-Inputs & Manure)",
+      lbl_lab_file: "📄 Upload Recent Lab Report (Soil, Water or Residue Test - PDF/Image, Max 5MB)",
+      lbl_lab_hint: "Stored safely in the collaborative archive for verified consumer traceability.",
       sec_machinery: "🚜 5. Shared Machinery Pool & Processing Assets",
       lbl_machinery_owned: "Equipment / Tools You Own & Can Share in the Pool",
       lbl_machinery_needed: "Equipment You Need from the Group Tool Pool",
+      lbl_processing: "On-Farm Value Addition & Processing Facilities",
       lbl_workforce: "On-Farm Workforce (Family + Regular Help)",
       lbl_labour_deficit: "Peak Labour Deficit Months (For Work Sharing)",
+      lbl_consent: "🔒 <b>Data Governance & Mutual Trust:</b> In accordance with digital data privacy principles, sensitive KYC identifiers and raw lab certifications remain restricted to cluster coordination stewards. Crop volumes, land boundaries, and shared equipment are visible across cluster peers to coordinate joint logistics, machinery pooling, and verified consumer traceability.",
       btn_submit: "💾 Submit Profile to Collaborative Registry"
     },
     pa: {
@@ -305,20 +351,27 @@
       lbl_active_plot_tag: "ਖੇਤ ਦਾ ਨਾਂ / ਪਛਾਣ",
       lbl_active_area: "ਮੌਜੂਦਾ ਨਿਸ਼ਾਨਬੱਧ ਰਕਬਾ",
       lbl_cumulative: "ਕੁੱਲ ਰਕਬਾ",
-      sec_collab: "🤝 3. ਸਾਂਝੇਦਾਰੀ ਦਾ ਮਕਸਦ ਅਤੇ ਖੇਤੀ ਢੰਗ",
+      sec_collab: "🤝 3. ਸਾਂਝੇਦਾਰੀ ਦਾ ਮਕਸਦ ਅਤੇ ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਸਮਾਂ",
       lbl_focus: "ਸਾਂਝੇਦਾਰੀ ਦੀ ਮੁੱਖ ਤਰਜੀਹ *",
       lbl_cert_status: "ਖੇਤੀ / ਪ੍ਰਮਾਣੀਕਰਨ ਦਾ ਤਰੀਕਾ",
-      lbl_cert_agency: "ਪ੍ਰਮਾਣੀਕਰਨ ਅਦਾਰਾ (ਜੇ ਕੋਈ ਹੈ)",
-      sec_crops: "🌾 4. ਫ਼ਸਲਾਂ, ਮਿੱਟੀ ਦੀ ਪਰਖ ਅਤੇ ਪਾਣੀ",
+      lbl_cert_agency: "ਪ੍ਰਮਾਣੀਕਰਨ ਅਦਾਰਾ (ਜਿਵੇਂ ਪੰਜਾਬ ਐਗਰੋ)",
+      lbl_cert_vintage: "ਕੁਦਰਤੀ ਖੇਤੀ ਕਦੋਂ ਤੋਂ ਕਰ ਰਹੇ ਹੋ (ਮਹੀਨਾ ਅਤੇ ਸਾਲ) *",
+      lbl_scope_no: "ਸਕੋਪ ਸਰਟੀਫਿਕੇਟ / ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਨੰਬਰ",
+      sec_crops: "🌾 4. ਫ਼ਸਲਾਂ, ਮਿੱਟੀ ਦੀ ਪਰਖ, ਪਾਣੀ ਅਤੇ ਲੈਬ ਰਿਪੋਰਟ",
       lbl_crops: "ਮੁੱਖ ਫ਼ਸਲਾਂ ਅਤੇ ਕਿਸਮਾਂ",
       lbl_trees: "ਬਾਗ਼, ਰੁੱਖ ਅਤੇ ਬਾਂਸ ਆਦਿ",
       lbl_soc: "ਮਿੱਟੀ ਦਾ ਔਰਗੈਨਿਕ ਕਾਰਬਨ (SOC %) ਤੇ pH",
       lbl_water: "ਸਿੰਚਾਈ ਦਾ ਮੁੱਖ ਸਾਧਨ",
-      sec_machinery: "🚜 5. ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਅਤੇ ਸੰਦ ਬੈਂਕ",
+      lbl_livestock: "ਦੇਸੀ ਗਊਆਂ / ਪਸ਼ੂਆਂ ਦੀ ਗਿਣਤੀ (ਖਾਦ ਅਤੇ ਜੀਵਾਮ੍ਰਿਤ ਲਈ)",
+      lbl_lab_file: "📄 ਲੈਬ ਟੈਸਟ ਰਿਪੋਰਟ ਅਪਲੋਡ ਕਰੋ (ਮਿੱਟੀ, ਪਾਣੀ ਜਾਂ ਰਹਿੰਦ-ਖੂਹੰਦ ਟੈਸਟ - ਵੱਧ ਤੋਂ ਵੱਧ 5MB)",
+      lbl_lab_hint: "ਖਪਤਕਾਰਾਂ ਦੇ ਭਰੋਸੇ ਅਤੇ ਪ੍ਰਮਾਣਿਕਤਾ ਲਈ ਸਾਂਝੇ ਰਿਕਾਰਡ ਵਿੱਚ ਸੁਰੱਖਿਅਤ ਰਹੇਗੀ।",
+      sec_machinery: "🚜 5. ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਅਤੇ ਪ੍ਰੋਸੈਸਿੰਗ ਸਾਧਨ",
       lbl_machinery_owned: "ਸੰਦ ਜੋ ਤੁਹਾਡੇ ਕੋਲ ਹਨ ਅਤੇ ਸਮੂਹ ਨਾਲ ਸਾਂਝੇ ਕਰ ਸਕਦੇ ਹੋ",
       lbl_machinery_needed: "ਸੰਦ ਜਿਨ੍ਹਾਂ ਦੀ ਤੁਹਾਨੂੰ ਲੋੜ ਹੈ",
+      lbl_processing: "ਖੇਤ 'ਤੇ ਪ੍ਰੋਸੈਸਿੰਗ ਸਹੂਲਤ (ਗੁੜ ਵਾਲਾ ਵੇਲਣਾ, ਆਟਾ ਚੱਕੀ, ਡਰਾਇਰ ਆਦਿ)",
       lbl_workforce: "ਖੇਤ ਦੇ ਕਾਮੇ (ਪਰਿਵਾਰਕ + ਪੱਕੇ)",
       lbl_labour_deficit: "ਮਜ਼ਦੂਰਾਂ ਦੀ ਵੱਧ ਘਾਟ ਵਾਲੇ ਮਹੀਨੇ",
+      lbl_consent: "🔒 <b>ਡੇਟਾ ਸੁਰੱਖਿਆ ਅਤੇ ਆਪਸੀ ਭਰੋਸਾ:</b> ਸਰਕਾਰੀ ਪਛਾਣ ਪੱਤਰ ਅਤੇ ਲੈਬ ਸਰਟੀਫਿਕੇਟ ਸਿਰਫ਼ ਕੋਆਰਡੀਨੇਟਰ ਕੋਲ ਸੁਰੱਖਿਅਤ ਰਹਿਣਗੇ। ਫ਼ਸਲਾਂ ਦਾ ਵੇਰਵਾ, ਰਕਬਾ ਅਤੇ ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਮੈਂਬਰਾਂ ਨਾਲ ਸਾਂਝੀ ਕੀਤੀ ਜਾਵੇਗੀ ਤਾਂ ਜੋ ਮੰਡੀਕਰਨ ਸੁਖਾਲਾ ਹੋ ਸਕੇ।",
       btn_submit: "💾 ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ ਰਜਿਸਟਰ ਵਿੱਚ ਦਰਜ ਕਰੋ"
     },
     hi: {
@@ -342,20 +395,27 @@
       lbl_active_plot_tag: "खेत का नाम / पहचान",
       lbl_active_area: "वर्तमान चिह्नित रकबा",
       lbl_cumulative: "कुल रकबा",
-      sec_collab: "🤝 3. साझेदारी का उद्देश्य और खेती का तरीका",
+      sec_collab: "🤝 3. साझेदारी का उद्देश्य और प्रमाणीकरण की अवधि",
       lbl_focus: "साझेदारी की मुख्य प्राथमिकता *",
       lbl_cert_status: "खेती / प्रमाणीकरण का तरीका",
-      lbl_cert_agency: "प्रमाणीकरण संस्था (यदि कोई हो)",
-      sec_crops: "🌾 4. फसलें, मिट्टी की सेहत और पानी",
+      lbl_cert_agency: "प्रमाणीकरण संस्था (जैसे पंजाब एग्रो)",
+      lbl_cert_vintage: "प्राकृतिक खेती कब से कर रहे हैं (माह एवं वर्ष) *",
+      lbl_scope_no: "स्कोप सर्टिफिकेट / पंजीकरण संख्या",
+      sec_crops: "🌾 4. फसलें, मिट्टी की सेहत, पानी और लैब रिपोर्ट",
       lbl_crops: "मुख्य फसलें और किस्में",
       lbl_trees: "बाग, पेड़ एवं बांस आदि",
       lbl_soc: "मिट्टी का जैविक कार्बन (SOC %) व pH",
       lbl_water: "सिंचाई का मुख्य साधन",
-      sec_machinery: "🚜 5. साझा मशीनरी और कृषि उपकरण बैंक",
+      lbl_livestock: "देशी गोवंश / पशुओं की संख्या (खाद एवं जीवामृत हेतु)",
+      lbl_lab_file: "📄 लैब टेस्ट रिपोर्ट अपलोड करें (मिट्टी, पानी या अवशेष परीक्षण - अधिकतम 5MB)",
+      lbl_lab_hint: "उपभोक्ताओं के विश्वास और सत्यापन के लिए साझा रिकॉर्ड में सुरक्षित रहेगी।",
+      sec_machinery: "🚜 5. साझा मशीनरी और प्रसंस्करण उपकरण",
       lbl_machinery_owned: "उपकरण जो आपके पास हैं और समूह में साझा कर सकते हैं",
       lbl_machinery_needed: "उपकरण जिनकी आपको आवश्यकता है",
+      lbl_processing: "खेत पर प्रसंस्करण सुविधाएं (गुड़ कोहलू, आटा चक्की, सोलर ड्रायर आदि)",
       lbl_workforce: "खेत के कामगार (पारिवारिक + स्थायी)",
       lbl_labour_deficit: "मजदूरों की अधिक कमी वाले महीने",
+      lbl_consent: "🔒 <b>डेटा सुरक्षा और पारस्परिक विश्वास:</b> सरकारी पहचान पत्र और मूल लैब प्रमाणपत्र केवल समन्वयकों के पास सुरक्षित रहेंगे। फसलों का विवरण, भूमि सीमाएं और साझा उपकरण सदस्यों के साथ साझा किए जाएंगे ताकि विपणन सुगम हो सके।",
       btn_submit: "💾 किसान साझ केंद्र रजिस्टर में दर्ज करें"
     }
   };
@@ -546,7 +606,7 @@
     const btn = document.getElementById('submitBtn');
     let cumulative = completedParcels.reduce((sum, p) => sum + (parseFloat(p.acres) || 0), 0).toFixed(2);
 
-    const payload = {
+    const basePayload = {
       name: document.getElementById('name').value,
       phone: document.getElementById('phone').value,
       id_number: document.getElementById('id_number').value,
@@ -563,21 +623,20 @@
       legal_preference: document.getElementById('legal_preference').value,
       npop_status: document.getElementById('npop_status').value,
       npop_agency: document.getElementById('npop_agency').value,
-      npop_cert_no: "N/A",
+      cert_vintage: document.getElementById('cert_vintage').value,
+      npop_cert_no: document.getElementById('npop_cert_no').value || "N/A",
       crops: document.getElementById('crops').value,
       horticulture: document.getElementById('horticulture').value,
       soc: document.getElementById('soc_ph').value,
       soil_ph: "Field Recorded",
       soil_test_date: new Date().toLocaleDateString(),
       water_source: document.getElementById('water_source').value,
-      diggi_capacity: "N/A",
+      livestock_count: document.getElementById('livestock_count').value || "0",
       machinery_owned: document.getElementById('machinery_owned').value,
       machinery_needed: document.getElementById('machinery_needed').value,
+      processing_facilities: document.getElementById('processing_facilities').value || "None",
       workforce: document.getElementById('workforce').value,
-      labour_deficit: document.getElementById('labour_deficit').value,
-      market_route: "Direct Collaborative Supply",
-      value_addition: "Captured",
-      govt_schemes: "N/A"
+      labour_deficit: document.getElementById('labour_deficit').value
     };
 
     if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
@@ -586,8 +645,32 @@
     }
 
     btn.disabled = true;
-    btn.innerText = "⏳ Transmitting...";
+    btn.innerText = "⏳ Encoding & Transmitting Record...";
 
+    // File handling
+    const fileInput = document.getElementById('lab_file');
+    if (fileInput.files.length > 0) {
+      const file = fileInput.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size exceeds 5MB limit. Please upload a smaller file or photo.");
+        btn.disabled = false;
+        btn.innerText = translations[currentLang].btn_submit;
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = function(event) {
+        basePayload.fileData = event.target.result;
+        basePayload.fileName = file.name;
+        basePayload.fileType = file.type;
+        executePost(basePayload, cumulative, btn);
+      };
+      reader.readAsDataURL(file);
+    } else {
+      executePost(basePayload, cumulative, btn);
+    }
+  }
+
+  function executePost(payload, cumulative, btn) {
     fetch(SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
@@ -598,14 +681,14 @@
             currentLang === 'hi' ? `✅ पंजीकरण सफल! ${completedParcels.length} खेत (${cumulative} एकड़) दर्ज हो चुके हैं।` :
             `✅ Registration Successful! Logged ${completedParcels.length} plot(s) totaling ${cumulative} Acres.`);
       btn.disabled = false;
-      const dict = translations[currentLang] || translations.en;
-      btn.innerText = dict.btn_submit;
+      btn.innerText = translations[currentLang].btn_submit;
 
       const headerTitle = currentLang === 'pa' ? "*🌾 ਸ਼ਿਵਾਲਿਕ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ*" : 
                           currentLang === 'hi' ? "*🌾 शिवालिक किसान साझ केंद्र*" : 
                           "*🌾 SHIVALIK PRODUCERS COLLABORATIVE*";
       const summary = `${headerTitle}\n` +
                       `• Member: ${payload.name}\n` +
+                      `• Certified Agency: ${payload.npop_agency} (Since ${payload.cert_vintage})\n` +
                       `• Plots Mapped: ${completedParcels.length}\n` +
                       `• Total Holding: ${cumulative} Acres\n` +
                       `• Locality: ${payload.village} (${payload.district})\n` +
