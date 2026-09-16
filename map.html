@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Shivalik Foothills Farmers - Master GIS Map</title>
+
+<!-- Leaflet GIS Engine -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<style>
+  :root {
+    --brand: #1b4332;
+    --accent: #2d6a4f;
+    --border: #e2e8f0;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body, html { height: 100%; width: 100%; overflow: hidden; }
+
+  #map { height: 100%; width: 100%; z-index: 1; }
+
+  /* Floating UI Header */
+  .floating-panel {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(4px);
+    border-radius: 10px;
+    padding: 12px 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+    max-width: 380px;
+    border: 1px solid var(--border);
+  }
+  .floating-panel h1 { font-size: 1.05rem; color: var(--brand); font-weight: 700; margin-bottom: 2px; }
+  .floating-panel p { font-size: 0.75rem; color: #475569; margin-bottom: 8px; }
+  .stat-badge {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    background: #e8f5e9;
+    color: #1b4332;
+    border: 1px solid #c8e6c9;
+    margin-right: 4px;
+  }
+
+  /* Custom Popup Styling */
+  .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 250px; max-width: 320px; }
+  .popup-header { background: var(--brand); color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
+  .popup-header h3 { font-size: 0.95rem; margin-bottom: 2px; }
+  .popup-header div { font-size: 0.72rem; color: #b7e4c7; }
+  .badge-cert { display: inline-block; background: #059669; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-bottom: 6px; }
+  .data-row { margin-bottom: 5px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; }
+  .data-row:last-child { border-bottom: none; }
+  .data-label { font-weight: 700; color: #1e293b; }
+</style>
+</head>
+<body>
+
+<div class="floating-panel">
+  <h1>🌾 Shivalik Farmers Master GIS Map</h1>
+  <p>Cluster Footprint: Rupnagar, Mohali, Panchkula & Shivalik Belt</p>
+  <div>
+    <span class="stat-badge" id="lbl-total-farms">Farms: 0</span>
+    <span class="stat-badge" id="lbl-total-acres">Acreage: 0.00 Ac</span>
+  </div>
+</div>
+
+<div id="map"></div>
+
+<script>
+  // ⚠️ REPLACE WITH YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL:
+  const API_ENDPOINT = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE";
+
+  // Initialize Map centered around Ropar/Mohali/Shivalik Belt
+  const map = L.map('map', {
+    center: [30.95, 76.51],
+    zoom: 12,
+    zoomControl: false
+  });
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  // Basemaps
+  const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Esri Satellite &copy; Shivalik GIS',
+    maxZoom: 19
+  }).addTo(map);
+
+  const osmStreets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap'
+  });
+
+  L.control.layers({
+    "🛰️ Satellite Imagery": esriSat,
+    "🗺️ Street & Road Map": osmStreets
+  }, null, { position: 'topright' }).addTo(map);
+
+  const farmBoundsGroup = L.featureGroup().addTo(map);
+
+  // Fallback data: Seeded with your verified trial entry (Jagdish Organics)
+  const defaultFallbackData = [{
+    "Farmer Name": "Devinder Singh",
+    "Village": "Jagdish Organics, Village Khairabad, Bela Road, Tehsil Ropar, Distt. Rupnagar",
+    "District": "Rupnagar (Ropar)",
+    "Total Acres": "3.58 Acres",
+    "GPS Lat": 30.9503,
+    "GPS Lng": 76.50557,
+    "Boundary GeoJSON": '[{"lat":30.949458,"lng":76.505541},{"lat":30.949439,"lng":76.506308},{"lat":30.950079,"lng":76.507193},{"lat":30.950148,"lng":76.507112},{"lat":30.950222,"lng":76.507225},{"lat":30.950318,"lng":76.507144},{"lat":30.950502,"lng":76.507434},{"lat":30.950686,"lng":76.507043},{"lat":30.950516,"lng":76.506984},{"lat":30.950516,"lng":76.506276},{"lat":30.950286,"lng":76.506260},{"lat":30.950295,"lng":76.505574}]',
+    "NPOP/PGS Status": "Certified NPOP",
+    "Certification Agency": "SGS India Pvt Ltd (ORG/SC/1203/000348)",
+    "Primary Crops": "Multi-Cropping (Sugarcane, Wheat, Basmati Rice, Turmeric, Groundnut, Ginger, Garlic, Pulses)",
+    "Orchard/Horticulture Details": "Mini-Forest of 700+ native plants, Fruit Orchard of 150+ mixed varieties",
+    "Soil Organic Carbon (%)": "SOC 0.6 - 0.65% & pH 7.5-8.0",
+    "Water Source": "Deep Tubewell + Drip",
+    "Machinery Owned (CHC)": "BCS 8HP Weeder, Agri Waste Shredder, Compost Screening Machine",
+    "Legal Preference": "Society - User Member"
+  }];
+
+  function loadFarms() {
+    if (!API_ENDPOINT || API_ENDPOINT.includes("https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec")) {
+      renderFarms(defaultFallbackData);
+      return;
+    }
+
+    fetch(API_ENDPOINT)
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data) && data.length > 0) {
+          renderFarms(data);
+        } else {
+          renderFarms(defaultFallbackData);
+        }
+      })
+      .catch(err => {
+        console.warn("Could not fetch live rows, rendering fallback entry:", err);
+        renderFarms(defaultFallbackData);
+      });
+  }
+
+  function renderFarms(farms) {
+    farmBoundsGroup.clearLayers();
+    let totalAcres = 0;
+    let validCount = 0;
+
+    farms.forEach(f => {
+      let coords = [];
+      try {
+        if (typeof f['Boundary GeoJSON'] === 'string') {
+          coords = JSON.parse(f['Boundary GeoJSON']);
+        } else if (Array.isArray(f['Boundary GeoJSON'])) {
+          coords = f['Boundary GeoJSON'];
+        }
+      } catch(e) {}
+
+      // Render polygon boundary if points exist
+      if (Array.isArray(coords) && coords.length >= 3) {
+        const polygon = L.polygon(coords, {
+          color: '#00ff88',
+          weight: 2.5,
+          fillColor: '#00ff88',
+          fillOpacity: 0.35
+        });
+
+        const acresNum = parseFloat(f['Total Acres']) || 0;
+        totalAcres += acresNum;
+        validCount++;
+
+        const popupContent = `
+          <div class="popup-header">
+            <h3>${f['Farmer Name'] || 'Member Farm'}</h3>
+            <div>${f['Village'] || ''}</div>
+          </div>
+          <div>
+            <span class="badge-cert">${f['NPOP/PGS Status'] || 'Natural Farm'}</span>
+            <div class="data-row"><span class="data-label">Holding:</span> ${f['Total Acres'] || 'N/A'}</div>
+            <div class="data-row"><span class="data-label">Legal Model:</span> ${f['Legal Preference'] || 'Not specified'}</div>
+            <div class="data-row"><span class="data-label">Crops:</span> ${f['Primary Crops'] || 'N/A'}</div>
+            <div class="data-row"><span class="data-label">Orchards/Forest:</span> ${f['Orchard/Horticulture Details'] || 'None'}</div>
+            <div class="data-row"><span class="data-label">Soil & Water:</span> ${f['Soil Organic Carbon (%)'] || ''} | ${f['Water Source'] || ''}</div>
+            <div class="data-row"><span class="data-label">CHC Equipment:</span> ${f['Machinery Owned (CHC)'] || 'None listed'}</div>
+          </div>
+        `;
+
+        polygon.bindPopup(popupContent);
+        farmBoundsGroup.addLayer(polygon);
+
+        // Marker at the center of the field
+        if (f['GPS Lat'] && f['GPS Lng']) {
+          const marker = L.circleMarker([parseFloat(f['GPS Lat']), parseFloat(f['GPS Lng'])], {
+            radius: 5,
+            color: '#ffffff',
+            fillColor: '#00ff88',
+            fillOpacity: 1,
+            weight: 2
+          });
+          marker.bindPopup(popupContent);
+          farmBoundsGroup.addLayer(marker);
+        }
+      }
+    });
+
+    document.getElementById('lbl-total-farms').innerText = `Farms: ${validCount}`;
+    document.getElementById('lbl-total-acres').innerText = `Acreage: ${totalAcres.toFixed(2)} Ac`;
+
+    // Zoom automatically to fit all submitted farms
+    if (farmBoundsGroup.getLayers().length > 0) {
+      map.fitBounds(farmBoundsGroup.getBounds(), { padding: [40, 40] });
+    }
+  }
+
+  loadFarms();
+</script>
+
+</body>
+</html>
