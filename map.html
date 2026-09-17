@@ -577,5 +577,38 @@
   loadFarms();
 </script>
 
+<!-- MAP VISITATION TRACKER -->
+<script>
+  (function logMapVisit() {
+    let mapVisitor = {
+      action: "log_visitor",
+      page: "Master GIS Map (map.html)",
+      stage: "Viewing Map",
+      userAgent: navigator.userAgent.includes("iPhone") ? "iPhone" : (navigator.userAgent.includes("Android") ? "Android" : "Desktop"),
+      location: "Locating...",
+      isp: ""
+    };
+
+    fetch("https://ipapi.co/json/")
+      .then(r => r.json())
+      .then(g => {
+        mapVisitor.location = `${g.city || ''}, ${g.region || ''} (${g.country_name || ''})`;
+        mapVisitor.isp = g.org || '';
+        postVisit(mapVisitor);
+      })
+      .catch(() => postVisit(mapVisitor));
+
+    function postVisit(payload) {
+      if (!API_ENDPOINT || API_ENDPOINT.includes("PASTE_YOUR")) return;
+      fetch(API_ENDPOINT, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+  })();
+</script>
+  
 </body>
 </html>
