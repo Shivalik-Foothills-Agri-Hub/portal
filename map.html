@@ -132,42 +132,54 @@
     display: inline-block;
   }
 
-  /* Draggable Callout Leader Box with Crop Badges */
+  /* Leaflet divIcon Container Override (Prevents 12px squishing) */
+  .custom-callout-wrapper {
+    background: transparent !important;
+    border: none !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* High-Contrast Draggable Callout Badge */
   .callout-label {
-    background: rgba(255, 255, 255, 0.96);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-size: 0.74rem;
-    font-weight: 700;
-    color: #0f172a;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    background: #0f172a; /* Solid Deep Slate */
+    color: #ffffff;
+    border-radius: 8px;
+    padding: 5px 10px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
     white-space: nowrap;
     cursor: grab;
     user-select: none;
-    text-align: center;
-    display: flex;
+    display: inline-flex;
     flex-direction: column;
     align-items: center;
     line-height: 1.25;
-    transition: box-shadow 0.2s;
+    pointer-events: auto;
   }
-  .callout-label:active { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .callout-label:active {
+    cursor: grabbing;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8);
+  }
   .callout-header {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 6px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: #ffffff; /* Crisp Pure White */
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
   }
   .callout-crops-icon {
-    font-size: 0.85rem;
-    letter-spacing: 1px;
+    font-size: 0.95rem;
   }
   .callout-label small { 
-    font-size: 0.62rem; 
-    color: #475569; 
-    font-weight: 600; 
+    font-size: 0.66rem; 
+    color: #cbd5e1; /* Silver Gray for Sub-text */
+    font-weight: 600;
+    margin-top: 1px;
   }
 
-  /* Click Popup */
+  /* Detailed Click Popup */
   .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 250px; max-width: 320px; }
   .popup-header { color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
   .popup-header h3 { font-size: 0.92rem; margin-bottom: 2px; }
@@ -209,7 +221,6 @@
 <div id="map"></div>
 
 <script>
-  // Active Google Apps Script URL:
   const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
   const map = L.map('map', {
@@ -259,7 +270,6 @@
     return FARMER_PALETTE[Math.abs(hash) % FARMER_PALETTE.length];
   }
 
-  // Automatic Crop Emoji Extractor based on keywords
   function getCropEmojis(cropsText, horticultureText) {
     const raw = `${cropsText || ''} ${horticultureText || ''}`.toLowerCase();
     const icons = [];
@@ -275,7 +285,6 @@
     return icons.length > 0 ? icons.slice(0, 3).join('') : '🌱';
   }
 
-  // Notified Kandi Sub-Mountainous Tract definition (Off by default)
   const kandiFootprintGeoJSON = {
     "type": "FeatureCollection",
     "features": [
@@ -401,21 +410,23 @@
         const parcelTag = f['Parcel Identifier'] || `Plot ${idx + 1}`;
         const centerLatLng = polygon.getBounds().getCenter();
 
-        // 1. Initial Callout Offset (Place 35 meters slightly North)
+        // Initial Callout Offset: 35 meters North
         const initialLabelLat = centerLatLng.lat + 0.00035;
         const initialLabelLng = centerLatLng.lng;
 
-        // 2. Leader line connecting field center to draggable callout box
+        // Leader line connecting field center to draggable callout box
         const leaderLine = L.polyline([[centerLatLng.lat, centerLatLng.lng], [initialLabelLat, initialLabelLng]], {
           color: color,
-          weight: 1.8,
-          dashArray: '3, 4',
-          opacity: 0.9
+          weight: 2,
+          dashArray: '4, 4',
+          opacity: 0.95
         }).addTo(leaderLinesGroup);
 
-        // 3. Draggable Callout Label Marker with Crop Icons
+        // High-Contrast Pill Marker with iconSize: null
         const labelIcon = L.divIcon({
-          className: 'custom-callout-container',
+          className: 'custom-callout-wrapper',
+          iconSize: null,
+          iconAnchor: [50, 20],
           html: `
             <div class="callout-label" style="border: 2px solid ${color};">
               <div class="callout-header">
@@ -424,8 +435,7 @@
               </div>
               <small>${parcelTag} &bull; ${f['Parcel Acres'] || ''}</small>
             </div>
-          `,
-          iconAnchor: [60, 20]
+          `
         });
 
         const labelMarker = L.marker([initialLabelLat, initialLabelLng], {
@@ -433,7 +443,7 @@
           draggable: true
         }).addTo(labelsGroup);
 
-        // Live update leader line on drag
+        // Dynamically update leader line when user drags the badge
         labelMarker.on('drag', function(e) {
           const currentPos = e.target.getLatLng();
           leaderLine.setLatLngs([
@@ -442,7 +452,7 @@
           ]);
         });
 
-        // Popup details
+        // Detailed Popup Content
         const certVintageText = f['Cert Vintage (Practicing Since)'] ? `<br><small style="color:#64748b;">Practicing Since: ${f['Cert Vintage (Practicing Since)']}</small>` : '';
         const labReportLink = (f['Lab Report Drive Link'] && f['Lab Report Drive Link'].startsWith('http')) 
           ? `<div class="data-row"><a href="${f['Lab Report Drive Link']}" target="_blank" class="btn-report">📄 View Verified Lab Report</a></div>` 
@@ -482,7 +492,6 @@
     }
   }
 
-  // Populate Farmers Directory in Header with Crop Emojis
   function populateDirectory(farms) {
     const drawer = document.getElementById('directoryDrawer');
     const uniqueFarmers = {};
