@@ -69,6 +69,32 @@
     border: 1px solid #c8e6c9;
   }
 
+  /* Always-Visible Farm Plot Badges */
+  .farmer-label-badge {
+    background: rgba(15, 23, 42, 0.82) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+    color: #ffffff !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    padding: 2px 8px !important;
+    border-radius: 6px !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+    white-space: nowrap !important;
+    pointer-events: none !important;
+    text-align: center;
+    line-height: 1.25;
+  }
+  .farmer-label-badge::before {
+    display: none !important; /* Removes default tooltip arrow pointer */
+  }
+  .farmer-label-badge span {
+    display: block;
+    font-size: 0.62rem;
+    color: #cbd5e1;
+    font-weight: 500;
+  }
+
+  /* Detailed Click Popup */
   .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 260px; max-width: 340px; }
   .popup-header { background: var(--brand); color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
   .popup-header h3 { font-size: 0.95rem; margin-bottom: 2px; }
@@ -122,6 +148,35 @@
 
   const farmBoundsGroup = L.featureGroup().addTo(map);
 
+  // Distinct High-Contrast Palette for Farmers
+  const FARMER_PALETTE = [
+    '#00f5d4', // Bright Turquoise
+    '#ffbe0b', // Amber Gold
+    '#fb5607', // Coral Orange
+    '#ff006e', // Magenta
+    '#8338ec', // Purple
+    '#3a86ff', // Royal Blue
+    '#06d6a0', // Mint Green
+    '#e63946', // Ruby Red
+    '#ffb703', // Sunflower Yellow
+    '#52b788', // Emerald
+    '#a2d2ff', // Sky Blue
+    '#f72585'  // Deep Rose
+  ];
+
+  // Hash function to assign a consistent, distinct color to each unique farmer
+  function getFarmerColor(identifier) {
+    if (!identifier) return FARMER_PALETTE[0];
+    let hash = 0;
+    const str = String(identifier).trim().toLowerCase();
+    for (let i = 0; i < str.length; i++) {
+      hash = str.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    const index = Math.abs(hash) % FARMER_PALETTE.length;
+    return FARMER_PALETTE[index];
+  }
+
+  // Notified Kandi Sub-Mountainous Tract Coordinates
   const kandiFootprintGeoJSON = {
     "type": "FeatureCollection",
     "features": [
@@ -222,16 +277,30 @@
       } catch(e) {}
 
       if (Array.isArray(coords) && coords.length >= 3) {
+        const farmerName = f['Farmer Name'] || 'Hub Member';
+        const farmerKey = f['Phone'] || farmerName;
+        const color = getFarmerColor(farmerKey);
+
         const polygon = L.polygon(coords, {
-          color: '#00ff88',
-          weight: 2.5,
-          fillColor: '#00ff88',
-          fillOpacity: 0.35
+          color: color,
+          weight: 3,
+          fillColor: color,
+          fillOpacity: 0.45
         });
 
         const acresNum = parseFloat(f['Parcel Acres'] || f['Total Acres']) || 0;
         totalAcres += acresNum;
         validCount++;
+
+        const parcelTag = f['Parcel Identifier'] || '';
+        const badgeHTML = `<b>${farmerName}</b>${parcelTag ? `<span>${parcelTag} (${f['Parcel Acres'] || ''})</span>` : ''}`;
+
+        // Permanent, centered label over the plot
+        polygon.bindTooltip(badgeHTML, {
+          permanent: true,
+          direction: 'center',
+          className: 'farmer-label-badge'
+        });
 
         const certVintageText = f['Cert Vintage (Practicing Since)'] ? `<br><small style="color:#64748b;">Practicing Since: ${f['Cert Vintage (Practicing Since)']}</small>` : '';
         const labReportLink = (f['Lab Report Drive Link'] && f['Lab Report Drive Link'].startsWith('http')) 
@@ -239,9 +308,9 @@
           : '';
 
         const popupContent = `
-          <div class="popup-header">
-            <h3>${f['Farmer Name'] || 'Hub Member'}</h3>
-            <div>${f['Parcel Identifier'] ? f['Parcel Identifier'] + ' &bull; ' : ''}${f['Village'] || ''}</div>
+          <div class="popup-header" style="background:${color}; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">
+            <h3>${farmerName}</h3>
+            <div>${parcelTag ? parcelTag + ' &bull; ' : ''}${f['Village'] || ''}</div>
           </div>
           <div>
             <span class="badge-cert">${f['NPOP/PGS Status'] || 'Chemical-Free'}</span>
@@ -264,7 +333,7 @@
           const marker = L.circleMarker([parseFloat(f['GPS Lat']), parseFloat(f['GPS Lng'])], {
             radius: 5,
             color: '#ffffff',
-            fillColor: '#00ff88',
+            fillColor: color,
             fillOpacity: 1,
             weight: 2
           });
