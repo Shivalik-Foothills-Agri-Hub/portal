@@ -20,6 +20,7 @@
 
   #map { height: 100%; width: 100%; z-index: 1; }
 
+  /* Floating Control Header */
   .floating-panel {
     position: absolute;
     top: 12px;
@@ -30,32 +31,31 @@
     border-radius: 10px;
     padding: 12px 16px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.22);
-    max-width: 380px;
+    max-width: 360px;
     border: 1px solid var(--border);
   }
   .header-brand-row {
     display: flex;
     align-items: center;
-    gap: 12px;
-    margin-bottom: 8px;
+    gap: 10px;
+    margin-bottom: 6px;
   }
   .map-logo {
-    height: 50px;
+    height: 44px;
     width: auto;
-    max-width: 90px;
     border-radius: 6px;
     object-fit: contain;
     border: 1.5px solid #d4a373;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     background: #2b1d0c;
-    flex-shrink: 0;
   }
-  .floating-panel h1 { font-size: 1.02rem; color: var(--brand); font-weight: 700; margin: 0; line-height: 1.25; }
-  .floating-panel p { font-size: 0.74rem; color: #475569; margin: 2px 0 0 0; }
+  .floating-panel h1 { font-size: 0.95rem; color: var(--brand); font-weight: 800; margin: 0; line-height: 1.25; }
+  .floating-panel p { font-size: 0.72rem; color: #475569; margin: 2px 0 0 0; }
   
   .stats-row {
     margin-top: 6px;
     display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 6px;
   }
   .stat-badge {
@@ -68,12 +68,21 @@
     color: #1b4332;
     border: 1px solid #c8e6c9;
   }
+  .btn-directory-toggle {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
 
-  /* Search Bar inside Floating Panel */
   .search-box-row {
     display: flex;
     gap: 6px;
-    margin-top: 10px;
+    margin-top: 8px;
   }
   .search-box-row input {
     flex: 1;
@@ -84,45 +93,87 @@
     outline: none;
   }
   .search-box-row button {
-    background: var(--accent);
+    background: #0f172a;
     color: #fff;
     border: none;
     border-radius: 6px;
-    padding: 6px 12px;
+    padding: 6px 10px;
     font-size: 0.76rem;
     font-weight: 700;
     cursor: pointer;
   }
 
-  /* Permanent Farmer Plot Labels */
-  .farmer-label-badge {
-    background: rgba(15, 23, 42, 0.85) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
-    color: #ffffff !important;
-    font-size: 0.72rem !important;
-    font-weight: 700 !important;
-    padding: 2px 8px !important;
-    border-radius: 6px !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
-    white-space: nowrap !important;
-    pointer-events: none !important;
-    text-align: center;
-    line-height: 1.25;
+  /* Farmer Directory Drawer */
+  .directory-drawer {
+    display: none;
+    max-height: 220px;
+    overflow-y: auto;
+    margin-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 8px;
   }
-  .farmer-label-badge::before { display: none !important; }
-  .farmer-label-badge span {
-    display: block;
-    font-size: 0.62rem;
-    color: #cbd5e1;
-    font-weight: 500;
+  .directory-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 8px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: background 0.15s;
+    border-bottom: 1px dashed #f1f5f9;
+  }
+  .directory-item:hover { background: #f1f5f9; }
+  .directory-color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+    display: inline-block;
   }
 
-  .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 260px; max-width: 340px; }
+  /* Draggable Callout Leader Box with Crop Badges */
+  .callout-label {
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 6px;
+    padding: 4px 8px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #0f172a;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+    white-space: nowrap;
+    cursor: grab;
+    user-select: none;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    line-height: 1.25;
+    transition: box-shadow 0.2s;
+  }
+  .callout-label:active { cursor: grabbing; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+  .callout-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .callout-crops-icon {
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+  }
+  .callout-label small { 
+    font-size: 0.62rem; 
+    color: #475569; 
+    font-weight: 600; 
+  }
+
+  /* Click Popup */
+  .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 250px; max-width: 320px; }
   .popup-header { color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
-  .popup-header h3 { font-size: 0.95rem; margin-bottom: 2px; }
+  .popup-header h3 { font-size: 0.92rem; margin-bottom: 2px; }
   .popup-header div { font-size: 0.72rem; color: #f1f5f9; }
   .badge-cert { display: inline-block; background: #059669; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-bottom: 6px; }
-  .data-row { margin-bottom: 5px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; }
+  .data-row { margin-bottom: 4px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; }
   .data-row:last-child { border-bottom: none; }
   .data-label { font-weight: 700; color: #1e293b; }
   .btn-report { display: inline-block; background: #0284c7; color: #fff; text-decoration: none; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; margin-top: 4px; }
@@ -132,22 +183,27 @@
 
 <div class="floating-panel">
   <div class="header-brand-row">
-    <img src="logo.jpeg" alt="Community Circle Logo" class="map-logo" onerror="this.style.display='none'">
+    <img src="logo.jpeg" alt="Community Logo" class="map-logo" onerror="this.style.display='none'">
     <div>
       <h1>🌾 Shivalik Foothills Innovative Farmers Hub</h1>
-      <p>ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ &bull; Unified Community Circle (Est. 2026)</p>
+      <p>ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ &bull; Unified Community Circle</p>
     </div>
   </div>
 
   <div class="stats-row">
-    <span class="stat-badge" id="lbl-total-farms">Plots: 0</span>
-    <span class="stat-badge" id="lbl-total-acres">Acreage: 0.00 Ac</span>
+    <div>
+      <span class="stat-badge" id="lbl-total-farms">Plots: 0</span>
+      <span class="stat-badge" id="lbl-total-acres">0.00 Ac</span>
+    </div>
+    <button type="button" class="btn-directory-toggle" onclick="toggleDirectory()">👥 Directory</button>
   </div>
 
   <div class="search-box-row">
     <input type="text" id="villageQuery" placeholder="Search village (e.g. Nurpur Bedi, Ropar)">
     <button type="button" onclick="searchLocation()">🔍 Find</button>
   </div>
+
+  <div class="directory-drawer" id="directoryDrawer"></div>
 </div>
 
 <div id="map"></div>
@@ -156,7 +212,6 @@
   // Active Google Apps Script URL:
   const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
-  // Initialize Map directly at field zoom (14) centered on Rupnagar/Shivalik foothills
   const map = L.map('map', {
     center: [30.965, 76.530],
     zoom: 14,
@@ -165,27 +220,28 @@
   });
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  // 1. High-Resolution Google Hybrid Satellite (Imagery + Field Paths)
   const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
     maxZoom: 22,
     maxNativeZoom: 20,
     attribution: '&copy; Google Satellite'
   }).addTo(map);
 
-  // 2. Esri High-Resolution Satellite
   const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 22,
     maxNativeZoom: 19,
     attribution: 'Esri Satellite'
   });
 
-  // 3. OpenStreetMap Streets
   const osmStreets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     maxZoom: 19,
     attribution: '&copy; OpenStreetMap'
   });
 
   const farmBoundsGroup = L.featureGroup().addTo(map);
+  const labelsGroup = L.layerGroup().addTo(map);
+  const leaderLinesGroup = L.layerGroup().addTo(map);
+
+  let rawFarmersData = [];
 
   const FARMER_PALETTE = [
     '#00f5d4', '#ffbe0b', '#fb5607', '#ff006e', 
@@ -203,7 +259,23 @@
     return FARMER_PALETTE[Math.abs(hash) % FARMER_PALETTE.length];
   }
 
-  // Notified Kandi Sub-Mountainous Tract definition
+  // Automatic Crop Emoji Extractor based on keywords
+  function getCropEmojis(cropsText, horticultureText) {
+    const raw = `${cropsText || ''} ${horticultureText || ''}`.toLowerCase();
+    const icons = [];
+
+    if (/wheat|kanak|gehun|paddy|rice|jowar|bajra|maize|makki/.test(raw)) icons.push('🌾');
+    if (/turmeric|haldi|ginger|adrak|garlic|onion|potato|aloo/.test(raw)) icons.push('🫚');
+    if (/citrus|kinnow|lemon|nimbu|mango|amla|guava|ber|fruit|orchard|orange/.test(raw)) icons.push('🍋');
+    if (/sugarcane|ganna|cane/.test(raw)) icons.push('🎋');
+    if (/map|herbal|medicinal|tulsi|mint|pudina|lemongrass|moringa|ashwagandha|rose/.test(raw)) icons.push('🌿');
+    if (/mustard|sarson|sesame|til|groundnut|oilseed|sunflower/.test(raw)) icons.push('🌻');
+    if (/vegetable|sabzi|tomato|pea|matar|bhindi|brinjal|cucumber/.test(raw)) icons.push('🥦');
+
+    return icons.length > 0 ? icons.slice(0, 3).join('') : '🌱';
+  }
+
+  // Notified Kandi Sub-Mountainous Tract definition (Off by default)
   const kandiFootprintGeoJSON = {
     "type": "FeatureCollection",
     "features": [
@@ -242,16 +314,20 @@
     </div>
   `);
 
-  // Notice: kandiLayer is NOT added via .addTo(map) here, keeping it off by default.
-  // It is available on-demand inside the layer switcher:
   L.control.layers({
     "🛰️ High-Res Satellite (Hybrid)": googleHybrid,
     "🛰️ Esri Satellite": esriSat,
     "🗺️ Street Map": osmStreets
   }, {
     "📍 Notified Kandi Belt (Reference)": kandiLayer,
-    "🌾 Member Farm Boundaries": farmBoundsGroup
+    "🌾 Farm Polygons": farmBoundsGroup,
+    "🏷️ Farmer Name Tags": labelsGroup
   }, { position: 'topright' }).addTo(map);
+
+  function toggleDirectory() {
+    const drawer = document.getElementById('directoryDrawer');
+    drawer.style.display = drawer.style.display === 'block' ? 'none' : 'block';
+  }
 
   function searchLocation() {
     const q = document.getElementById('villageQuery').value.trim();
@@ -265,10 +341,7 @@
           const lat = parseFloat(results[0].lat);
           const lon = parseFloat(results[0].lon);
           map.setView([lat, lon], 16);
-          L.popup()
-            .setLatLng([lat, lon])
-            .setContent(`<b>📍 ${results[0].display_name.split(',')[0]}</b>`)
-            .openOn(map);
+          L.popup().setLatLng([lat, lon]).setContent(`<b>📍 ${results[0].display_name.split(',')[0]}</b>`).openOn(map);
         } else {
           alert("Location not found. Try entering a nearby tehsil or landmark.");
         }
@@ -283,7 +356,9 @@
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data) && data.length > 0) {
+          rawFarmersData = data;
           renderFarms(data);
+          populateDirectory(data);
         }
       })
       .catch(err => console.warn("Error loading cluster plots:", err));
@@ -291,10 +366,12 @@
 
   function renderFarms(farms) {
     farmBoundsGroup.clearLayers();
+    labelsGroup.clearLayers();
+    leaderLinesGroup.clearLayers();
     let totalAcres = 0;
     let validCount = 0;
 
-    farms.forEach(f => {
+    farms.forEach((f, idx) => {
       let coords = [];
       try {
         if (typeof f['Boundary GeoJSON'] === 'string') {
@@ -308,10 +385,11 @@
         const farmerName = f['Farmer Name'] || 'Hub Member';
         const farmerKey = f['Phone'] || farmerName;
         const color = getFarmerColor(farmerKey);
+        const cropEmojis = getCropEmojis(f['Primary Crops'], f['Orchard/Horticulture Details']);
 
         const polygon = L.polygon(coords, {
           color: color,
-          weight: 3,
+          weight: 2.5,
           fillColor: color,
           fillOpacity: 0.45
         });
@@ -320,15 +398,51 @@
         totalAcres += acresNum;
         validCount++;
 
-        const parcelTag = f['Parcel Identifier'] || '';
-        const badgeHTML = `<b>${farmerName}</b>${parcelTag ? `<span>${parcelTag} (${f['Parcel Acres'] || ''})</span>` : ''}`;
+        const parcelTag = f['Parcel Identifier'] || `Plot ${idx + 1}`;
+        const centerLatLng = polygon.getBounds().getCenter();
 
-        polygon.bindTooltip(badgeHTML, {
-          permanent: true,
-          direction: 'center',
-          className: 'farmer-label-badge'
+        // 1. Initial Callout Offset (Place 35 meters slightly North)
+        const initialLabelLat = centerLatLng.lat + 0.00035;
+        const initialLabelLng = centerLatLng.lng;
+
+        // 2. Leader line connecting field center to draggable callout box
+        const leaderLine = L.polyline([[centerLatLng.lat, centerLatLng.lng], [initialLabelLat, initialLabelLng]], {
+          color: color,
+          weight: 1.8,
+          dashArray: '3, 4',
+          opacity: 0.9
+        }).addTo(leaderLinesGroup);
+
+        // 3. Draggable Callout Label Marker with Crop Icons
+        const labelIcon = L.divIcon({
+          className: 'custom-callout-container',
+          html: `
+            <div class="callout-label" style="border: 2px solid ${color};">
+              <div class="callout-header">
+                <span class="callout-crops-icon">${cropEmojis}</span>
+                <span>${farmerName}</span>
+              </div>
+              <small>${parcelTag} &bull; ${f['Parcel Acres'] || ''}</small>
+            </div>
+          `,
+          iconAnchor: [60, 20]
         });
 
+        const labelMarker = L.marker([initialLabelLat, initialLabelLng], {
+          icon: labelIcon,
+          draggable: true
+        }).addTo(labelsGroup);
+
+        // Live update leader line on drag
+        labelMarker.on('drag', function(e) {
+          const currentPos = e.target.getLatLng();
+          leaderLine.setLatLngs([
+            [centerLatLng.lat, centerLatLng.lng],
+            [currentPos.lat, currentPos.lng]
+          ]);
+        });
+
+        // Popup details
         const certVintageText = f['Cert Vintage (Practicing Since)'] ? `<br><small style="color:#64748b;">Practicing Since: ${f['Cert Vintage (Practicing Since)']}</small>` : '';
         const labReportLink = (f['Lab Report Drive Link'] && f['Lab Report Drive Link'].startsWith('http')) 
           ? `<div class="data-row"><a href="${f['Lab Report Drive Link']}" target="_blank" class="btn-report">📄 View Verified Lab Report</a></div>` 
@@ -336,8 +450,8 @@
 
         const popupContent = `
           <div class="popup-header" style="background:${color};">
-            <h3>${farmerName}</h3>
-            <div>${parcelTag ? parcelTag + ' &bull; ' : ''}${f['Village'] || ''}</div>
+            <h3>${cropEmojis} ${farmerName}</h3>
+            <div>${parcelTag} &bull; ${f['Village'] || ''}</div>
           </div>
           <div style="padding-top:4px;">
             <span class="badge-cert">${f['NPOP/PGS Status'] || 'Chemical-Free'}</span>
@@ -354,28 +468,54 @@
         `;
 
         polygon.bindPopup(popupContent);
-        farmBoundsGroup.addLayer(polygon);
+        labelMarker.on('click', () => polygon.openPopup());
 
-        if (f['GPS Lat'] && f['GPS Lng']) {
-          const marker = L.circleMarker([parseFloat(f['GPS Lat']), parseFloat(f['GPS Lng'])], {
-            radius: 5,
-            color: '#ffffff',
-            fillColor: color,
-            fillOpacity: 1,
-            weight: 2
-          });
-          marker.bindPopup(popupContent);
-          farmBoundsGroup.addLayer(marker);
-        }
+        farmBoundsGroup.addLayer(polygon);
       }
     });
 
     document.getElementById('lbl-total-farms').innerText = `Plots: ${validCount}`;
-    document.getElementById('lbl-total-acres').innerText = `Acreage: ${totalAcres.toFixed(2)} Ac`;
+    document.getElementById('lbl-total-acres').innerText = `${totalAcres.toFixed(2)} Ac`;
 
-    // Zoom directly to registered plots once loaded
     if (farmBoundsGroup.getLayers().length > 0) {
       map.fitBounds(farmBoundsGroup.getBounds(), { padding: [40, 40] });
+    }
+  }
+
+  // Populate Farmers Directory in Header with Crop Emojis
+  function populateDirectory(farms) {
+    const drawer = document.getElementById('directoryDrawer');
+    const uniqueFarmers = {};
+
+    farms.forEach(f => {
+      const name = f['Farmer Name'] || 'Hub Member';
+      if (!uniqueFarmers[name]) {
+        uniqueFarmers[name] = {
+          name: name,
+          village: f['Village'] || '',
+          color: getFarmerColor(f['Phone'] || name),
+          cropIcons: getCropEmojis(f['Primary Crops'], f['Orchard/Horticulture Details']),
+          lat: parseFloat(f['GPS Lat']),
+          lng: parseFloat(f['GPS Lng'])
+        };
+      }
+    });
+
+    drawer.innerHTML = Object.values(uniqueFarmers).map(u => `
+      <div class="directory-item" onclick="zoomToFarmer(${u.lat}, ${u.lng})">
+        <div>
+          <span class="directory-color-dot" style="background:${u.color};"></span>
+          <span>${u.cropIcons}</span> <b>${u.name}</b>
+        </div>
+        <span style="color:#64748b;">${u.village ? u.village.split(',')[0] : ''}</span>
+      </div>
+    `).join('');
+  }
+
+  function zoomToFarmer(lat, lng) {
+    if (lat && lng) {
+      map.flyTo([lat, lng], 18, { animate: true, duration: 1.2 });
+      toggleDirectory();
     }
   }
 
