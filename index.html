@@ -49,12 +49,14 @@
     }
 
     .lang-bar select {
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 6px;
       border: 1px solid var(--border);
       background: white;
-      font-weight: 600;
+      font-weight: 700;
       cursor: pointer;
+      color: var(--primary);
+      outline: none;
     }
 
     .header-card {
@@ -240,7 +242,6 @@
       background-color: #d97706;
     }
 
-    /* Hover Cursor on Boundary Lines */
     .leaflet-interactive.edge-split-hover {
       cursor: copy !important;
     }
@@ -287,7 +288,7 @@
 <div class="container">
   <!-- Language Toggle -->
   <div class="lang-bar">
-    <span>ਭਾਸ਼ਾ / Language / भाषा:</span>
+    <span id="txtLangLabel">ਭਾਸ਼ਾ / Language / भाषा:</span>
     <select id="langSwitcher" onchange="switchLanguage(this.value)">
       <option value="en" selected>English</option>
       <option value="pa">ਪੰਜਾਬੀ (Punjabi)</option>
@@ -368,8 +369,8 @@
 
     <div class="map-controls-row">
       <input type="text" id="villageSearchInput" placeholder="Type village name (e.g. Nurpur Bedi, Bela, Khairabad)" style="flex: 1; padding: 7px 10px; border: 1px solid var(--border); border-radius: 6px; font-size: 0.84rem;">
-      <button type="button" class="btn btn-secondary" onclick="searchVillageOnMap()">🔍 Search</button>
-      <button type="button" class="btn btn-secondary" onclick="locateUserGPS()">📍 My GPS</button>
+      <button type="button" class="btn btn-secondary" onclick="searchVillageOnMap()" id="btnSearch">🔍 Search</button>
+      <button type="button" class="btn btn-secondary" onclick="locateUserGPS()" id="btnGps">📍 My GPS</button>
     </div>
 
     <div id="formMap"></div>
@@ -377,12 +378,12 @@
     <div class="map-controls-row" style="margin-top: 8px;">
       <button type="button" id="btnDrawToggle" class="btn btn-primary" onclick="toggleDrawingMode()">✏️ Tap Corners to Draw Field / ਵੱਟਾਂ ਬਣਾਓ</button>
       <button type="button" id="btnUndoPoint" class="btn btn-secondary" onclick="undoLastDrawingPoint()">↩️ Undo Last Point / ਪਿਛਲਾ ਬਿੰਦੂ ਹਟਾਓ</button>
-      <button type="button" class="btn btn-danger" onclick="clearActiveSketch()">✕ Clear Sketch</button>
+      <button type="button" id="btnClear" class="btn btn-danger" onclick="clearActiveSketch()">✕ Clear Sketch</button>
     </div>
 
     <!-- Active Plot Details -->
     <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px;">
-      <div style="font-weight: 700; font-size: 0.86rem; margin-bottom: 8px; color: var(--primary);">
+      <div style="font-weight: 700; font-size: 0.86rem; margin-bottom: 8px; color: var(--primary);" id="txtActiveMeta">
         Active Field Plot Metadata
       </div>
       
@@ -436,14 +437,14 @@
         </div>
       </div>
 
-      <button type="button" class="btn btn-primary" style="width: 100%; margin-top: 6px;" onclick="saveActivePlotToHolding()">
+      <button type="button" id="btnSavePlot" class="btn btn-primary" style="width: 100%; margin-top: 6px;" onclick="saveActivePlotToHolding()">
         ➕ Save This Plot to Holding / ਪੈਲੀ ਸੇਵ ਕਰੋ
       </button>
     </div>
 
     <!-- Plots Inventory List -->
     <div id="parcelsInventoryContainer" style="margin-top: 14px;">
-      <div style="font-weight: 700; font-size: 0.86rem;">Mapped Plots Inventory / ਦਰਜ ਕੀਤੇ ਖੇਤ:</div>
+      <div style="font-weight: 700; font-size: 0.86rem;" id="txtInventory">Mapped Plots Inventory / ਦਰਜ ਕੀਤੇ ਖੇਤ:</div>
       <div id="parcelsList"></div>
       <div id="cumulativeAcreageBox" class="cumulative-counter">
         Total Holding: 0.00 Acres (0 Plots)
@@ -568,6 +569,306 @@
 <script>
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
+  // Comprehensive Multilingual Translation Dictionary
+  const TRANSLATIONS = {
+    en: {
+      txtLangLabel: "ਭਾਸ਼ਾ / Language / भाषा:",
+      txtTitle: "Shivalik Foothills Innovative Farmers Hub",
+      txtSubtitle: "ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ • किसान साझा केंद्र • Unified Community Circle (Est. 2026)",
+      txtSec1: "1. Member Identity & Locality",
+      txtLookupLabel: "Already registered with the Hub? Retrieve your record to update or edit plots:",
+      btnLoadRecord: "🔍 Load My Record",
+      lblFarmerName: "Member / Farmer Name *",
+      name_ph: "Full Name",
+      lblPhone: "WhatsApp Contact Number *",
+      phone_ph: "10-digit mobile number",
+      lblRefId: "Member Reference ID (Optional)",
+      ref_ph: "Optional identifier / Last 4 Digits",
+      lblDistrict: "Region / District *",
+      lblVillage: "Village, Tehsil & Postal Address *",
+      village_ph: "Village, Landmark, Post Office",
+      txtSec2: "2. Multi-Plot Mapping & Independent Field Details",
+      villageSearch_ph: "Type village name (e.g. Nurpur Bedi, Bela, Khairabad)",
+      btnSearch: "🔍 Search",
+      btnGps: "📍 My GPS",
+      btnDrawToggle_start: "✏️ Tap Corners to Draw Field / ਵੱਟਾਂ ਬਣਾਓ",
+      btnDrawToggle_end: "🛑 Complete Field Perimeter / ਵੱਟਾਂ ਪੂਰੀਆਂ ਕਰੋ",
+      btnUndoPoint: "↩️ Undo Last Point / ਪਿਛਲਾ ਬਿੰਦੂ ਹਟਾਓ",
+      btnClear: "✕ Clear Sketch",
+      txtActiveMeta: "Active Field Plot Metadata",
+      lblParcelName: "Plot Tag / Local Name *",
+      parcelName_ph: "e.g. Home Field, Bela Road, Tubewell Plot",
+      lblParcelAcres: "Area (Acres)",
+      lblParcelPerimeter: "Perimeter (M / Ft)",
+      lblCrops: "Primary Crops on this Specific Plot *",
+      crops_ph: "e.g. Khapli Wheat, Turmeric, Ginger, Sugarcane",
+      lblWater: "Irrigation System",
+      lblHort: "Orchards / Agroforestry on Plot",
+      hort_ph: "e.g. Citrus (80 trees), Poplar trees, Local Mini Forest",
+      lblSOC: "Soil Organic Carbon (%) & pH",
+      soc_ph: "e.g. SOC 0.65%, pH 7.4",
+      lblLivestock: "Desi Cattle / Livestock Managed",
+      livestock_ph: "e.g. 0 (or 2 cows, 1 buffalo)",
+      btnSavePlot: "➕ Save This Plot to Holding / ਪੈਲੀ ਸੇਵ ਕਰੋ",
+      txtInventory: "Mapped Plots Inventory / ਦਰਜ ਕੀਤੇ ਖੇਤ:",
+      txtSec3: "3. Collaboration Focus & Certification",
+      lblCollab: "Primary Collaboration Focus *",
+      lblNpop: "Production / Verification Status",
+      lblAgency: "Certification Body / Verification Agency",
+      lblVintage: "Practicing / Certified Since (Month & Year) *",
+      vintage_ph: "e.g. May, 2023 or October, 2022",
+      lblScopeCert: "Scope Certificate / Reg No. (if any)",
+      scope_ph: "e.g. ORG/SC/1203/000348",
+      txtSec4: "4. Shared Machinery Pool & Processing Assets",
+      lblMachOwned: "Equipment / Tools You Own & Can Share in the Pool",
+      machOwned_ph: "e.g. BCS 8HP Weeder, Bed Maker, Happy Seeder, Spray Pump",
+      lblMachNeeded: "Equipment You Need from the Group Tool Pool",
+      machNeeded_ph: "e.g. Tractor Bed Maker, Turmeric Polisher/Boiler, Oil Expeller",
+      lblProcessing: "On-Farm Value Addition & Processing Facilities",
+      proc_ph: "e.g. Compost screening machine, Jaggery pan (Kohlu), Honey extractor",
+      lblWorkforce: "On-Farm Workforce (Family + Help)",
+      workforce_ph: "e.g. 6",
+      lblDeficit: "Peak Labour Deficit Months (For Work Sharing)",
+      deficit_ph: "e.g. 10 (October/April)",
+      submitBtn: "🚀 Submit Farm Holding Registration",
+      submitBtn_update: "🔄 Update Existing Profile Record",
+      submitBtn_done: "✓ Registration Complete & Saved",
+      submitBtn_done_up: "✓ Profile Successfully Updated",
+      viewMapBtn: "🗺️ View Farm on Master Map / ਲਾਈਵ ਮੈਪ 'ਤੇ ਖੇਤ ਦੇਖੋ ➔",
+      shareWhatsAppBtn: "💬 Share Holding Details on WhatsApp / ਗਰੁੱਪ ਵਿੱਚ ਸਾਂਝਾ ਕਰੋ ➔",
+      resetFormBtn: "🔄 Register Another Farmer / ਨਵਾਂ ਕਿਸਾਨ ਦਰਜ ਕਰੋ"
+    },
+    pa: {
+      txtLangLabel: "ਭਾਸ਼ਾ / Language / भाषा:",
+      txtTitle: "ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿੱਲਜ਼ ਇਨੋਵੇਟਿਵ ਫਾਰਮਰਜ਼ ਹੱਬ",
+      txtSubtitle: "ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ • ਕੁਦਰਤੀ ਤੇ ਜੈਵਿਕ ਖੇਤੀ ਭਾਈਚਾਰਾ (ਸਥਾਪਿਤ 2026)",
+      txtSec1: "1. ਕਿਸਾਨ ਮੈਂਬਰ ਦਾ ਵੇਰਵਾ ਅਤੇ ਪਤਾ",
+      txtLookupLabel: "ਕੀ ਤੁਸੀਂ ਪਹਿਲਾਂ ਹੀ ਰਜਿਸਟਰਡ ਹੋ? ਆਪਣਾ ਰਿਕਾਰਡ ਵੇਖਣ ਜਾਂ ਖੇਤ ਬਦਲਣ ਲਈ ਫ਼ੋਨ ਭਰੋ:",
+      btnLoadRecord: "🔍 ਮੇਰਾ ਰਿਕਾਰਡ ਖੋਲ੍ਹੋ",
+      lblFarmerName: "ਕਿਸਾਨ / ਮੈਂਬਰ ਦਾ ਪੂਰਾ ਨਾਂ *",
+      name_ph: "ਪੂਰਾ ਨਾਂ ਦਰਜ ਕਰੋ",
+      lblPhone: "ਵਟਸਐਪ ਮੋਬਾਈਲ ਨੰਬਰ *",
+      phone_ph: "10-ਅੰਕਾਂ ਦਾ ਮੋਬਾਈਲ ਨੰਬਰ",
+      lblRefId: "ਮੈਂਬਰ ਰੈਫਰੈਂਸ ਨੰਬਰ / ਆਧਾਰ ਆਖਰੀ 4 ਅੰਕ (ਮਰਜ਼ੀ ਅਨੁਸਾਰ)",
+      ref_ph: "ਆਖਰੀ 4 ਅੰਕ ਜਾਂ ਰੈਫਰੈਂਸ",
+      lblDistrict: "ਜ਼ਿਲ੍ਹਾ / ਇਲਾਕਾ *",
+      lblVillage: "ਪਿੰਡ, ਤਹਿਸੀਲ ਅਤੇ ਡਾਕਘਰ ਦਾ ਪਤਾ *",
+      village_ph: "ਪਿੰਡ, ਲੈਂਡਮਾਰਕ, ਡਾਕਖਾਨਾ",
+      txtSec2: "2. ਖੇਤ ਦਾ ਨਕਸ਼ਾ ਅਤੇ ਪੈਲੀ ਦਾ ਵੇਰਵਾ",
+      villageSearch_ph: "ਪਿੰਡ ਦਾ ਨਾਂ ਲਿਖੋ (ਜਿਵੇਂ: ਨੂਰਪੁਰ ਬੇਦੀ, ਬੇਲਾ, ਖ਼ੈਰਾਬਾਦ)",
+      btnSearch: "🔍 ਖੋਜ ਕਰੋ",
+      btnGps: "📍 ਮੇਰਾ GPS",
+      btnDrawToggle_start: "✏️ ਵੱਟਾਂ ਬਣਾਓ / ਨਕਸ਼ੇ 'ਤੇ ਕਲਿੱਕ ਕਰੋ",
+      btnDrawToggle_end: "🛑 ਵੱਟਾਂ ਪੂਰੀਆਂ ਕਰੋ / ਬੰਦ ਕਰੋ",
+      btnUndoPoint: "↩️ ਪਿਛਲਾ ਬਿੰਦੂ ਹਟਾਓ",
+      btnClear: "✕ ਨਕਸ਼ਾ ਸਾਫ਼ ਕਰੋ",
+      txtActiveMeta: "ਮੌਜੂਦਾ ਖੇਤ ਦੇ ਵੇਰਵੇ",
+      lblParcelName: "ਖੇਤ / ਪੈਲੀ ਦਾ ਨਾਂ *",
+      parcelName_ph: "ਜਿਵੇਂ: ਘਰ ਵਾਲਾ ਖੇਤ, ਬੇਲਾ ਰੋਡ, ਟਿਊਬਵੈੱਲ ਵਾਲੀ ਪੈਲੀ",
+      lblParcelAcres: "ਰਕਬਾ (ਏਕੜ)",
+      lblParcelPerimeter: "ਘੇਰਾਬੰਦੀ / ਵੱਟਾਂ (ਮੀਟਰ / ਫੁੱਟ)",
+      lblCrops: "ਇਸ ਪੈਲੀ ਵਿੱਚ ਬੀਜੀਆਂ ਜਾਣ ਵਾਲੀਆਂ ਮੁੱਖ ਫ਼ਸਲਾਂ *",
+      crops_ph: "ਜਿਵੇਂ: ਖਾਪਲੀ ਕਣਕ, ਹਲਦੀ, ਅਦਰਕ, ਕਮਾਦ, ਸਬਜ਼ੀਆਂ",
+      lblWater: "ਸਿੰਚਾਈ ਦਾ ਸਾਧਨ",
+      lblHort: "ਬਾਗਬਾਨੀ / ਫ਼ਲਦਾਰ ਜਾਂ ਜੰਗਲਾਤੀ ਰੁੱਖ",
+      hort_ph: "ਜਿਵੇਂ: ਕਿੰਨੂ (80 ਰੁੱਖ), ਪਾਪੂਲਰ, ਦੇਸੀ ਜੰਗਲ",
+      lblSOC: "ਜ਼ਮੀਨ ਦੀ ਉਪਜਾਊ ਸ਼ਕਤੀ (SOC % ਅਤੇ pH)",
+      soc_ph: "ਜਿਵੇਂ: SOC 0.65%, pH 7.4",
+      lblLivestock: "ਦੇਸੀ ਗਊਆਂ / ਪਸ਼ੂਆਂ ਦੀ ਗਿਣਤੀ",
+      livestock_ph: "ਜਿਵੇਂ: 0 (ਜਾਂ 2 ਗਾਵਾਂ, 1 ਮੱਝ)",
+      btnSavePlot: "➕ ਪੈਲੀ ਸੇਵ ਕਰੋ (ਸੂਚੀ ਵਿੱਚ ਸ਼ਾਮਲ ਕਰੋ)",
+      txtInventory: "ਦਰਜ ਕੀਤੇ ਖੇਤਾਂ ਦੀ ਸੂਚੀ:",
+      txtSec3: "3. ਆਪਸੀ ਸਹਿਯੋਗ ਅਤੇ ਪ੍ਰਮਾਣੀਕਰਨ",
+      lblCollab: "ਮੁੱਖ ਸਹਿਯੋਗ ਦਾ ਖੇਤਰ *",
+      lblNpop: "ਖੇਤੀ ਤਰੀਕਾ / ਸਰਟੀਫਿਕੇਸ਼ਨ ਸਥਿਤੀ",
+      lblAgency: "ਸਰਟੀਫਿਕੇਸ਼ਨ ਸੰਸਥਾ / ਏਜੰਸੀ",
+      lblVintage: "ਕੁਦਰਤੀ/ਜੈਵਿਕ ਖੇਤੀ ਕਦੋਂ ਤੋਂ ਸ਼ੁਰੂ ਕੀਤੀ *",
+      vintage_ph: "ਜਿਵੇਂ: ਮਈ, 2023 ਜਾਂ ਅਕਤੂਬਰ, 2022",
+      lblScopeCert: "ਸਰਟੀਫਿਕੇਟ ਨੰਬਰ (ਜੇਕਰ ਕੋਈ ਹੋਵੇ)",
+      scope_ph: "ਜਿਵੇਂ: ORG/SC/1203/000348",
+      txtSec4: "4. ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਪੂਲ ਅਤੇ ਪ੍ਰੋਸੈਸਿੰਗ ਸਾਧਨ",
+      lblMachOwned: "ਤੁਹਾਡੇ ਕੋਲ ਮੌਜੂਦ ਮਸ਼ੀਨਰੀ (ਜੋ ਸਾਂਝੀ ਕੀਤੀ ਜਾ ਸਕੇ)",
+      machOwned_ph: "ਜਿਵੇਂ: BCS ਵੀਡਰ, ਬੈੱਡ ਮੇਕਰ, ਹੈਪੀ ਸੀਡਰ, ਸਪਰੇਅ ਪੰਪ",
+      lblMachNeeded: "ਸਾਂਝੇ ਪੂਲ ਵਿੱਚੋਂ ਲੋੜੀਂਦੀ ਮਸ਼ੀਨਰੀ",
+      machNeeded_ph: "ਜਿਵੇਂ: ਟਰੈਕਟਰ ਬੈੱਡ ਮੇਕਰ, ਹਲਦੀ ਪਾਲਿਸ਼ਰ, ਤੇਲ ਸਪੈਲਰ",
+      lblProcessing: "ਫ਼ਸਲ ਪ੍ਰੋਸੈਸਿੰਗ / ਵੈਲਿਊ ਐਡੀਸ਼ਨ ਸਾਧਨ",
+      proc_ph: "ਜਿਵੇਂ: ਗੁੜ ਵਾਲਾ ਕੋਹਲੂ, ਸ਼ਹਿਦ ਕੱਢਣ ਵਾਲਾ ਯੰਤਰ, ਆਟਾ ਚੱਕੀ",
+      lblWorkforce: "ਖੇਤ ਵਿੱਚ ਕੰਮ ਕਰਨ ਵਾਲੇ ਕੁੱਲ ਮੈਂਬਰ (ਪਰਿਵਾਰ + ਕਾਮੇ)",
+      workforce_ph: "ਜਿਵੇਂ: 6",
+      lblDeficit: "ਮਜ਼ਦੂਰਾਂ ਦੀ ਵੱਧ ਘਾਟ ਵਾਲੇ ਮਹੀਨੇ (ਸਾਂਝੇ ਕੰਮ ਲਈ)",
+      deficit_ph: "ਜਿਵੇਂ: 10 (ਅਕਤੂਬਰ/ਅਪ੍ਰੈਲ)",
+      submitBtn: "🚀 ਆਪਣਾ ਫ਼ਾਰਮ ਰਜਿਸਟਰ / ਜਮ੍ਹਾਂ ਕਰੋ",
+      submitBtn_update: "🔄 ਰਿਕਾਰਡ ਅੱਪਡੇਟ ਕਰੋ",
+      submitBtn_done: "✓ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਮੁਕੰਮਲ ਹੋ ਗਈ ਹੈ",
+      submitBtn_done_up: "✓ ਰਿਕਾਰਡ ਸਫ਼ਲਤਾਪੂਰਵਕ ਅੱਪਡੇਟ ਹੋਇਆ",
+      viewMapBtn: "🗺️ ਲਾਈਵ ਮੈਪ 'ਤੇ ਆਪਣਾ ਖੇਤ ਦੇਖੋ ➔",
+      shareWhatsAppBtn: "💬 ਵਟਸਐਪ ਗਰੁੱਪ ਵਿੱਚ ਸਾਂਝਾ ਕਰੋ ➔",
+      resetFormBtn: "🔄 ਨਵਾਂ ਕਿਸਾਨ ਦਰਜ ਕਰੋ"
+    },
+    hi: {
+      txtLangLabel: "ਭਾਸ਼ਾ / Language / भाषा:",
+      txtTitle: "शिवालिक फुटहिल्स इनोवेटिव फार्मर्स हब",
+      txtSubtitle: "किसान साझा केंद्र • प्राकृतिक एवं जैविक खेती समुदाय (स्थापना 2026)",
+      txtSec1: "1. किसान सदस्य विवरण एवं पता",
+      txtLookupLabel: "क्या आप पहले से पंजीकृत हैं? अपना विवरण देखने या खेत बदलने के लिए फोन दर्ज करें:",
+      btnLoadRecord: "🔍 मेरा रिकॉर्ड खोलें",
+      lblFarmerName: "किसान / सदस्य का पूरा नाम *",
+      name_ph: "पूरा नाम दर्ज करें",
+      lblPhone: "व्हाट्सएप मोबाइल नंबर *",
+      phone_ph: "10-अंकों का मोबाइल नंबर",
+      lblRefId: "सदस्य संदर्भ आईडी / आधार अंतिम 4 अंक (वैकल्पिक)",
+      ref_ph: "अंतिम 4 अंक या संदर्भ आईडी",
+      lblDistrict: "ज़िला / क्षेत्र *",
+      lblVillage: "गांव, तहसील एवं डाकघर का पता *",
+      village_ph: "गांव, लैंडमार्क, पोस्ट ऑफिस",
+      txtSec2: "2. खेत का नक्शा एवं भूखंड विवरण",
+      villageSearch_ph: "गांव का नाम लिखें (जैसे: नूरपुर बेदी, बेला, खैराबाद)",
+      btnSearch: "🔍 खोजें",
+      btnGps: "📍 मेरा GPS",
+      btnDrawToggle_start: "✏️ मेढ़ बनाएं / नक्शे पर क्लिक करें",
+      btnDrawToggle_end: "🛑 सीमा पूर्ण करें / बंद करें",
+      btnUndoPoint: "↩️ पिछला बिंदु हटाएं",
+      btnClear: "✕ नक्शा साफ़ करें",
+      txtActiveMeta: "सक्रिय भूखंड विवरण",
+      lblParcelName: "खेत / भूखंड का नाम *",
+      parcelName_ph: "जैसे: घर का खेत, बेला रोड, नलकूप वाला खेत",
+      lblParcelAcres: "रकबा (एकड़)",
+      lblParcelPerimeter: "मेढ़ / परिधि (मीटर / फीट)",
+      lblCrops: "इस खेत में उगाई जाने वाली मुख्य फसलें *",
+      crops_ph: "जैसे: खापली गेहूं, हल्दी, अदरक, गन्ना, सब्जियां",
+      lblWater: "सिंचाई का साधन",
+      lblHort: "बागवानी / फलदार या वानिकी वृक्ष",
+      hort_ph: "जैसे: किन्नू (80 पेड़), पॉपलर, देसी जंगल",
+      lblSOC: "मृदा उर्वरता (SOC % और pH)",
+      soc_ph: "जैसे: SOC 0.65%, pH 7.4",
+      lblLivestock: "देसी गाय / मवेशियों की संख्या",
+      livestock_ph: "जैसे: 0 (या 2 गाय, 1 भैंस)",
+      btnSavePlot: "➕ खेत सुरक्षित करें (सूची में जोड़ें)",
+      txtInventory: "पंजीकृत खेतों की सूची:",
+      txtSec3: "3. पारस्परिक सहयोग एवं प्रमाणीकरण",
+      lblCollab: "मुख्य सहयोग का क्षेत्र *",
+      lblNpop: "खेती पद्धति / प्रमाणीकरण स्थिति",
+      lblAgency: "प्रमाणीकरण संस्था / एजेंसी",
+      lblVintage: "प्राकृतिक/जैविक खेती कब से शुरू की *",
+      vintage_ph: "जैसे: मई, 2023 या अक्टूबर, 2022",
+      lblScopeCert: "प्रमाणपत्र संख्या (यदि कोई हो)",
+      scope_ph: "जैसे: ORG/SC/1203/000348",
+      txtSec4: "4. साझा मशीनरी पूल एवं प्रसंस्करण संसाधन",
+      lblMachOwned: "आपके पास उपलब्ध मशीनरी (जो साझा की जा सके)",
+      machOwned_ph: "जैसे: BCS वीडर, बेड मेकर, हैप्पी सीडर, स्प्रे पंप",
+      lblMachNeeded: "साझा पूल से आवश्यक मशीनरी",
+      machNeeded_ph: "जैसे: ट्रैक्टर बेड मेकर, हल्दी पॉलिशर, तेल एक्सपेलर",
+      lblProcessing: "ऑन-फार्म प्रसंस्करण एवं मूल्य संवर्धन सुविधाएं",
+      proc_ph: "जैसे: गुड़ का कोहलू, शहद निष्कर्षण यंत्र, आटा चक्की",
+      lblWorkforce: "खेत पर कार्यबल (परिवार + श्रमिक)",
+      workforce_ph: "जैसे: 6",
+      lblDeficit: "श्रमिक कमी वाले मुख्य महीने (साझा कार्य हेतु)",
+      deficit_ph: "जैसे: 10 (अक्टूबर/अप्रैल)",
+      submitBtn: "🚀 अपना फॉर्म पंजीकृत / जमा करें",
+      submitBtn_update: "🔄 रिकॉर्ड अपडेट करें",
+      submitBtn_done: "✓ पंजीकरण सफलतापूर्वक पूर्ण हुआ",
+      submitBtn_done_up: "✓ प्रोफ़ाइल सफलतापूर्वक अपडेट हुई",
+      viewMapBtn: "🗺️ लाइव मैप पर अपना खेत देखें ➔",
+      shareWhatsAppBtn: "💬 व्हाट्सएप ग्रुप में साझा करें ➔",
+      resetFormBtn: "🔄 नया किसान दर्ज करें"
+    }
+  };
+
+  let currentLang = 'en';
+
+  function switchLanguage(lang) {
+    if (!TRANSLATIONS[lang]) return;
+    currentLang = lang;
+    const t = TRANSLATIONS[lang];
+
+    const updateText = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val) el.innerText = val;
+    };
+
+    const updatePlaceholder = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && val) el.placeholder = val;
+    };
+
+    updateText('txtLangLabel', t.txtLangLabel);
+    updateText('txtTitle', t.txtTitle);
+    updateText('txtSubtitle', t.txtSubtitle);
+    updateText('txtSec1', t.txtSec1);
+    updateText('txtLookupLabel', t.txtLookupLabel);
+    updateText('btnLoadRecord', t.btnLoadRecord);
+    updateText('lblFarmerName', t.lblFarmerName);
+    updateText('lblPhone', t.lblPhone);
+    updateText('lblRefId', t.lblRefId);
+    updateText('lblDistrict', t.lblDistrict);
+    updateText('lblVillage', t.lblVillage);
+
+    updateText('txtSec2', t.txtSec2);
+    updateText('btnSearch', t.btnSearch);
+    updateText('btnGps', t.btnGps);
+    updateText('btnUndoPoint', t.btnUndoPoint);
+    updateText('btnClear', t.btnClear);
+    updateText('txtActiveMeta', t.txtActiveMeta);
+    updateText('lblParcelName', t.lblParcelName);
+    updateText('lblParcelAcres', t.lblParcelAcres);
+    updateText('lblParcelPerimeter', t.lblParcelPerimeter);
+    updateText('lblCrops', t.lblCrops);
+    updateText('lblWater', t.lblWater);
+    updateText('lblHort', t.lblHort);
+    updateText('lblSOC', t.lblSOC);
+    updateText('lblLivestock', t.lblLivestock);
+    updateText('btnSavePlot', t.btnSavePlot);
+    updateText('txtInventory', t.txtInventory);
+
+    updateText('txtSec3', t.txtSec3);
+    updateText('lblCollab', t.lblCollab);
+    updateText('lblNpop', t.lblNpop);
+    updateText('lblAgency', t.lblAgency);
+    updateText('lblVintage', t.lblVintage);
+    updateText('lblScopeCert', t.lblScopeCert);
+
+    updateText('txtSec4', t.txtSec4);
+    updateText('lblMachOwned', t.lblMachOwned);
+    updateText('lblMachNeeded', t.lblMachNeeded);
+    updateText('lblProcessing', t.lblProcessing);
+    updateText('lblWorkforce', t.lblWorkforce);
+    updateText('lblDeficit', t.lblDeficit);
+
+    updateText('viewMapBtn', t.viewMapBtn);
+    updateText('shareWhatsAppBtn', t.shareWhatsAppBtn);
+    updateText('resetFormBtn', t.resetFormBtn);
+
+    updatePlaceholder('name', t.name_ph);
+    updatePlaceholder('phone', t.phone_ph);
+    updatePlaceholder('id_number', t.ref_ph);
+    updatePlaceholder('village', t.village_ph);
+    updatePlaceholder('villageSearchInput', t.villageSearch_ph);
+    updatePlaceholder('parcelName', t.parcelName_ph);
+    updatePlaceholder('parcelCrops', t.crops_ph);
+    updatePlaceholder('parcelHort', t.hort_ph);
+    updatePlaceholder('parcelSOC', t.soc_ph);
+    updatePlaceholder('parcelLivestock', t.livestock_ph);
+    updatePlaceholder('cert_vintage', t.vintage_ph);
+    updatePlaceholder('npop_cert_no', t.scope_ph);
+    updatePlaceholder('machinery_owned', t.machOwned_ph);
+    updatePlaceholder('machinery_needed', t.machNeeded_ph);
+    updatePlaceholder('processing_facilities', t.proc_ph);
+    updatePlaceholder('workforce', t.workforce_ph);
+    updatePlaceholder('labour_deficit', t.deficit_ph);
+
+    const drawBtn = document.getElementById('btnDrawToggle');
+    if (drawBtn) {
+      drawBtn.innerText = isDrawing ? t.btnDrawToggle_end : t.btnDrawToggle_start;
+    }
+
+    const submitBtn = document.getElementById('submitBtn');
+    if (submitBtn) {
+      if (!submitBtn.disabled) {
+        submitBtn.innerText = isUpdateMode ? t.submitBtn_update : t.submitBtn;
+      }
+    }
+  }
+
   let map;
   let drawnItems;
   let drawingMarkersGroup;
@@ -638,11 +939,9 @@
         className: 'edge-split-hover'
       }).addTo(map);
 
-      // Split edge on click
       activePolygonPreview.off('click');
       activePolygonPreview.on('click', handleEdgeSplitClick);
 
-      // Track edge hover to display length badge
       activePolygonPreview.off('mousemove mouseout');
 
       activePolygonPreview.on('mousemove', function(e) {
@@ -702,11 +1001,9 @@
         }
       });
 
-      // Calculate area
       const acres = calculatePolygonAcres(activeDrawingPoints);
       document.getElementById('parcelAcres').value = acres.toFixed(2);
 
-      // Calculate total perimeter
       const perim = calculatePolygonPerimeter(activeDrawingPoints);
       const perimInput = document.getElementById('parcelPerimeter');
       if (perimInput) {
@@ -816,14 +1113,15 @@
   function toggleDrawingMode() {
     isDrawing = !isDrawing;
     const btn = document.getElementById('btnDrawToggle');
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
     if (isDrawing) {
       btn.style.background = '#dc2626';
-      btn.innerText = '🛑 Complete Field Perimeter / ਵੱਟਾਂ ਪੂਰੀਆਂ ਕਰੋ';
+      btn.innerText = t.btnDrawToggle_end;
       map.getContainer().style.cursor = 'crosshair';
     } else {
       btn.style.background = 'var(--primary)';
-      btn.innerText = '✏️ Tap Corners to Draw Field / ਵੱਟਾਂ ਬਣਾਓ';
+      btn.innerText = t.btnDrawToggle_start;
       map.getContainer().style.cursor = '';
 
       if (activeDrawingPoints.length >= 3) {
@@ -848,8 +1146,9 @@
     if (isDrawing) {
       isDrawing = false;
       const btn = document.getElementById('btnDrawToggle');
+      const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
       btn.style.background = 'var(--primary)';
-      btn.innerText = '✏️ Tap Corners to Draw Field / ਵੱਟਾਂ ਬਣਾਓ';
+      btn.innerText = t.btnDrawToggle_start;
       map.getContainer().style.cursor = '';
     }
   }
@@ -1052,9 +1351,10 @@
   function lookupFarmerProfile() {
     const phone = document.getElementById('lookupPhone').value.trim().replace(/\D/g, "");
     const statusDiv = document.getElementById('lookupStatus');
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
     if (phone.length < 10) {
-      alert("Please enter a valid 10-digit mobile number.");
+      alert(currentLang === 'pa' ? "ਕਿਰਪਾ ਕਰਕੇ 10 ਅੰਕਾਂ ਦਾ ਮੋਬਾਈਲ ਨੰਬਰ ਭਰੋ।" : (currentLang === 'hi' ? "कृपया 10 अंकों का मोबाइल नंबर दर्ज करें।" : "Please enter a valid 10-digit mobile number."));
       return;
     }
 
@@ -1110,12 +1410,12 @@
           if (drawnItems.getLayers().length > 0) map.fitBounds(drawnItems.getBounds());
 
           statusDiv.style.color = "#059669";
-          statusDiv.innerText = "✓ Profile loaded! You can now edit plots or update details.";
+          statusDiv.innerText = currentLang === 'pa' ? "✓ ਰਿਕਾਰਡ ਮਿਲ ਗਿਆ ਹੈ! ਤੁਸੀਂ ਵੇਰਵੇ ਬਦਲ ਸਕਦੇ ਹੋ।" : (currentLang === 'hi' ? "✓ प्रोफ़ाइल लोड हो गई! आप विवरण बदल सकते हैं।" : "✓ Profile loaded! You can now edit plots or update details.");
           document.getElementById('btnDeleteRecord').style.display = "inline-flex";
-          document.getElementById('submitBtn').innerText = "🔄 Update Existing Profile Record";
+          document.getElementById('submitBtn').innerText = t.submitBtn_update;
         } else {
           statusDiv.style.color = "#dc2626";
-          statusDiv.innerText = "No record found for this mobile number.";
+          statusDiv.innerText = currentLang === 'pa' ? "ਇਸ ਮੋਬਾਈਲ ਨੰਬਰ 'ਤੇ ਕੋਈ ਰਿਕਾਰਡ ਨਹੀਂ ਮਿਲਿਆ।" : (currentLang === 'hi' ? "इस मोबाइल नंबर पर कोई रिकॉर्ड नहीं मिला।" : "No record found for this mobile number.");
         }
       })
       .catch(err => {
@@ -1126,7 +1426,11 @@
 
   function requestRecordDeletion() {
     const phone = document.getElementById('phone').value.trim().replace(/\D/g, "");
-    if (!confirm("Are you sure you want to delete your entire farm holding and plots from the Hub?")) return;
+    const confirmMsg = currentLang === 'pa' 
+      ? "ਕੀ ਤੁਸੀਂ ਯਕੀਨਨ ਆਪਣਾ ਸਾਰਾ ਰਿਕਾਰਡ ਅਤੇ ਪੈਲੀਆਂ ਹੱਬ ਵਿੱਚੋਂ ਮਿਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?" 
+      : (currentLang === 'hi' ? "क्या आप वाकई अपना संपूर्ण रिकॉर्ड हटाना चाहते हैं?" : "Are you sure you want to delete your entire farm holding and plots from the Hub?");
+    
+    if (!confirm(confirmMsg)) return;
 
     fetch(SCRIPT_URL, {
       method: "POST",
@@ -1134,7 +1438,7 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ mode: "delete", phone: phone })
     }).then(() => {
-      alert("Your record deletion request was transmitted successfully.");
+      alert(currentLang === 'pa' ? "ਰਿਕਾਰਡ ਹਟਾਉਣ ਦੀ ਬੇਨਤੀ ਸਫ਼ਲਤਾਪੂਰਵਕ ਭੇਜੀ ਗਈ।" : (currentLang === 'hi' ? "रिकॉर्ड हटाने का अनुरोध सफलतापूर्वक भेजा गया।" : "Your record deletion request was transmitted successfully."));
       window.location.reload();
     });
   }
@@ -1144,14 +1448,15 @@
     const phone = document.getElementById('phone').value.trim().replace(/\D/g, "");
     const village = document.getElementById('village').value.trim();
     const btn = document.getElementById('submitBtn');
+    const t = TRANSLATIONS[currentLang] || TRANSLATIONS.en;
 
     if (!name || phone.length < 10 || !village) {
-      alert("Please fill in Name, 10-digit Phone, and Village Address.");
+      alert(currentLang === 'pa' ? "ਕਿਰਪਾ ਕਰਕੇ ਨਾਂ, 10 ਅੰਕਾਂ ਦਾ ਫ਼ੋਨ ਅਤੇ ਪਿੰਡ ਦਾ ਪਤਾ ਦਰਜ ਕਰੋ।" : (currentLang === 'hi' ? "कृपया नाम, 10-अंकों का फोन और गांव का पता भरें।" : "Please fill in Name, 10-digit Phone, and Village Address."));
       return;
     }
 
     if (completedParcels.length === 0) {
-      alert("Please map and save at least one plot to your holding.");
+      alert(currentLang === 'pa' ? "ਕਿਰਪਾ ਕਰਕੇ ਘੱਟੋ-ਘੱਟ ਇੱਕ ਖੇਤ ਦਾ ਨਕਸ਼ਾ ਬਣਾ ਕੇ ਸੇਵ ਕਰੋ।" : (currentLang === 'hi' ? "कृपया कम से कम एक भूखंड नक्शे पर सहेजें।" : "Please map and save at least one plot to your holding."));
       return;
     }
 
@@ -1187,14 +1492,10 @@
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload)
     }).then(() => {
-      const actionMsg = isUpdateMode ? "Profile updated successfully!" : "Registration Successful!";
-
       btn.disabled = true;
       btn.style.background = "#475569";
       btn.style.cursor = "not-allowed";
-      btn.innerText = isUpdateMode 
-        ? "✓ Profile Successfully Updated" 
-        : "✓ Registration Complete & Saved";
+      btn.innerText = isUpdateMode ? t.submitBtn_done_up : t.submitBtn_done;
 
       const mapBtn = document.getElementById('viewMapBtn');
       if (mapBtn) {
@@ -1231,7 +1532,11 @@ https://shivalik-foothills-agri-hub.github.io/map.html?phone=${encodeURIComponen
       const resetBtn = document.getElementById('resetFormBtn');
       if (resetBtn) resetBtn.style.display = "block";
 
-      alert(`✅ ${actionMsg}\nLogged ${completedParcels.length} plot(s) totaling ${cumulativeAcres.toFixed(2)} Acres.`);
+      const alertMsg = isUpdateMode 
+        ? (currentLang === 'pa' ? `✅ ਰਿਕਾਰਡ ਅੱਪਡੇਟ ਹੋ ਗਿਆ!\nਕੁੱਲ ਖੇਤ: ${completedParcels.length}, ਰਕਬਾ: ${cumulativeAcres.toFixed(2)} ਏਕੜ` : `✅ Profile updated successfully!\nLogged ${completedParcels.length} plot(s) totaling ${cumulativeAcres.toFixed(2)} Acres.`)
+        : (currentLang === 'pa' ? `✅ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਸਫ਼ਲ ਰਹੀ!\nਕੁੱਲ ਖੇਤ: ${completedParcels.length}, ਰਕਬਾ: ${cumulativeAcres.toFixed(2)} ਏਕੜ` : `✅ Registration Successful!\nLogged ${completedParcels.length} plot(s) totaling ${cumulativeAcres.toFixed(2)} Acres.`);
+
+      alert(alertMsg);
     }).catch(err => {
       alert("Transmission Error: " + err);
       btn.disabled = false;
