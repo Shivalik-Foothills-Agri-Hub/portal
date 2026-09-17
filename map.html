@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Shivalik Producers Collaborative - Master GIS Map</title>
+<title>Shivalik Foothills Innovative Farmers Hub - Master GIS Map</title>
 
 <!-- Leaflet GIS Engine -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -20,7 +20,6 @@
 
   #map { height: 100%; width: 100%; z-index: 1; }
 
-  /* Compact Floating Header Panel */
   .floating-panel {
     position: absolute;
     top: 12px;
@@ -70,7 +69,6 @@
     border: 1px solid #c8e6c9;
   }
 
-  /* Custom Popup Styling */
   .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 260px; max-width: 340px; }
   .popup-header { background: var(--brand); color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
   .popup-header h3 { font-size: 0.95rem; margin-bottom: 2px; }
@@ -89,7 +87,7 @@
   <div class="header-brand-row">
     <img src="logo.jpeg" alt="Community Circle Logo" class="map-logo" onerror="this.style.display='none'">
     <div>
-      <h1>🌾 Shivalik Producers Collaborative</h1>
+      <h1>🌾 Shivalik Foothills Innovative Farmers Hub</h1>
       <p>ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ &bull; Unified Community Circle (Est. 2026)</p>
     </div>
   </div>
@@ -106,7 +104,6 @@
   // ⚠️ PASTE YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL HERE:
   const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
-  // Center on the sub-mountainous Shivalik corridor
   const map = L.map('map', {
     center: [31.05, 76.45],
     zoom: 11,
@@ -114,7 +111,6 @@
   });
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  // Basemap Providers
   const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     attribution: 'Esri Satellite &copy; Shivalik Collaborative GIS',
     maxZoom: 19
@@ -126,7 +122,6 @@
 
   const farmBoundsGroup = L.featureGroup().addTo(map);
 
-  // Official Notified Kandi Sub-Mountainous Tract Coordinates
   const kandiFootprintGeoJSON = {
     "type": "FeatureCollection",
     "features": [
@@ -163,7 +158,6 @@
     ]
   };
 
-  // Informational Kandi Boundary (No generic hyperlinks)
   const kandiLayer = L.geoJSON(kandiFootprintGeoJSON, {
     style: {
       color: "#dc2626",
@@ -189,7 +183,6 @@
 
   kandiLayer.addTo(map);
 
-  // Layer Selector Box (Top Right)
   L.control.layers({
     "🛰️ Satellite Imagery": esriSat,
     "🗺️ Street Map": osmStreets
@@ -247,7 +240,7 @@
 
         const popupContent = `
           <div class="popup-header">
-            <h3>${f['Farmer Name'] || 'Collaborative Member'}</h3>
+            <h3>${f['Farmer Name'] || 'Hub Member'}</h3>
             <div>${f['Parcel Identifier'] ? f['Parcel Identifier'] + ' &bull; ' : ''}${f['Village'] || ''}</div>
           </div>
           <div>
