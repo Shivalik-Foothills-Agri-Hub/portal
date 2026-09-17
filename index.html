@@ -222,6 +222,64 @@
       border-radius: 8px;
       margin-top: 12px;
     }
+
+    /* Draggable Amber Corner Handles */
+    .corner-handle-dot {
+      width: 14px;
+      height: 14px;
+      background-color: #f59e0b;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+      cursor: grab;
+      transition: transform 0.1s ease;
+    }
+    .corner-handle-dot:active {
+      cursor: grabbing;
+      transform: scale(1.3);
+      background-color: #d97706;
+    }
+
+    /* Hover Cursor on Boundary Lines */
+    .leaflet-interactive.edge-split-hover {
+      cursor: copy !important;
+    }
+
+    /* Dynamic Edge Badge Showing (+) and Length */
+    .edge-distance-pill {
+      pointer-events: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(15, 23, 42, 0.92);
+      border: 1.5px solid #22c55e;
+      border-radius: 20px;
+      padding: 3px 10px 3px 4px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+    }
+
+    .edge-pill-plus {
+      width: 18px;
+      height: 18px;
+      background: #16a34a;
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 900;
+      line-height: 1;
+    }
+
+    .edge-pill-text {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f8fafc;
+      letter-spacing: 0.02em;
+    }
   </style>
 </head>
 <body>
@@ -317,7 +375,8 @@
     <div id="formMap"></div>
 
     <div class="map-controls-row" style="margin-top: 8px;">
-      <button type="button" id="btnDrawToggle" class="btn btn-primary" onclick="toggleDrawingMode()">✏️ Tap Corners to Draw Field</button>
+      <button type="button" id="btnDrawToggle" class="btn btn-primary" onclick="toggleDrawingMode()">✏️ Tap Corners to Draw Field / ਵੱਟਾਂ ਬਣਾਓ</button>
+      <button type="button" id="btnUndoPoint" class="btn btn-secondary" onclick="undoLastDrawingPoint()">↩️ Undo Last Point / ਪਿਛਲਾ ਬਿੰਦੂ ਹਟਾਓ</button>
       <button type="button" class="btn btn-danger" onclick="clearActiveSketch()">✕ Clear Sketch</button>
     </div>
 
@@ -332,9 +391,15 @@
           <label id="lblParcelName">Plot Tag / Local Name *</label>
           <input type="text" id="parcelName" placeholder="e.g. Home Field, Bela Road, Tubewell Plot">
         </div>
-        <div class="form-group">
-          <label id="lblParcelAcres">Calculated Area (Acres)</label>
-          <input type="number" id="parcelAcres" step="0.01" readonly style="background: #e2e8f0; font-weight: 700;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+          <div class="form-group">
+            <label id="lblParcelAcres">Area (Acres)</label>
+            <input type="number" id="parcelAcres" step="0.01" readonly style="background: #e2e8f0; font-weight: 700;">
+          </div>
+          <div class="form-group">
+            <label id="lblParcelPerimeter">Perimeter (M / Ft)</label>
+            <input type="text" id="parcelPerimeter" readonly style="background: #e2e8f0; font-weight: 700; font-size: 0.82rem;" placeholder="0 m (0 ft)">
+          </div>
         </div>
       </div>
 
@@ -399,7 +464,7 @@
         <select id="legal_preference">
           <option value="Comprehensive Partner">Comprehensive Partner</option>
           <option value="Machinery & Tool Pooling">Machinery & Tool Pooling</option>
-          <option value="Bio-Inputs Sharing, Seed Preservation & Vermicompost">Bio-Inputs Sharing, Seed Preservation & Vermicompost</option>
+          <option value="Bio-Inputs Sharing, Seed Preservation & Vermicompost">Bio-Inputs Sharing & Seed Preservation</option>
           <option value="Joint Aggregation, Processing & Farm-Gate Logistics">Joint Aggregation & Farm-Gate Logistics</option>
           <option value="Participatory PGS Organic Cluster Group">Participatory PGS Organic Cluster Group</option>
           <option value="Producer Group / Informal Farmers Collective">Producer Group / Informal Collective</option>
@@ -506,9 +571,11 @@
   let map;
   let drawnItems;
   let drawingMarkersGroup;
+  let drawingMarkerInstances = [];
   let activeDrawingPoints = [];
   let tempPolyline = null;
   let activePolygonPreview = null;
+  let edgeHintMarker = null;
   let isDrawing = false;
   let completedParcels = [];
   let isUpdateMode = false;
@@ -527,25 +594,33 @@
     map.on('click', handleMapClick);
   }
 
-  function handleMapClick(e) {
-    if (!isDrawing) return;
+  function createCornerHandle(lat, lng, index) {
+    const icon = L.divIcon({
+      className: '',
+      html: '<div class="corner-handle-dot"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
 
-    const lat = e.latlng.lat;
-    const lng = e.latlng.lng;
-    activeDrawingPoints.push([lat, lng]);
-
-    // Render amber corner dot
-    L.circleMarker([lat, lng], {
-      radius: 6,
-      fillColor: '#f59e0b',
-      color: '#ffffff',
-      weight: 2,
-      opacity: 1,
-      fillOpacity: 0.95
+    const marker = L.marker([lat, lng], {
+      icon: icon,
+      draggable: true,
+      zIndexOffset: 1000
     }).addTo(drawingMarkersGroup);
 
+    marker.on('drag', function (e) {
+      const newPos = e.target.getLatLng();
+      activeDrawingPoints[index] = [newPos.lat, newPos.lng];
+      updatePolygonFromMarkers();
+    });
+
+    return marker;
+  }
+
+  function updatePolygonFromMarkers() {
     if (tempPolyline) map.removeLayer(tempPolyline);
     if (activePolygonPreview) map.removeLayer(activePolygonPreview);
+    if (edgeHintMarker) { map.removeLayer(edgeHintMarker); edgeHintMarker = null; }
 
     if (activeDrawingPoints.length === 2) {
       tempPolyline = L.polyline(activeDrawingPoints, {
@@ -555,16 +630,187 @@
       }).addTo(map);
     } else if (activeDrawingPoints.length >= 3) {
       activePolygonPreview = L.polygon(activeDrawingPoints, {
-        color: '#22c55e',
-        weight: 2.5,
-        fillColor: '#16a34a',
-        fillOpacity: 0.35,
-        dashArray: '4, 4'
+        color: '#16a34a',
+        weight: 3.5,
+        fillColor: '#22c55e',
+        fillOpacity: 0.4,
+        dashArray: isDrawing ? '4, 4' : null,
+        className: 'edge-split-hover'
       }).addTo(map);
 
+      // Split edge on click
+      activePolygonPreview.off('click');
+      activePolygonPreview.on('click', handleEdgeSplitClick);
+
+      // Track edge hover to display length badge
+      activePolygonPreview.off('mousemove mouseout');
+
+      activePolygonPreview.on('mousemove', function(e) {
+        if (activeDrawingPoints.length < 3) return;
+
+        const clickPt = e.latlng;
+        let closestEdgeIdx = -1;
+        let minDistance = Infinity;
+
+        for (let i = 0; i < activeDrawingPoints.length; i++) {
+          const p1 = activeDrawingPoints[i];
+          const p2 = activeDrawingPoints[(i + 1) % activeDrawingPoints.length];
+          const dist = pointToSegmentDistance(clickPt.lat, clickPt.lng, p1[0], p1[1], p2[0], p2[1]);
+          if (dist < minDistance) {
+            minDistance = dist;
+            closestEdgeIdx = i;
+          }
+        }
+
+        if (closestEdgeIdx === -1) return;
+
+        const ptA = L.latLng(activeDrawingPoints[closestEdgeIdx][0], activeDrawingPoints[closestEdgeIdx][1]);
+        const ptB = L.latLng(
+          activeDrawingPoints[(closestEdgeIdx + 1) % activeDrawingPoints.length][0],
+          activeDrawingPoints[(closestEdgeIdx + 1) % activeDrawingPoints.length][1]
+        );
+        
+        const meters = map.distance(ptA, ptB);
+        const feet = meters * 3.28084;
+        const lengthStr = `${Math.round(meters)} m (${Math.round(feet)} ft)`;
+
+        const badgeHtml = `
+          <div class="edge-distance-pill">
+            <span class="edge-pill-plus">+</span>
+            <span class="edge-pill-text">${lengthStr}</span>
+          </div>
+        `;
+
+        const hintIcon = L.divIcon({
+          className: '',
+          html: badgeHtml,
+          iconAnchor: [0, 0]
+        });
+
+        if (!edgeHintMarker) {
+          edgeHintMarker = L.marker(e.latlng, { icon: hintIcon, interactive: false }).addTo(map);
+        } else {
+          edgeHintMarker.setIcon(hintIcon);
+          edgeHintMarker.setLatLng(e.latlng);
+        }
+      });
+
+      activePolygonPreview.on('mouseout', function() {
+        if (edgeHintMarker) {
+          map.removeLayer(edgeHintMarker);
+          edgeHintMarker = null;
+        }
+      });
+
+      // Calculate area
       const acres = calculatePolygonAcres(activeDrawingPoints);
       document.getElementById('parcelAcres').value = acres.toFixed(2);
+
+      // Calculate total perimeter
+      const perim = calculatePolygonPerimeter(activeDrawingPoints);
+      const perimInput = document.getElementById('parcelPerimeter');
+      if (perimInput) {
+        perimInput.value = `${perim.meters} m (${perim.feet} ft)`;
+      }
     }
+  }
+
+  function handleMapClick(e) {
+    if (!isDrawing) return;
+
+    if (e.originalEvent && e.originalEvent._stopped) return;
+
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    const pointIndex = activeDrawingPoints.length;
+
+    activeDrawingPoints.push([lat, lng]);
+    const marker = createCornerHandle(lat, lng, pointIndex);
+    drawingMarkerInstances.push(marker);
+
+    updatePolygonFromMarkers();
+  }
+
+  function handleEdgeSplitClick(e) {
+    if (activeDrawingPoints.length < 3) return;
+
+    L.DomEvent.stopPropagation(e);
+
+    const clickPt = e.latlng;
+    let closestEdgeIdx = -1;
+    let minDistance = Infinity;
+
+    for (let i = 0; i < activeDrawingPoints.length; i++) {
+      const p1 = activeDrawingPoints[i];
+      const p2 = activeDrawingPoints[(i + 1) % activeDrawingPoints.length];
+
+      const dist = pointToSegmentDistance(clickPt.lat, clickPt.lng, p1[0], p1[1], p2[0], p2[1]);
+      if (dist < minDistance) {
+        minDistance = dist;
+        closestEdgeIdx = i;
+      }
+    }
+
+    if (closestEdgeIdx !== -1) {
+      const insertIndex = closestEdgeIdx + 1;
+      const newCoord = [clickPt.lat, clickPt.lng];
+
+      activeDrawingPoints.splice(insertIndex, 0, newCoord);
+
+      rebuildAllMarkers();
+      updatePolygonFromMarkers();
+    }
+  }
+
+  function pointToSegmentDistance(px, py, x1, y1, x2, y2) {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+
+    if (dx === 0 && dy === 0) {
+      return Math.hypot(px - x1, py - y1);
+    }
+
+    const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / (dx * dx + dy * dy)));
+    const projX = x1 + t * dx;
+    const projY = y1 + t * dy;
+
+    return Math.hypot(px - projX, py - projY);
+  }
+
+  function rebuildAllMarkers() {
+    drawingMarkersGroup.clearLayers();
+    drawingMarkerInstances = [];
+
+    activeDrawingPoints.forEach((pt, idx) => {
+      const marker = createCornerHandle(pt[0], pt[1], idx);
+      drawingMarkerInstances.push(marker);
+    });
+  }
+
+  function undoLastDrawingPoint() {
+    if (activeDrawingPoints.length === 0) return;
+
+    activeDrawingPoints.pop();
+    const lastMarker = drawingMarkerInstances.pop();
+    if (lastMarker) {
+      drawingMarkersGroup.removeLayer(lastMarker);
+    }
+
+    drawingMarkerInstances.forEach((marker, idx) => {
+      marker.off('drag');
+      marker.on('drag', function (e) {
+        const newPos = e.target.getLatLng();
+        activeDrawingPoints[idx] = [newPos.lat, newPos.lng];
+        updatePolygonFromMarkers();
+      });
+    });
+
+    if (activeDrawingPoints.length < 3) {
+      document.getElementById('parcelAcres').value = '';
+      const perimInput = document.getElementById('parcelPerimeter');
+      if (perimInput) perimInput.value = '';
+    }
+    updatePolygonFromMarkers();
   }
 
   function toggleDrawingMode() {
@@ -581,30 +827,23 @@
       map.getContainer().style.cursor = '';
 
       if (activeDrawingPoints.length >= 3) {
-        if (tempPolyline) map.removeLayer(tempPolyline);
-        if (activePolygonPreview) map.removeLayer(activePolygonPreview);
-
-        activePolygonPreview = L.polygon(activeDrawingPoints, {
-          color: '#16a34a',
-          weight: 3,
-          fillColor: '#22c55e',
-          fillOpacity: 0.45
-        }).addTo(map);
-
-        const acres = calculatePolygonAcres(activeDrawingPoints);
-        document.getElementById('parcelAcres').value = acres.toFixed(2);
+        updatePolygonFromMarkers();
       }
     }
   }
 
   function clearActiveSketch() {
     activeDrawingPoints = [];
+    drawingMarkerInstances = [];
     drawingMarkersGroup.clearLayers();
 
     if (tempPolyline) { map.removeLayer(tempPolyline); tempPolyline = null; }
     if (activePolygonPreview) { map.removeLayer(activePolygonPreview); activePolygonPreview = null; }
+    if (edgeHintMarker) { map.removeLayer(edgeHintMarker); edgeHintMarker = null; }
 
     document.getElementById('parcelAcres').value = '';
+    const perimInput = document.getElementById('parcelPerimeter');
+    if (perimInput) perimInput.value = '';
     
     if (isDrawing) {
       isDrawing = false;
@@ -629,6 +868,21 @@
     return isNaN(acres) ? 0 : acres;
   }
 
+  function calculatePolygonPerimeter(coords) {
+    if (!coords || coords.length < 2) return { meters: 0, feet: 0 };
+    let totalMeters = 0;
+    for (let i = 0; i < coords.length; i++) {
+      const p1 = L.latLng(coords[i][0], coords[i][1]);
+      const p2 = L.latLng(coords[(i + 1) % coords.length][0], coords[(i + 1) % coords.length][1]);
+      totalMeters += map.distance(p1, p2);
+    }
+    const totalFeet = totalMeters * 3.28084;
+    return {
+      meters: Math.round(totalMeters),
+      feet: Math.round(totalFeet)
+    };
+  }
+
   function saveActivePlotToHolding() {
     const pName = document.getElementById('parcelName').value.trim() || `Plot ${completedParcels.length + 1}`;
     let pAcres = parseFloat(document.getElementById('parcelAcres').value);
@@ -651,10 +905,12 @@
     }
 
     const plotBoundary = [...activeDrawingPoints];
+    const perim = calculatePolygonPerimeter(plotBoundary);
 
     const parcel = {
       parcel_name: pName,
       acres: Number(pAcres.toFixed(2)),
+      perimeter: `${perim.meters} m (${perim.feet} ft)`,
       crops: pCrops,
       water_source: document.getElementById('parcelWater').value,
       horticulture: document.getElementById('parcelHort').value.trim(),
@@ -675,7 +931,7 @@
         fillOpacity: 0.4
       }).addTo(drawnItems);
       
-      savedPoly.bindPopup(`<b>${parcel.parcel_name}</b><br>${parcel.acres} Acres<br>${parcel.crops}`);
+      savedPoly.bindPopup(`<b>${parcel.parcel_name}</b><br>${parcel.acres} Acres (${parcel.perimeter})<br>${parcel.crops}`);
     }
 
     renderParcelsList();
@@ -707,12 +963,13 @@
     completedParcels.forEach((p, idx) => {
       const cleanAcres = parseFloat(String(p.acres).replace(/[^0-9.]/g, "")) || 0;
       total += cleanAcres;
+      const perimBadge = p.perimeter ? ` • 📏 ${p.perimeter}` : '';
 
       const card = document.createElement('div');
       card.className = 'parcel-card';
       card.innerHTML = `
         <div>
-          <strong>${p.parcel_name}</strong> (${cleanAcres.toFixed(2)} Ac)<br>
+          <strong>${p.parcel_name}</strong> (${cleanAcres.toFixed(2)} Ac${perimBadge})<br>
           <span style="font-size: 0.78rem; color: #475569;">${p.crops} • ${p.water_source}</span>
         </div>
         <div style="display: flex; gap: 6px;">
@@ -750,23 +1007,9 @@
     redrawSavedPolygons();
     renderParcelsList();
 
-    activeDrawingPoints.forEach(pt => {
-      L.circleMarker(pt, {
-        radius: 6,
-        fillColor: '#f59e0b',
-        color: '#ffffff',
-        weight: 2,
-        fillOpacity: 0.95
-      }).addTo(drawingMarkersGroup);
-    });
-
-    if (activeDrawingPoints.length >= 3) {
-      activePolygonPreview = L.polygon(activeDrawingPoints, {
-        color: '#16a34a',
-        weight: 3,
-        fillColor: '#22c55e',
-        fillOpacity: 0.45
-      }).addTo(map);
+    rebuildAllMarkers();
+    updatePolygonFromMarkers();
+    if (activePolygonPreview) {
       map.fitBounds(activePolygonPreview.getBounds());
     }
   }
@@ -781,7 +1024,8 @@
           fillColor: '#22c55e',
           fillOpacity: 0.4
         }).addTo(drawnItems);
-        poly.bindPopup(`<b>${p.parcel_name}</b><br>${p.acres} Acres<br>${p.crops}`);
+        const perimBadge = p.perimeter ? ` (${p.perimeter})` : '';
+        poly.bindPopup(`<b>${p.parcel_name}</b><br>${p.acres} Acres${perimBadge}<br>${p.crops}`);
       }
     });
   }
@@ -843,18 +1087,24 @@
           document.getElementById('workforce').value = p.workforce || '';
           document.getElementById('labour_deficit').value = p.labour_deficit || '';
 
-          completedParcels = (p.parcels || []).map(item => ({
-            ...item,
-            acres: parseFloat(String(item.acres).replace(/[^0-9.]/g, "")) || 0,
-            geojson: normalizeCoordinates(item.geojson)
-          }));
+          completedParcels = (p.parcels || []).map(item => {
+            const cleanPts = normalizeCoordinates(item.geojson);
+            const perimObj = calculatePolygonPerimeter(cleanPts);
+            return {
+              ...item,
+              acres: parseFloat(String(item.acres).replace(/[^0-9.]/g, "")) || 0,
+              perimeter: `${perimObj.meters} m (${perimObj.feet} ft)`,
+              geojson: cleanPts
+            };
+          });
 
           renderParcelsList();
 
           drawnItems.clearLayers();
           completedParcels.forEach(parcel => {
             if (parcel.geojson && parcel.geojson.length >= 3) {
-              L.polygon(parcel.geojson, { color: '#16a34a', weight: 2, fillOpacity: 0.35 }).addTo(drawnItems);
+              const poly = L.polygon(parcel.geojson, { color: '#16a34a', weight: 2, fillOpacity: 0.35 }).addTo(drawnItems);
+              poly.bindPopup(`<b>${parcel.parcel_name}</b><br>${parcel.acres} Acres (${parcel.perimeter})<br>${parcel.crops}`);
             }
           });
           if (drawnItems.getLayers().length > 0) map.fitBounds(drawnItems.getBounds());
