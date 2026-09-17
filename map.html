@@ -30,7 +30,7 @@
       top: 14px;
       left: 14px;
       z-index: 1000;
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.90);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.15);
       border-radius: 12px;
@@ -263,7 +263,6 @@
     map = L.map('map', { maxZoom: 22, zoomControl: false }).setView([30.9753, 76.5270], 13);
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // Google Satellite Layer
     L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
       maxZoom: 22,
       attribution: 'Google Satellite Imagery'
@@ -273,17 +272,29 @@
   }
 
   function fetchClusterHoldings() {
+    document.getElementById('statPlots').innerText = "Loading...";
+
     fetch(API_ENDPOINT)
       .then(res => res.json())
       .then(rows => {
+        // Safe guard against error responses or non-array returns when sheet is empty
+        if (!Array.isArray(rows)) {
+          if (rows && rows.status === "error") {
+            console.warn("Registry notice:", rows.message);
+          }
+          rows = [];
+        }
+
         allFarmsData = rows;
         renderMasterPlots(rows);
         renderDirectoryCards(rows);
         checkDeepLinkAutoZoom();
       })
       .catch(err => {
-        document.getElementById('statPlots').innerText = "Load Error";
-        console.error("Map fetch error:", err);
+        console.error("Map fetch network issue:", err);
+        document.getElementById('statPlots').innerText = "0";
+        document.getElementById('statAcres').innerText = "0.00 Ac";
+        renderDirectoryCards([]);
       });
   }
 
@@ -291,81 +302,92 @@
     let totalAcres = 0;
     let validPlots = 0;
     const boundsGroup = new L.featureGroup();
+    mapPlotElements = [];
 
-    rows.forEach(r => {
-      let coords = [];
-      try {
-        coords = JSON.parse(r['Boundary GeoJSON'] || "[]");
-      } catch(e) {}
+    if (Array.isArray(rows) && rows.length > 0) {
+      rows.forEach(r => {
+        let coords = [];
+        try {
+          coords = JSON.parse(r['Boundary GeoJSON'] || "[]");
+        } catch(e) {}
 
-      if (coords && coords.length >= 3) {
-        validPlots++;
-        const acresVal = parseFloat(r['Parcel Acres'] || r['Total Acres']) || 0;
-        totalAcres += acresVal;
-
-        // Polygon
-        const poly = L.polygon(coords, {
-          color: '#22c55e',
-          weight: 2,
-          fillColor: '#16a34a',
-          fillOpacity: 0.4
-        }).addTo(map);
-
-        boundsGroup.addLayer(poly);
-
-        // Thumbnail / Photo Check
-        const rawPhoto = r['Lab Report Drive Link'] || '';
-        let photoThumbnailHtml = '';
-        if (rawPhoto.startsWith('http') && (rawPhoto.includes('lh3.googleusercontent') || rawPhoto.match(/\.(jpeg|jpg|png|webp)/i))) {
-          photoThumbnailHtml = `
-            <div style="margin: 8px 0; position: relative;">
-              <img src="${rawPhoto}" 
-                   alt="Crop Stand" 
-                   onclick="openLightbox('${rawPhoto}', '${r['Farmer Name']} - ${r['Parcel Identifier']}')"
-                   style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1;">
-              <span style="position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; pointer-events: none;">🔍 Expand</span>
-            </div>
-          `;
+        // Handle [{lat, lng}] object arrays or standard [[lat, lng]] arrays
+        if (Array.isArray(coords)) {
+          coords = coords.map(pt => {
+            if (Array.isArray(pt)) return pt;
+            if (pt && typeof pt === 'object' && pt.lat !== undefined && pt.lng !== undefined) {
+              return [parseFloat(pt.lat), parseFloat(pt.lng)];
+            }
+            return null;
+          }).filter(Boolean);
         }
 
-        // Popup Content
-        const popupHtml = `
-          <div style="font-family: sans-serif; min-width: 220px; line-height: 1.4;">
-            <div style="font-size: 1rem; font-weight: 800; color: #15803d;">${r['Farmer Name']}</div>
-            <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">📍 ${r['Village']}, ${r['District']}</div>
-            ${photoThumbnailHtml}
-            <div style="font-size: 0.82rem; background: #f8fafc; padding: 6px 8px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 6px;">
-              <strong>Plot:</strong> ${r['Parcel Identifier']} (<strong>${acresVal.toFixed(2)} Ac</strong>)<br>
-              <strong>Crops:</strong> ${r['Primary Crops']}<br>
-              <strong>Water:</strong> ${r['Water Source']}
+        if (coords && coords.length >= 3) {
+          validPlots++;
+          const acresVal = parseFloat(String(r['Parcel Acres'] || r['Total Farmer Acres'] || r['Total Acres'] || "0").replace(/[^0-9.]/g, "")) || 0;
+          totalAcres += acresVal;
+
+          const poly = L.polygon(coords, {
+            color: '#22c55e',
+            weight: 2,
+            fillColor: '#16a34a',
+            fillOpacity: 0.4
+          }).addTo(map);
+
+          boundsGroup.addLayer(poly);
+
+          const rawPhoto = r['Lab Report Drive Link'] || '';
+          let photoThumbnailHtml = '';
+          if (rawPhoto.startsWith('http') && (rawPhoto.includes('lh3.googleusercontent') || rawPhoto.match(/\.(jpeg|jpg|png|webp)/i))) {
+            photoThumbnailHtml = `
+              <div style="margin: 8px 0; position: relative;">
+                <img src="${rawPhoto}" 
+                     alt="Crop Stand" 
+                     onclick="openLightbox('${rawPhoto}', '${r['Farmer Name']} - ${r['Parcel Identifier']}')"
+                     style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 1px solid #cbd5e1;">
+                <span style="position: absolute; bottom: 6px; right: 6px; background: rgba(0,0,0,0.75); color: #fff; font-size: 10px; padding: 2px 6px; border-radius: 4px; pointer-events: none;">🔍 Expand</span>
+              </div>
+            `;
+          }
+
+          const cleanPhone = String(r['Phone'] || '').replace(/\D/g, '');
+          const popupHtml = `
+            <div style="font-family: sans-serif; min-width: 220px; line-height: 1.4;">
+              <div style="font-size: 1rem; font-weight: 800; color: #15803d;">${r['Farmer Name'] || 'Registered Member'}</div>
+              <div style="font-size: 0.78rem; color: #64748b; margin-bottom: 6px;">📍 ${r['Village'] || ''}, ${r['District'] || ''}</div>
+              ${photoThumbnailHtml}
+              <div style="font-size: 0.82rem; background: #f8fafc; padding: 6px 8px; border-radius: 6px; border: 1px solid #e2e8f0; margin-bottom: 6px;">
+                <strong>Plot:</strong> ${r['Parcel Identifier'] || 'Field'} (<strong>${acresVal.toFixed(2)} Ac</strong>)<br>
+                <strong>Crops:</strong> ${r['Primary Crops'] || 'Diverse Agroecological Crops'}<br>
+                <strong>Water:</strong> ${r['Water Source'] || 'Rainfed Only'}
+              </div>
+              <div style="font-size: 0.78rem;">
+                🤝 <strong>Tools:</strong> ${r['Machinery Owned (Pool)'] || 'Available on Hub'}<br>
+                📞 <strong>WhatsApp:</strong> <a href="https://wa.me/91${cleanPhone}" target="_blank" style="color: #16a34a; font-weight: 700; text-decoration: none;">Chat Direct</a>
+              </div>
             </div>
-            <div style="font-size: 0.78rem;">
-              🤝 <strong>Tools:</strong> ${r['Machinery Owned (Pool)'] || 'None listed'}<br>
-              📞 <strong>WhatsApp:</strong> <a href="https://wa.me/91${String(r['Phone']).replace(/\D/g,'')}" target="_blank" style="color: #16a34a; font-weight: 700; text-decoration: none;">Chat Direct</a>
-            </div>
-          </div>
-        `;
-        poly.bindPopup(popupHtml);
+          `;
+          poly.bindPopup(popupHtml);
 
-        // Draggable Floating Label Badge
-        const center = poly.getBounds().getCenter();
-        const badgeIcon = L.divIcon({
-          className: 'custom-tag',
-          html: `<div class="plot-tag-icon">🌾 ${r['Farmer Name']} (${acresVal.toFixed(2)} Ac)</div>`,
-          iconAnchor: [50, 12]
-        });
+          const center = poly.getBounds().getCenter();
+          const badgeIcon = L.divIcon({
+            className: 'custom-tag',
+            html: `<div class="plot-tag-icon">🌾 ${r['Farmer Name'] || 'Plot'} (${acresVal.toFixed(2)} Ac)</div>`,
+            iconAnchor: [50, 12]
+          });
 
-        const marker = L.marker(center, { icon: badgeIcon, draggable: true }).addTo(map);
-        marker.on('click', () => poly.openPopup());
+          const marker = L.marker(center, { icon: badgeIcon, draggable: true }).addTo(map);
+          marker.on('click', () => poly.openPopup());
 
-        mapPlotElements.push({
-          phone: String(r['Phone']).replace(/\D/g, ""),
-          farmer: r['Farmer Name'],
-          village: r['Village'],
-          layer: poly
-        });
-      }
-    });
+          mapPlotElements.push({
+            phone: cleanPhone,
+            farmer: r['Farmer Name'],
+            village: r['Village'],
+            layer: poly
+          });
+        }
+      });
+    }
 
     document.getElementById('statPlots').innerText = validPlots;
     document.getElementById('statAcres').innerText = `${totalAcres.toFixed(2)} Ac`;
@@ -379,17 +401,25 @@
     const listEl = document.getElementById('directoryList');
     listEl.innerHTML = '';
 
-    // Group rows by unique phone number
+    if (!Array.isArray(rows) || rows.length === 0) {
+      listEl.innerHTML = `
+        <div style="font-size: 0.8rem; color: #94a3b8; text-align: center; padding: 24px 8px;">
+          No farm holdings logged yet.<br>Be the first to map your field!
+        </div>
+      `;
+      return;
+    }
+
     const uniqueFarmers = {};
     rows.forEach(r => {
-      const phone = String(r['Phone']).replace(/\D/g, "");
-      if (!uniqueFarmers[phone]) {
+      const phone = String(r['Phone'] || '').replace(/\D/g, "");
+      if (phone && !uniqueFarmers[phone]) {
         uniqueFarmers[phone] = {
-          name: r['Farmer Name'],
-          village: r['Village'],
-          acres: r['Total Acres'] || r['Parcel Acres'],
+          name: r['Farmer Name'] || 'Farmer',
+          village: r['Village'] || '',
+          acres: parseFloat(String(r['Total Farmer Acres'] || r['Total Acres'] || r['Parcel Acres'] || "0").replace(/[^0-9.]/g, "")) || 0,
           phone: phone,
-          crops: r['Primary Crops']
+          crops: r['Primary Crops'] || 'Agroecological crops'
         };
       }
     });
@@ -399,7 +429,7 @@
       card.className = 'farmer-card';
       card.innerHTML = `
         <div style="font-weight: 700; font-size: 0.88rem; color: #86efac;">${f.name}</div>
-        <div style="font-size: 0.76rem; color: #cbd5e1;">📍 ${f.village} • 📐 ${f.acres} Ac</div>
+        <div style="font-size: 0.76rem; color: #cbd5e1;">📍 ${f.village} • 📐 ${f.acres.toFixed(2)} Ac</div>
         <div style="font-size: 0.74rem; color: #94a3b8; margin-top: 2px;">🌱 ${f.crops}</div>
       `;
       card.onclick = () => flyToFarmerHolding(f.phone);
@@ -408,9 +438,10 @@
   }
 
   function flyToFarmerHolding(phone) {
-    const matched = mapPlotElements.filter(p => p.phone.endsWith(phone));
+    const clean = String(phone).replace(/\D/g, "");
+    const matched = mapPlotElements.filter(p => p.phone.endsWith(clean) || clean.endsWith(p.phone));
     if (matched.length > 0) {
-      toggleDirectory(); // Close drawer
+      document.getElementById('directoryDrawer').classList.remove('open');
       const group = new L.featureGroup(matched.map(m => m.layer));
       map.fitBounds(group.getBounds().pad(0.35));
       setTimeout(() => matched[0].layer.openPopup(), 400);
@@ -438,7 +469,6 @@
     });
   }
 
-  // Lightbox functions
   function openLightbox(url, cap) {
     document.getElementById('lightboxImg').src = url;
     document.getElementById('lightboxCaption').innerText = cap;
