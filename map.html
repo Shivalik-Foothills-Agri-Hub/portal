@@ -153,6 +153,32 @@
       cursor: grab;
     }
 
+    /* Styled Layer Switcher Container */
+    .leaflet-control-layers {
+      border-radius: 8px !important;
+      background: rgba(15, 23, 42, 0.90) !important;
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.2) !important;
+      color: #f8fafc !important;
+      font-family: inherit !important;
+      font-size: 12px !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
+    }
+
+    .leaflet-control-layers-expanded {
+      padding: 10px 14px !important;
+    }
+
+    .leaflet-control-layers label {
+      margin-bottom: 4px;
+      cursor: pointer;
+    }
+
+    .leaflet-control-layers-separator {
+      border-top: 1px solid rgba(255, 255, 255, 0.15) !important;
+      margin: 6px 0 !important;
+    }
+
     /* Lightbox Modal */
     .lightbox-overlay {
       display: none;
@@ -258,14 +284,55 @@
   let map;
   let allFarmsData = [];
   let mapPlotElements = [];
+  let farmPolygonsLayerGroup;
+  let farmLabelsLayerGroup;
+  let layerControl;
 
   function initMasterMap() {
-    map = L.map('map', { maxZoom: 22, zoomControl: false }).setView([30.9753, 76.5270], 13);
+    // 1. Curated Basemaps
+    const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
+      maxZoom: 22,
+      attribution: 'Google Hybrid Satellite'
+    });
+
+    const streetMap = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '© OpenStreetMap contributors'
+    });
+
+    const topoMap = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+      maxZoom: 17,
+      attribution: 'OpenTopoMap | SRTM'
+    });
+
+    // 2. Curated Overlays
+    farmPolygonsLayerGroup = new L.FeatureGroup();
+    farmLabelsLayerGroup = new L.FeatureGroup();
+
+    // 3. Map Initialization
+    map = L.map('map', {
+      maxZoom: 22,
+      zoomControl: false,
+      layers: [googleHybrid, farmPolygonsLayerGroup, farmLabelsLayerGroup]
+    }).setView([30.9753, 76.5270], 13);
+
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
-      maxZoom: 22,
-      attribution: 'Google Satellite Imagery'
+    // 4. Layer Control Widget Setup
+    const baseMaps = {
+      "🛰️ Satellite Imagery": googleHybrid,
+      "🗺️ Street & Road Map": streetMap,
+      "🏔️ Topography & Terrain": topoMap
+    };
+
+    const overlayMaps = {
+      "🌾 Farm Boundaries": farmPolygonsLayerGroup,
+      "🏷️ Farmer Name Tags": farmLabelsLayerGroup
+    };
+
+    layerControl = L.control.layers(baseMaps, overlayMaps, {
+      position: 'topright',
+      collapsed: true
     }).addTo(map);
 
     fetchClusterHoldings();
@@ -277,7 +344,6 @@
     fetch(API_ENDPOINT)
       .then(res => res.json())
       .then(rows => {
-        // Safe guard against error responses or non-array returns when sheet is empty
         if (!Array.isArray(rows)) {
           if (rows && rows.status === "error") {
             console.warn("Registry notice:", rows.message);
@@ -303,6 +369,8 @@
     let validPlots = 0;
     const boundsGroup = new L.featureGroup();
     mapPlotElements = [];
+    farmPolygonsLayerGroup.clearLayers();
+    farmLabelsLayerGroup.clearLayers();
 
     if (Array.isArray(rows) && rows.length > 0) {
       rows.forEach(r => {
@@ -311,7 +379,6 @@
           coords = JSON.parse(r['Boundary GeoJSON'] || "[]");
         } catch(e) {}
 
-        // Handle [{lat, lng}] object arrays or standard [[lat, lng]] arrays
         if (Array.isArray(coords)) {
           coords = coords.map(pt => {
             if (Array.isArray(pt)) return pt;
@@ -332,8 +399,9 @@
             weight: 2,
             fillColor: '#16a34a',
             fillOpacity: 0.4
-          }).addTo(map);
+          });
 
+          poly.addTo(farmPolygonsLayerGroup);
           boundsGroup.addLayer(poly);
 
           const rawPhoto = r['Lab Report Drive Link'] || '';
@@ -376,7 +444,8 @@
             iconAnchor: [50, 12]
           });
 
-          const marker = L.marker(center, { icon: badgeIcon, draggable: true }).addTo(map);
+          const marker = L.marker(center, { icon: badgeIcon, draggable: true });
+          marker.addTo(farmLabelsLayerGroup);
           marker.on('click', () => poly.openPopup());
 
           mapPlotElements.push({
