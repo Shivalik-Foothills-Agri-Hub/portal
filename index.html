@@ -227,7 +227,7 @@
 <body>
 
 <div class="container">
-  <!-- Language Selector -->
+  <!-- Language Toggle -->
   <div class="lang-bar">
     <span>ਭਾਸ਼ਾ / Language / भाषा:</span>
     <select id="langSwitcher" onchange="switchLanguage(this.value)">
@@ -237,20 +237,20 @@
     </select>
   </div>
 
-  <!-- Header Section -->
+  <!-- Header Card -->
   <div class="header-card">
     <h1 id="txtTitle">Shivalik Foothills Innovative Farmers Hub</h1>
     <p id="txtSubtitle">ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ • किसान साझा केंद्र • Unified Community Circle (Est. 2026)</p>
   </div>
 
-  <!-- Section 1: Member Locality & Profile Lookup -->
+  <!-- Section 1: Member Identity & Locality -->
   <div class="section-card">
     <div class="section-header">
       <span>👤</span>
       <span id="txtSec1">1. Member Identity & Locality</span>
     </div>
 
-    <!-- Record Lookup Box -->
+    <!-- Lookup Box -->
     <div class="lookup-box">
       <div style="font-size: 0.8rem; font-weight: 700; color: #166534;" id="txtLookupLabel">
         Already registered with the Hub? Retrieve your record to update or edit plots:
@@ -482,7 +482,7 @@
       🚀 Submit Farm Holding Registration
     </button>
 
-    <!-- Post-Submission Transition Elements -->
+    <!-- Post-Submission Action Buttons -->
     <a id="viewMapBtn" href="map.html" style="display: none; margin-top: 14px; padding: 14px 20px; background: linear-gradient(135deg, #15803d, #16a34a); color: #ffffff; text-decoration: none; text-align: center; font-size: 1rem; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35); align-items: center; justify-content: center; gap: 8px;">
       🗺️ View Farm on Master Map / ਲਾਈਵ ਮੈਪ 'ਤੇ ਖੇਤ ਦੇਖੋ ➔
     </a>
@@ -505,8 +505,10 @@
 
   let map;
   let drawnItems;
+  let drawingMarkersGroup;
   let activeDrawingPoints = [];
   let tempPolyline = null;
+  let activePolygonPreview = null;
   let isDrawing = false;
   let completedParcels = [];
   let isUpdateMode = false;
@@ -520,21 +522,46 @@
     }).addTo(map);
 
     drawnItems = new L.FeatureGroup().addTo(map);
+    drawingMarkersGroup = new L.FeatureGroup().addTo(map);
+
     map.on('click', handleMapClick);
   }
 
   function handleMapClick(e) {
     if (!isDrawing) return;
 
-    activeDrawingPoints.push([e.latlng.lat, e.latlng.lng]);
+    const lat = e.latlng.lat;
+    const lng = e.latlng.lng;
+    activeDrawingPoints.push([lat, lng]);
+
+    // Render amber corner dot
+    L.circleMarker([lat, lng], {
+      radius: 6,
+      fillColor: '#f59e0b',
+      color: '#ffffff',
+      weight: 2,
+      opacity: 1,
+      fillOpacity: 0.95
+    }).addTo(drawingMarkersGroup);
 
     if (tempPolyline) map.removeLayer(tempPolyline);
+    if (activePolygonPreview) map.removeLayer(activePolygonPreview);
 
-    if (activeDrawingPoints.length > 1) {
-      tempPolyline = L.polyline(activeDrawingPoints, { color: '#fbbf24', weight: 3, dashArray: '5, 5' }).addTo(map);
-    }
+    if (activeDrawingPoints.length === 2) {
+      tempPolyline = L.polyline(activeDrawingPoints, {
+        color: '#fbbf24',
+        weight: 3,
+        dashArray: '6, 6'
+      }).addTo(map);
+    } else if (activeDrawingPoints.length >= 3) {
+      activePolygonPreview = L.polygon(activeDrawingPoints, {
+        color: '#22c55e',
+        weight: 2.5,
+        fillColor: '#16a34a',
+        fillOpacity: 0.35,
+        dashArray: '4, 4'
+      }).addTo(map);
 
-    if (activeDrawingPoints.length >= 3) {
       const acres = calculatePolygonAcres(activeDrawingPoints);
       document.getElementById('parcelAcres').value = acres.toFixed(2);
     }
@@ -543,29 +570,53 @@
   function toggleDrawingMode() {
     isDrawing = !isDrawing;
     const btn = document.getElementById('btnDrawToggle');
+
     if (isDrawing) {
       btn.style.background = '#dc2626';
-      btn.innerText = '🛑 Finish Sketching Corners';
+      btn.innerText = '🛑 Complete Field Perimeter / ਵੱਟਾਂ ਪੂਰੀਆਂ ਕਰੋ';
+      map.getContainer().style.cursor = 'crosshair';
     } else {
       btn.style.background = 'var(--primary)';
-      btn.innerText = '✏️ Tap Corners to Draw Field';
+      btn.innerText = '✏️ Tap Corners to Draw Field / ਵੱਟਾਂ ਬਣਾਓ';
+      map.getContainer().style.cursor = '';
+
       if (activeDrawingPoints.length >= 3) {
         if (tempPolyline) map.removeLayer(tempPolyline);
-        const poly = L.polygon(activeDrawingPoints, { color: '#22c55e', weight: 2, fillOpacity: 0.35 }).addTo(drawnItems);
-        map.fitBounds(poly.getBounds());
+        if (activePolygonPreview) map.removeLayer(activePolygonPreview);
+
+        activePolygonPreview = L.polygon(activeDrawingPoints, {
+          color: '#16a34a',
+          weight: 3,
+          fillColor: '#22c55e',
+          fillOpacity: 0.45
+        }).addTo(map);
+
+        const acres = calculatePolygonAcres(activeDrawingPoints);
+        document.getElementById('parcelAcres').value = acres.toFixed(2);
       }
     }
   }
 
   function clearActiveSketch() {
     activeDrawingPoints = [];
-    if (tempPolyline) map.removeLayer(tempPolyline);
-    document.getElementById('parcelAcres').value = "";
-    if (isDrawing) toggleDrawingMode();
+    drawingMarkersGroup.clearLayers();
+
+    if (tempPolyline) { map.removeLayer(tempPolyline); tempPolyline = null; }
+    if (activePolygonPreview) { map.removeLayer(activePolygonPreview); activePolygonPreview = null; }
+
+    document.getElementById('parcelAcres').value = '';
+    
+    if (isDrawing) {
+      isDrawing = false;
+      const btn = document.getElementById('btnDrawToggle');
+      btn.style.background = 'var(--primary)';
+      btn.innerText = '✏️ Tap Corners to Draw Field / ਵੱਟਾਂ ਬਣਾਓ';
+      map.getContainer().style.cursor = '';
+    }
   }
 
   function calculatePolygonAcres(coords) {
-    if (coords.length < 3) return 0;
+    if (!coords || coords.length < 3) return 0;
     let total = 0;
     const rad = Math.PI / 180;
     for (let i = 0; i < coords.length; i++) {
@@ -574,45 +625,69 @@
       total += (p2[1] * rad - p1[1] * rad) * (2 + Math.sin(p1[0] * rad) + Math.sin(p2[0] * rad));
     }
     const areaSqMeters = Math.abs(total * 6378137.0 * 6378137.0 / 2.0);
-    return areaSqMeters * 0.000247105;
+    const acres = areaSqMeters * 0.000247105;
+    return isNaN(acres) ? 0 : acres;
   }
 
   function saveActivePlotToHolding() {
     const pName = document.getElementById('parcelName').value.trim() || `Plot ${completedParcels.length + 1}`;
-    const pAcres = parseFloat(document.getElementById('parcelAcres').value) || 0;
+    let pAcres = parseFloat(document.getElementById('parcelAcres').value);
     const pCrops = document.getElementById('parcelCrops').value.trim();
 
-    if (activeDrawingPoints.length < 3 && pAcres <= 0) {
-      alert("Please draw field boundary on map or enter plot acres.");
+    if ((isNaN(pAcres) || pAcres <= 0) && activeDrawingPoints.length >= 3) {
+      pAcres = calculatePolygonAcres(activeDrawingPoints);
+      document.getElementById('parcelAcres').value = pAcres.toFixed(2);
+    }
+
+    if (activeDrawingPoints.length < 3 && (!pAcres || pAcres <= 0)) {
+      alert("⚠️ Please tap at least 3 corner points on the map to define the field boundary.");
       return;
     }
+
     if (!pCrops) {
-      alert("Please specify primary crops cultivated on this plot.");
+      alert("⚠️ Please enter Primary Crops cultivated on this plot.");
+      document.getElementById('parcelCrops').focus();
       return;
     }
+
+    const plotBoundary = [...activeDrawingPoints];
 
     const parcel = {
       parcel_name: pName,
-      acres: pAcres.toFixed(2),
+      acres: Number(pAcres.toFixed(2)),
       crops: pCrops,
       water_source: document.getElementById('parcelWater').value,
       horticulture: document.getElementById('parcelHort').value.trim(),
       soc: document.getElementById('parcelSOC').value.trim(),
-      livestock_count: document.getElementById('parcelLivestock').value.trim(),
-      lat: activeDrawingPoints[0] ? activeDrawingPoints[0][0] : "",
-      lng: activeDrawingPoints[0] ? activeDrawingPoints[0][1] : "",
-      geojson: [...activeDrawingPoints]
+      livestock_count: document.getElementById('parcelLivestock').value.trim() || '0',
+      lat: plotBoundary[0] ? plotBoundary[0][0] : '',
+      lng: plotBoundary[0] ? plotBoundary[0][1] : '',
+      geojson: plotBoundary
     };
 
     completedParcels.push(parcel);
+
+    if (plotBoundary.length >= 3) {
+      const savedPoly = L.polygon(plotBoundary, {
+        color: '#15803d',
+        weight: 2.5,
+        fillColor: '#22c55e',
+        fillOpacity: 0.4
+      }).addTo(drawnItems);
+      
+      savedPoly.bindPopup(`<b>${parcel.parcel_name}</b><br>${parcel.acres} Acres<br>${parcel.crops}`);
+    }
+
     renderParcelsList();
 
     clearActiveSketch();
     document.getElementById('parcelName').value = '';
     document.getElementById('parcelCrops').value = '';
+    document.getElementById('parcelHort').value = '';
+    document.getElementById('parcelSOC').value = '';
+    document.getElementById('parcelLivestock').value = '';
   }
 
-  // Normalizes coordinate arrays if returned as objects [{lat, lng}]
   function normalizeCoordinates(coords) {
     if (!Array.isArray(coords)) return [];
     return coords.map(pt => {
@@ -640,20 +715,77 @@
           <strong>${p.parcel_name}</strong> (${cleanAcres.toFixed(2)} Ac)<br>
           <span style="font-size: 0.78rem; color: #475569;">${p.crops} • ${p.water_source}</span>
         </div>
-        <button type="button" class="btn btn-danger" style="padding: 4px 8px; font-size: 0.72rem;" onclick="removePlot(${idx})">✕</button>
+        <div style="display: flex; gap: 6px;">
+          <button type="button" class="btn btn-secondary" style="padding: 4px 8px; font-size: 0.75rem;" onclick="editPlot(${idx})">✏️ Edit</button>
+          <button type="button" class="btn btn-danger" style="padding: 4px 8px; font-size: 0.75rem;" onclick="removePlot(${idx})">✕</button>
+        </div>
       `;
       listDiv.appendChild(card);
     });
 
-    document.getElementById('cumulativeAcreageBox').innerText = `Total Holding: ${total.toFixed(2)} Acres (${completedParcels.length} Plots)`;
+    document.getElementById('cumulativeAcreageBox').innerText = 
+      `Total Holding: ${total.toFixed(2)} Acres (${completedParcels.length} Plots)`;
   }
 
   function removePlot(index) {
     completedParcels.splice(index, 1);
+    redrawSavedPolygons();
     renderParcelsList();
   }
 
-  // Set select value safely or fallback
+  function editPlot(index) {
+    const p = completedParcels[index];
+    document.getElementById('parcelName').value = p.parcel_name;
+    document.getElementById('parcelAcres').value = p.acres;
+    document.getElementById('parcelCrops').value = p.crops;
+    document.getElementById('parcelWater').value = p.water_source;
+    document.getElementById('parcelHort').value = p.horticulture || '';
+    document.getElementById('parcelSOC').value = p.soc || '';
+    document.getElementById('parcelLivestock').value = p.livestock_count || '';
+
+    clearActiveSketch();
+    activeDrawingPoints = [...(p.geojson || [])];
+    
+    completedParcels.splice(index, 1);
+    redrawSavedPolygons();
+    renderParcelsList();
+
+    activeDrawingPoints.forEach(pt => {
+      L.circleMarker(pt, {
+        radius: 6,
+        fillColor: '#f59e0b',
+        color: '#ffffff',
+        weight: 2,
+        fillOpacity: 0.95
+      }).addTo(drawingMarkersGroup);
+    });
+
+    if (activeDrawingPoints.length >= 3) {
+      activePolygonPreview = L.polygon(activeDrawingPoints, {
+        color: '#16a34a',
+        weight: 3,
+        fillColor: '#22c55e',
+        fillOpacity: 0.45
+      }).addTo(map);
+      map.fitBounds(activePolygonPreview.getBounds());
+    }
+  }
+
+  function redrawSavedPolygons() {
+    drawnItems.clearLayers();
+    completedParcels.forEach(p => {
+      if (p.geojson && p.geojson.length >= 3) {
+        const poly = L.polygon(p.geojson, {
+          color: '#15803d',
+          weight: 2.5,
+          fillColor: '#22c55e',
+          fillOpacity: 0.4
+        }).addTo(drawnItems);
+        poly.bindPopup(`<b>${p.parcel_name}</b><br>${p.acres} Acres<br>${p.crops}`);
+      }
+    });
+  }
+
   function setSelectValue(selectId, targetVal) {
     const sel = document.getElementById(selectId);
     if (!sel) return;
@@ -665,7 +797,6 @@
         return;
       }
     }
-    // Partial inclusion fallback
     for (let i = 0; i < sel.options.length; i++) {
       if (cleanTarget && sel.options[i].value.toLowerCase().includes(cleanTarget)) {
         sel.selectedIndex = i;
@@ -674,7 +805,6 @@
     }
   }
 
-  // Lookup & Retrieve Profile
   function lookupFarmerProfile() {
     const phone = document.getElementById('lookupPhone').value.trim().replace(/\D/g, "");
     const statusDiv = document.getElementById('lookupStatus');
@@ -759,7 +889,6 @@
     });
   }
 
-  // Submit Holding Registration
   function submitHoldingRegistration() {
     const name = document.getElementById('name').value.trim();
     const phone = document.getElementById('phone').value.trim().replace(/\D/g, "");
@@ -810,7 +939,6 @@
     }).then(() => {
       const actionMsg = isUpdateMode ? "Profile updated successfully!" : "Registration Successful!";
 
-      // Lock submit button
       btn.disabled = true;
       btn.style.background = "#475569";
       btn.style.cursor = "not-allowed";
@@ -818,14 +946,12 @@
         ? "✓ Profile Successfully Updated" 
         : "✓ Registration Complete & Saved";
 
-      // Enable View on Master Map
       const mapBtn = document.getElementById('viewMapBtn');
       if (mapBtn) {
         mapBtn.href = `map.html?phone=${encodeURIComponent(phone)}`;
         mapBtn.style.display = "flex";
       }
 
-      // Enable Pre-filled WhatsApp Share
       const cropList = completedParcels.map(p => p.crops).filter(Boolean).join(", ") || "Diverse Agroecological Crops";
       const waMsg = 
 `🌾 *ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿੱਲਜ਼ ਇਨੋਵੇਟਿਵ ਫਾਰਮਰਜ਼ ਹੱਬ* 🚜
@@ -852,7 +978,6 @@ https://shivalik-foothills-agri-hub.github.io/map.html?phone=${encodeURIComponen
         waBtn.style.display = "flex";
       }
 
-      // Show Register Another Farmer option
       const resetBtn = document.getElementById('resetFormBtn');
       if (resetBtn) resetBtn.style.display = "block";
 
