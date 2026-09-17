@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Shivalik Foothills Producers Collaborative Hub</title>
+<title>Shivalik Foothills Innovative Farmers Hub</title>
 
 <!-- Leaflet GIS Engine -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -57,6 +57,7 @@
   .section-card { background: var(--card); border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
   .section-card h2 { font-size: 1rem; color: var(--brand); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-bottom: 14px; }
   
+  /* Retrieval and Profile Actions */
   .retrieve-tray {
     background: #e8f5e9;
     border: 1.5px solid #c8e6c9;
@@ -103,6 +104,32 @@
     white-space: nowrap;
   }
 
+  .delete-profile-bar {
+    display: none;
+    margin-top: 12px;
+    padding-top: 10px;
+    border-top: 1px dashed #cbd5e1;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .btn-delete-profile {
+    background: #fee2e2;
+    color: #b91c1c;
+    border: 1.5px solid #ef4444;
+    padding: 7px 14px;
+    border-radius: 6px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .btn-delete-profile:hover {
+    background: #dc2626;
+    color: #ffffff;
+  }
+
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 640px) { 
     .form-grid { grid-template-columns: 1fr; }
@@ -110,6 +137,8 @@
     .header-text { text-align: center; }
     .lookup-input-group { flex-direction: column; }
     .btn-lookup-fetch { width: 100%; }
+    .delete-profile-bar { flex-direction: column; align-items: flex-start; }
+    .btn-delete-profile { width: 100%; }
   }
   .form-field { margin-bottom: 12px; }
   .form-field.full { grid-column: span 2; }
@@ -123,8 +152,8 @@
   .btn-map { padding: 8px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; }
   .btn-map.active { background: #d90429; border-color: #d90429; color: #fff; }
   .btn-parcel-add { background: #059669; border-color: #059669; color: #fff; }
+  .btn-parcel-add.save-edit { background: #0284c7; border-color: #0284c7; }
   
-  /* Per-Plot Attribute Card */
   .active-plot-drawer {
     background: #f8fafc;
     border: 2px solid var(--accent);
@@ -147,15 +176,32 @@
     background: #ffffff;
     border: 1px solid #cbd5e1;
     border-radius: 6px;
-    padding: 8px 12px;
-    margin-bottom: 6px;
+    padding: 9px 12px;
+    margin-bottom: 8px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 10px;
   }
-  .parcel-item-info { font-size: 0.78rem; line-height: 1.35; }
-  .parcel-item-info b { color: var(--brand); }
-  .btn-del-plot { background: none; border: none; color: #dc2626; font-size: 1.1rem; font-weight: 800; cursor: pointer; padding: 4px 8px; }
+  .parcel-item-card.editing {
+    border-color: #0284c7;
+    background: #f0f9ff;
+  }
+  .parcel-item-info { font-size: 0.78rem; line-height: 1.4; flex: 1; }
+  .parcel-item-info b { color: var(--brand); font-size: 0.82rem; }
+  .parcel-btn-group { display: flex; align-items: center; gap: 6px; }
+  .btn-edit-plot {
+    background: #f1f5f9;
+    border: 1px solid #94a3b8;
+    color: #0f172a;
+    border-radius: 4px;
+    padding: 4px 8px;
+    font-size: 0.74rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-edit-plot:hover { background: #e2e8f0; }
+  .btn-del-plot { background: none; border: none; color: #dc2626; font-size: 1.15rem; font-weight: 800; cursor: pointer; padding: 2px 6px; }
 
   .consent-box { background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 12px; font-size: 0.76rem; color: #475569; line-height: 1.45; margin-bottom: 16px; }
 
@@ -178,16 +224,16 @@
   </div>
 
   <header>
-    <img src="logo.jpeg" alt="Shivalik Foothills Unified Community Circle" class="header-logo" onerror="this.style.display='none'">
+    <img src="logo.jpeg" alt="Shivalik Foothills Innovative Farmers Hub" class="header-logo" onerror="this.style.display='none'">
     <div class="header-text">
-      <h1 data-i18n="app_title">Shivalik Foothills Producers Collaborative Hub</h1>
+      <h1 data-i18n="app_title">Shivalik Foothills Innovative Farmers Hub</h1>
       <p data-i18n="app_sub">ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ &bull; किसान साझ केंद्र &bull; Unified Community Circle (Est. 2026)</p>
     </div>
   </header>
 
   <form id="registryForm" onsubmit="handleRegistration(event)">
 
-    <!-- 1. MEMBER IDENTITY -->
+    <!-- 1. MEMBER IDENTITY & RETRIEVAL / DELETION -->
     <div class="section-card">
       <h2 data-i18n="sec_identity">👤 1. Member Identity & Locality</h2>
 
@@ -202,6 +248,11 @@
             <button type="button" class="btn-lookup-fetch" onclick="fetchFarmerProfile()" data-i18n="btn_load_record">📥 Load My Record</button>
           </div>
           <p id="lookup_status" style="font-size:0.75rem; margin-top:6px; color:#1e293b; font-weight:600;"></p>
+
+          <div id="deleteProfileBar" class="delete-profile-bar">
+            <span style="font-size:0.74rem; color:#64748b;" data-i18n="lbl_withdraw">Need to withdraw your holding from the registry?</span>
+            <button type="button" class="btn-delete-profile" onclick="deleteFarmerProfile()" data-i18n="btn_delete_profile">🗑️ Delete My Entire Registration</button>
+          </div>
         </div>
       </div>
 
@@ -238,26 +289,26 @@
       </div>
     </div>
 
-    <!-- 2. MULTI-PLOT SATELLITE MAPPING & PER-PLOT CROPS/SOIL -->
+    <!-- 2. MULTI-PLOT SATELLITE MAPPING & INDEPENDENT DETAILS -->
     <div class="section-card">
       <h2 data-i18n="sec_map">🛰️ 2. Multi-Plot Mapping & Independent Field Details</h2>
       <p data-i18n="map_guide" style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
-        Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save & Add Another Plot"</b>.
+        Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save This Plot to Holding"</b>.
       </p>
 
       <div class="map-actions">
         <button type="button" class="btn-map" onclick="locateGPS()" data-i18n="btn_gps">📍 Find GPS Location</button>
         <button type="button" class="btn-map" id="btnDraw" onclick="toggleDrawTool()" data-i18n="btn_draw">✏️ Tap Corners to Draw Field</button>
-        <button type="button" class="btn-map btn-parcel-add" onclick="saveCurrentParcel()" data-i18n="btn_add_plot">➕ Save This Plot to Holding</button>
+        <button type="button" class="btn-map btn-parcel-add" id="btnSavePlot" onclick="saveCurrentParcel()" data-i18n="btn_add_plot">➕ Save This Plot to Holding</button>
         <button type="button" class="btn-map" onclick="clearActiveDrawing()" data-i18n="btn_clear">🗑️ Clear Active Sketch</button>
       </div>
 
       <div id="map"></div>
 
-      <!-- ACTIVE PLOT ATTRIBUTES DRAWER (Independent Attributes) -->
-      <div class="active-plot-drawer">
+      <!-- ACTIVE PLOT ATTRIBUTES DRAWER -->
+      <div class="active-plot-drawer" id="activePlotDrawer">
         <h3>
-          <span>Active Plot Details</span>
+          <span id="active_drawer_heading">Active Plot Details</span>
           <span id="active_sketch_acres_badge" style="color:#059669; font-weight:700;">Area: 0.00 Acres</span>
         </h3>
         <div class="form-grid">
@@ -401,26 +452,32 @@
 
   let currentLang = 'en';
   let isUpdateMode = false;
+  let editingParcelIndex = -1;
 
   const translations = {
     en: {
-      app_title: "Shivalik Foothills Producers Collaborative Hub",
+      app_title: "Shivalik Foothills Innovative Farmers Hub",
       app_sub: "ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ • किसान साझ केंद्र • Unified Community Circle (Est. 2026)",
       sec_identity: "👤 1. Member Identity & Locality",
       lbl_already_reg: "Already registered with the Hub?",
       btn_toggle_lookup: "🔍 Retrieve & Edit Profile",
       btn_load_record: "📥 Load My Record",
+      lbl_withdraw: "Need to withdraw your holding from the registry?",
+      btn_delete_profile: "🗑️ Delete My Entire Registration",
+      confirm_delete: "Are you sure you want to permanently delete your registration and all mapped farm plots from the Collaborative Registry? This action cannot be undone.",
+      delete_success: "✅ Your registration and all mapped plots have been permanently deleted.",
       lbl_name: "Member / Farmer Name *",
       lbl_phone: "WhatsApp Contact Number *",
       lbl_id: "Member Reference ID (Optional)",
       lbl_district: "Region / District *",
       lbl_village: "Village, Tehsil & Postal Address *",
       sec_map: "🛰️ 2. Multi-Plot Mapping & Independent Field Details",
-      map_guide: 'Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save & Add Another Plot"</b>.',
+      map_guide: 'Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save This Plot to Holding"</b>.',
       btn_gps: "📍 Find GPS Location",
       btn_draw: "✏️ Tap Corners to Draw Field",
       btn_draw_active: "🛑 Finish Active Sketch",
       btn_add_plot: "➕ Save This Plot to Holding",
+      btn_save_plot_edit: "💾 Save Changes to This Plot",
       btn_clear: "🗑️ Clear Active Sketch",
       lbl_inventory: "Mapped Plots Inventory",
       lbl_cumulative: "Cumulative",
@@ -441,23 +498,28 @@
       btn_update_mode: "🔄 Update Existing Profile Record"
     },
     pa: {
-      app_title: "ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿਲਜ਼ ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ",
+      app_title: "ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿਲਜ਼ ਇਨੋਵੇਟਿਵ ਫਾਰਮਰਜ਼ ਹੱਬ",
       app_sub: "ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ, ਸੈਟੇਲਾਈਟ ਖੇਤ ਮੈਪਿੰਗ ਅਤੇ ਸਿੱਧਾ ਬਾਜ਼ਾਰ ਸੰਪਰਕ (Est. 2026)",
       sec_identity: "👤 1. ਮੈਂਬਰ ਦਾ ਵੇਰਵਾ ਅਤੇ ਇਲਾਕਾ",
       lbl_already_reg: "ਕੀ ਤੁਸੀਂ ਪਹਿਲਾਂ ਹੀ ਰਜਿਸਟਰਡ ਹੋ?",
       btn_toggle_lookup: "🔍 ਰਿਕਾਰਡ ਲੱਭੋ ਅਤੇ ਸੋਧੋ",
       btn_load_record: "📥 ਮੇਰਾ ਰਿਕਾਰਡ ਖੋਲ੍ਹੋ",
+      lbl_withdraw: "ਕੀ ਤੁਸੀਂ ਰਜਿਸਟਰ ਵਿੱਚੋਂ ਆਪਣਾ ਨਾਂ ਤੇ ਖੇਤ ਹਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ?",
+      btn_delete_profile: "🗑️ ਮੇਰੀ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਪੂਰੀ ਤਰ੍ਹਾਂ ਹਟਾਓ",
+      confirm_delete: "ਕੀ ਤੁਸੀਂ ਸੱਚਮੁੱਚ ਆਪਣੀ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਅਤੇ ਸਾਰੇ ਦਰਜ ਖੇਤ ਸਾਂਝ ਕੇਂਦਰ ਤੋਂ ਪੱਕੇ ਤੌਰ 'ਤੇ ਹਟਾਉਣਾ ਚਾਹੁੰਦੇ ਹੋ? ਇਹ ਕਾਰਵਾਈ ਵਾਪਸ ਨਹੀਂ ਹੋ ਸਕਦੀ।",
+      delete_success: "✅ ਤੁਹਾਡੀ ਰਜਿਸਟ੍ਰੇਸ਼ਨ ਅਤੇ ਸਾਰੇ ਖੇਤ ਪੱਕੇ ਤੌਰ 'ਤੇ ਹਟਾ ਦਿੱਤੇ ਗਏ ਹਨ।",
       lbl_name: "ਕਿਸਾਨ / ਮੈਂਬਰ ਦਾ ਪੂਰਾ ਨਾਂ *",
       lbl_phone: "ਵਟਸਐਪ ਸੰਪਰਕ ਨੰਬਰ *",
       lbl_id: "ਮੈਂਬਰ ਰੈਫਰੈਂਸ ਨੰਬਰ (ਮਰਜ਼ੀ ਮੁਤਾਬਕ)",
       lbl_district: "ਇਲਾਕਾ / ਜ਼ਿਲ੍ਹਾ *",
       lbl_village: "ਪਿੰਡ, ਤਹਿਸੀਲ ਅਤੇ ਡਾਕਖਾਨਾ *",
       sec_map: "🛰️ 2. ਸੈਟੇਲਾਈਟ ਜ਼ਮੀਨ ਮੈਪਿੰਗ ਅਤੇ ਖੇਤਾਂ ਦਾ ਵੱਖਰਾ ਵੇਰਵਾ",
-      map_guide: 'ਸੈਟੇਲਾਈਟ ਨਕਸ਼ੇ \'ਤੇ ਖੇਤ ਬਣਾਓ, ਉਸ ਖੇਤ ਦੀਆਂ ਫ਼ਸਲਾਂ, ਪਾਣੀ ਤੇ ਲੈਬ ਰਿਪੋਰਟ ਭਰੋ, ਫਿਰ <b>"ਖੇਤ ਸੂਚੀ ਵਿੱਚ ਦਰਜ ਕਰੋ"</b> ਦਬਾਓ।',
+      map_guide: 'ਸੈਟੇਲਾਈਟ ਨਕਸ਼ੇ \'ਤੇ ਖੇਤ ਬਣਾਓ, ਉਸ ਖੇਤ ਦੀਆਂ ਫ਼ਸਲਾਂ, ਪਾਣੀ ਤੇ ਲੈਬ ਰਿਪੋਰਟ ਭਰੋ, ਫਿਰ <b>"ਇਹ ਖੇਤ ਸੂਚੀ ਵਿੱਚ ਦਰਜ ਕਰੋ"</b> ਦਬਾਓ।',
       btn_gps: "📍 ਮੇਰਾ ਖੇਤ ਲੱਭੋ (GPS)",
       btn_draw: "✏️ ਵੱਟਾਂ 'ਤੇ ਟੈਪ ਕਰਕੇ ਨਿਸ਼ਾਨ ਲਗਾਓ",
       btn_draw_active: "🛑 ਨਿਸ਼ਾਨ ਲਗਾਉਣਾ ਬੰਦ ਕਰੋ",
       btn_add_plot: "➕ ਇਹ ਖੇਤ ਸੂਚੀ ਵਿੱਚ ਦਰਜ ਕਰੋ",
+      btn_save_plot_edit: "💾 ਖੇਤ ਦੇ ਬਦਲਾਅ ਸੰਭਾਲੋ",
       btn_clear: "🗑️ ਕੱਚਾ ਨਕਸ਼ਾ ਹਟਾਓ",
       lbl_inventory: "ਦਰਜ ਕੀਤੇ ਖੇਤਾਂ ਦੀ ਸੂਚੀ",
       lbl_cumulative: "ਕੁੱਲ ਰਕਬਾ",
@@ -478,23 +540,28 @@
       btn_update_mode: "🔄 ਮੌਜੂਦਾ ਰਿਕਾਰਡ ਅਪਡੇਟ ਕਰੋ"
     },
     hi: {
-      app_title: "शिवालिक तलहटी किसान साझ केंद्र",
+      app_title: "शिवालिक तलहटी इनोवेटिव फार्मर्स हब",
       app_sub: "पारस्परिक संसाधन साझाकरण, सैटेलाइट खेत मैपिंग और सीधा बाजार संपर्क (Est. 2026)",
       sec_identity: "👤 1. सदस्य विवरण और इलाका",
       lbl_already_reg: "क्या आप पहले से पंजीकृत हैं?",
       btn_toggle_lookup: "🔍 रिकॉर्ड खोजें और अपडेट करें",
       btn_load_record: "📥 मेरा रिकॉर्ड खोलें",
+      lbl_withdraw: "क्या आप रजिस्टर से अपना नाम और खेत हटाना चाहते हैं?",
+      btn_delete_profile: "🗑️ मेरा पूरा पंजीकरण हटाएं",
+      confirm_delete: "क्या आप वास्तव में अपना पंजीकरण और सभी चिह्नित खेत साझ केंद्र से हमेशा के लिए हटाना चाहते हैं? यह कार्रवाई वापस नहीं होगी।",
+      delete_success: "✅ आपका पंजीकरण और सभी खेत सफलतापूर्वक हटा दिए गए हैं।",
       lbl_name: "किसान / सदस्य का पूरा नाम *",
       lbl_phone: "व्हाट्सएप संपर्क नंबर *",
       lbl_id: "सदस्य संदर्भ आईडी (वैकल्पिक)",
       lbl_district: "क्षेत्र / जिला *",
       lbl_village: "गांव, तहसील और डाक पता *",
       sec_map: "🛰️ 2. सैटेलाइट जमीन मैपिंग और खेतों का स्वतंत्र विवरण",
-      map_guide: 'सैटेलाइट नक्शे पर खेत बनाएं, उस खेत की फसलें, पानी व लैब रिपोर्ट भरें, फिर <b>"खेत सूची में सहेजें"</b> दबाएं।',
+      map_guide: 'सैटेलाइट नक्शे पर खेत बनाएं, उस खेत की फसलें, पानी व लैब रिपोर्ट भरें, फिर <b>"यह खेत सूची में सहेजें"</b> दबाएं।',
       btn_gps: "📍 मेरा खेत ढूंढें (GPS)",
       btn_draw: "✏️ मेड़ों पर टैप करके निशान लगाएं",
       btn_draw_active: "🛑 निशान लगाना पूरा करें",
       btn_add_plot: "➕ यह खेत सूची में सहेजें",
+      btn_save_plot_edit: "💾 खेत के बदलाव सहेजें",
       btn_clear: "🗑️ कच्चा नक्शा हटाएं",
       lbl_inventory: "दर्ज किए गए खेतों की सूची",
       lbl_cumulative: "कुल रकबा",
@@ -533,6 +600,11 @@
     const btn = document.getElementById('btnDraw');
     if (btn) btn.innerText = isDrawing ? dict.btn_draw_active : dict.btn_draw;
 
+    const btnSavePlot = document.getElementById('btnSavePlot');
+    if (btnSavePlot) {
+      btnSavePlot.innerText = editingParcelIndex >= 0 ? dict.btn_save_plot_edit : dict.btn_add_plot;
+    }
+
     const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) submitBtn.innerText = isUpdateMode ? dict.btn_update_mode : dict.btn_submit;
 
@@ -549,6 +621,7 @@
   function fetchFarmerProfile() {
     const phoneInput = document.getElementById('lookup_phone').value.trim();
     const statusMsg = document.getElementById('lookup_status');
+    const deleteBar = document.getElementById('deleteProfileBar');
 
     if (!phoneInput || phoneInput.length < 10) {
       statusMsg.style.color = "#dc2626";
@@ -557,18 +630,20 @@
     }
 
     statusMsg.style.color = "#2563eb";
-    statusMsg.innerText = "🔍 Fetching record from registry...";
+    statusMsg.innerText = "🔍 Fetching record from Hub registry...";
 
     fetch(`${SCRIPT_URL}?action=getProfile&phone=${encodeURIComponent(phoneInput)}`)
       .then(res => res.json())
       .then(res => {
         if (res.status === "found") {
           statusMsg.style.color = "#059669";
-          statusMsg.innerText = "✅ Profile loaded! You can update farm plots, crops, or member attributes.";
+          statusMsg.innerText = "✅ Profile loaded! You can now edit any plot or update records.";
+          if (deleteBar) deleteBar.style.display = "flex";
           populateFormWithProfile(res.profile);
         } else {
           statusMsg.style.color = "#dc2626";
           statusMsg.innerText = "❌ No registration found for this number.";
+          if (deleteBar) deleteBar.style.display = "none";
         }
       })
       .catch(err => {
@@ -594,7 +669,6 @@
     if (p.workforce) document.getElementById('workforce').value = p.workforce;
     if (p.labour_deficit) document.getElementById('labour_deficit').value = p.labour_deficit;
 
-    // Load independent parcels onto map and state
     if (p.parcels && p.parcels.length > 0) {
       completedParcels.forEach(c => { if (c.layerRef) map.removeLayer(c.layerRef); });
       completedParcels = [];
@@ -633,6 +707,57 @@
     const submitBtn = document.getElementById('submitBtn');
     submitBtn.classList.add('update-mode');
     submitBtn.innerText = translations[currentLang].btn_update_mode;
+  }
+
+  function deleteFarmerProfile() {
+    const targetPhone = document.getElementById('phone').value.trim() || document.getElementById('lookup_phone').value.trim();
+    if (!targetPhone || targetPhone.length < 10) {
+      alert("Please load a registered profile first before requesting deletion.");
+      return;
+    }
+
+    const dict = translations[currentLang] || translations.en;
+    if (!confirm(dict.confirm_delete)) {
+      return;
+    }
+
+    const statusMsg = document.getElementById('lookup_status');
+    statusMsg.style.color = "#dc2626";
+    statusMsg.innerText = "⏳ Permanently removing all farm records from Hub registry...";
+
+    fetch(SCRIPT_URL, {
+      method: "POST",
+      mode: "no-cors",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        mode: "delete",
+        phone: targetPhone
+      })
+    }).then(() => {
+      alert(dict.delete_success);
+      resetEntireForm();
+    }).catch(err => {
+      alert("Error deleting record: " + err);
+    });
+  }
+
+  function resetEntireForm() {
+    document.getElementById('registryForm').reset();
+    document.getElementById('lookup_phone').value = "";
+    document.getElementById('lookup_status').innerText = "";
+    const deleteBar = document.getElementById('deleteProfileBar');
+    if (deleteBar) deleteBar.style.display = "none";
+
+    completedParcels.forEach(c => { if (c.layerRef) map.removeLayer(c.layerRef); });
+    completedParcels = [];
+    clearActiveDrawing();
+    cancelPlotEditing();
+    renderParcelTray();
+
+    isUpdateMode = false;
+    const submitBtn = document.getElementById('submitBtn');
+    submitBtn.classList.remove('update-mode');
+    submitBtn.innerText = translations[currentLang].btn_submit;
   }
 
   let map;
@@ -685,19 +810,121 @@
     }
   }
 
-  function saveCurrentParcel() {
-    if (activePoints.length < 3) {
-      alert("Please tap at least 3 boundary corners on the satellite map before saving this plot.");
-      return;
+  function editParcel(idx) {
+    editingParcelIndex = idx;
+    const p = completedParcels[idx];
+    const dict = translations[currentLang] || translations.en;
+
+    document.getElementById('active_parcel_name').value = p.parcel_name || '';
+    document.getElementById('plot_crops').value = p.crops || '';
+    document.getElementById('plot_horticulture').value = p.horticulture || '';
+    document.getElementById('plot_water_source').value = p.water_source || 'Rainfed Only';
+    document.getElementById('plot_soc').value = p.soc || '';
+    document.getElementById('plot_livestock').value = p.livestock_count || '';
+    document.getElementById('active_sketch_acres_badge').innerText = "Area: " + p.acres;
+
+    if (p.existing_file_url && p.existing_file_url.startsWith('http')) {
+      document.getElementById('plot_report_link').href = p.existing_file_url;
+      document.getElementById('plot_existing_report').style.display = 'block';
+    } else {
+      document.getElementById('plot_existing_report').style.display = 'none';
     }
 
-    const parcelName = document.getElementById('active_parcel_name').value.trim() || `Plot ${completedParcels.length + 1}`;
+    const saveBtn = document.getElementById('btnSavePlot');
+    saveBtn.innerText = dict.btn_save_plot_edit;
+    saveBtn.classList.add('save-edit');
+
+    document.getElementById('active_drawer_heading').innerHTML = `✏️ Editing: <b>${p.parcel_name}</b>`;
+
+    if (p.layerRef) {
+      map.fitBounds(p.layerRef.getBounds(), { padding: [40, 40] });
+      p.layerRef.openPopup();
+    }
+
+    renderParcelTray();
+    document.getElementById('activePlotDrawer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function cancelPlotEditing() {
+    editingParcelIndex = -1;
+    const dict = translations[currentLang] || translations.en;
+    const saveBtn = document.getElementById('btnSavePlot');
+    saveBtn.innerText = dict.btn_add_plot;
+    saveBtn.classList.remove('save-edit');
+    document.getElementById('active_drawer_heading').innerText = "Active Plot Details";
+    document.getElementById('active_parcel_name').value = `Plot ${completedParcels.length + 1}`;
+    document.getElementById('plot_crops').value = "";
+    document.getElementById('plot_horticulture').value = "";
+    document.getElementById('plot_soc').value = "";
+    document.getElementById('plot_livestock').value = "";
+    document.getElementById('plot_lab_file').value = "";
+    document.getElementById('plot_existing_report').style.display = "none";
+    document.getElementById('active_sketch_acres_badge').innerText = "Area: 0.00 Acres";
+  }
+
+  function saveCurrentParcel() {
     const crops = document.getElementById('plot_crops').value.trim();
     if (!crops) {
       alert("Please enter the primary crops cultivated specifically on this plot.");
       return;
     }
 
+    // PATH 1: UPDATING AN EXISTING PLOT
+    if (editingParcelIndex >= 0) {
+      const p = completedParcels[editingParcelIndex];
+      p.parcel_name = document.getElementById('active_parcel_name').value.trim() || p.parcel_name;
+      p.crops = crops;
+      p.horticulture = document.getElementById('plot_horticulture').value.trim();
+      p.water_source = document.getElementById('plot_water_source').value;
+      p.soc = document.getElementById('plot_soc').value.trim();
+      p.livestock_count = document.getElementById('plot_livestock').value.trim() || "0";
+
+      if (activePoints.length >= 3) {
+        if (p.layerRef) map.removeLayer(p.layerRef);
+        const centroid = activePolygon.getBounds().getCenter();
+        const color = parcelColors[editingParcelIndex % parcelColors.length];
+        const updatedPoly = L.polygon(activePoints, { color: color, weight: 3, fillColor: color, fillOpacity: 0.4 }).addTo(map);
+        
+        p.acres = currentActiveAcres + " Acres";
+        p.lat = centroid.lat.toFixed(5);
+        p.lng = centroid.lng.toFixed(5);
+        p.geojson = activePoints;
+        p.layerRef = updatedPoly;
+        clearActiveDrawing();
+      }
+
+      p.layerRef.bindPopup(`<b>${p.parcel_name}</b><br>Crops: ${p.crops}<br>Area: ${p.acres}`).openPopup();
+
+      const fileInput = document.getElementById('plot_lab_file');
+      if (fileInput.files.length > 0) {
+        const file = fileInput.files[0];
+        if (file.size > 5 * 1024 * 1024) {
+          alert("Plot report exceeds 5MB limit. Please upload a smaller file.");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          p.fileData = e.target.result;
+          p.fileName = file.name;
+          p.fileType = file.type;
+          cancelPlotEditing();
+          renderParcelTray();
+        };
+        reader.readAsDataURL(file);
+      } else {
+        cancelPlotEditing();
+        renderParcelTray();
+      }
+      return;
+    }
+
+    // PATH 2: SAVING A BRAND NEW PLOT
+    if (activePoints.length < 3) {
+      alert("Please tap at least 3 boundary corners on the satellite map before saving this plot.");
+      return;
+    }
+
+    const parcelName = document.getElementById('active_parcel_name').value.trim() || `Plot ${completedParcels.length + 1}`;
     const centroid = activePolygon.getBounds().getCenter();
     const color = parcelColors[completedParcels.length % parcelColors.length];
 
@@ -720,7 +947,6 @@
       layerRef: savedPoly
     };
 
-    // Check for plot-specific lab report upload
     const fileInput = document.getElementById('plot_lab_file');
     if (fileInput.files.length > 0) {
       const file = fileInput.files[0];
@@ -743,25 +969,8 @@
 
   function finishAddingParcel(newParcel) {
     completedParcels.push(newParcel);
-
-    // Reset active sketch tools
-    activeMarkers.forEach(m => map.removeLayer(m));
-    activeMarkers = [];
-    if (activePolygon) map.removeLayer(activePolygon);
-    activePolygon = null;
-    activePoints = [];
-    currentActiveAcres = 0;
-    document.getElementById('active_sketch_acres_badge').innerText = "Area: 0.00 Acres";
-
-    // Reset drawer fields for next parcel
-    document.getElementById('active_parcel_name').value = `Plot ${completedParcels.length + 1}`;
-    document.getElementById('plot_crops').value = "";
-    document.getElementById('plot_horticulture').value = "";
-    document.getElementById('plot_soc').value = "";
-    document.getElementById('plot_livestock').value = "";
-    document.getElementById('plot_lab_file').value = "";
-    document.getElementById('plot_existing_report').style.display = "none";
-
+    clearActiveDrawing();
+    cancelPlotEditing();
     if (isDrawing) toggleDrawTool();
     renderParcelTray();
   }
@@ -777,6 +986,7 @@
   }
 
   function removeSavedParcel(idx) {
+    if (editingParcelIndex === idx) cancelPlotEditing();
     map.removeLayer(completedParcels[idx].layerRef);
     completedParcels.splice(idx, 1);
     renderParcelTray();
@@ -796,13 +1006,17 @@
     tray.innerHTML = completedParcels.map((p, i) => {
       const ac = parseFloat(p.acres) || 0;
       total += ac;
+      const isEditingClass = editingParcelIndex === i ? ' editing' : '';
       return `
-        <div class="parcel-item-card">
+        <div class="parcel-item-card${isEditingClass}">
           <div class="parcel-item-info">
             <b>📍 ${p.parcel_name}</b> (${p.acres})<br>
             <span>🌾 Crops: ${p.crops || 'N/A'}</span> &bull; <span>💧 ${p.water_source}</span>
           </div>
-          <button type="button" class="btn-del-plot" onclick="removeSavedParcel(${i})">✕</button>
+          <div class="parcel-btn-group">
+            <button type="button" class="btn-edit-plot" onclick="editParcel(${i})">✏️ Edit</button>
+            <button type="button" class="btn-del-plot" onclick="removeSavedParcel(${i})">✕</button>
+          </div>
         </div>
       `;
     }).join('');
@@ -898,7 +1112,7 @@
       btn.disabled = false;
       btn.innerText = isUpdateMode ? translations[currentLang].btn_update_mode : translations[currentLang].btn_submit;
 
-      const headerTitle = "*🌾 SHIVALIK PRODUCERS COLLABORATIVE*";
+      const headerTitle = "*🌾 SHIVALIK FOOTHILLS INNOVATIVE FARMERS HUB*";
       const summary = `${headerTitle}\n` +
                       `• Mode: ${isUpdateMode ? 'Profile Update' : 'New Registration'}\n` +
                       `• Member: ${basePayload.name}\n` +
