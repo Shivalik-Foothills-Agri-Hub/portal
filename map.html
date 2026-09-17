@@ -20,20 +20,23 @@
 
   #map { height: 100%; width: 100%; z-index: 1; }
 
-  /* Floating Control Header */
+  /* Responsive Floating Control Header */
   .floating-panel {
     position: absolute;
-    top: 12px;
-    left: 12px;
+    top: 10px;
+    left: 10px;
     z-index: 1000;
     background: rgba(255, 255, 255, 0.96);
     backdrop-filter: blur(4px);
     border-radius: 10px;
-    padding: 12px 16px;
+    padding: 12px 14px;
     box-shadow: 0 4px 15px rgba(0,0,0,0.22);
-    max-width: 360px;
+    width: 350px;
+    max-width: calc(100vw - 75px); /* Guarantees space for layer icon on right */
     border: 1px solid var(--border);
+    transition: all 0.2s ease;
   }
+
   .header-brand-row {
     display: flex;
     align-items: center;
@@ -41,12 +44,13 @@
     margin-bottom: 6px;
   }
   .map-logo {
-    height: 44px;
+    height: 42px;
     width: auto;
     border-radius: 6px;
     object-fit: contain;
     border: 1.5px solid #d4a373;
     background: #2b1d0c;
+    flex-shrink: 0;
   }
   .floating-panel h1 { font-size: 0.95rem; color: var(--brand); font-weight: 800; margin: 0; line-height: 1.25; }
   .floating-panel p { font-size: 0.72rem; color: #475569; margin: 2px 0 0 0; }
@@ -91,6 +95,7 @@
     border: 1px solid #cbd5e1;
     font-size: 0.78rem;
     outline: none;
+    min-width: 0; /* Prevents overflow */
   }
   .search-box-row button {
     background: #0f172a;
@@ -101,26 +106,26 @@
     font-size: 0.76rem;
     font-weight: 700;
     cursor: pointer;
+    flex-shrink: 0;
   }
 
   /* Farmer Directory Drawer */
   .directory-drawer {
     display: none;
-    max-height: 220px;
+    max-height: 200px;
     overflow-y: auto;
-    margin-top: 10px;
+    margin-top: 8px;
     border-top: 1px solid #e2e8f0;
-    padding-top: 8px;
+    padding-top: 6px;
   }
   .directory-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 6px 8px;
+    padding: 5px 6px;
     border-radius: 6px;
-    font-size: 0.75rem;
+    font-size: 0.74rem;
     cursor: pointer;
-    transition: background 0.15s;
     border-bottom: 1px dashed #f1f5f9;
   }
   .directory-item:hover { background: #f1f5f9; }
@@ -132,51 +137,63 @@
     display: inline-block;
   }
 
-  /* Leaflet divIcon Container Override (Prevents 12px squishing) */
-  .custom-callout-wrapper {
-    background: transparent !important;
+  /* Layer Switcher Styling (Clean & Accessible on Mobile) */
+  .leaflet-top.leaflet-right {
+    top: 10px;
+    right: 10px;
+  }
+  .leaflet-control-layers {
+    border-radius: 8px !important;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25) !important;
+    border: 1px solid #cbd5e1 !important;
+  }
+  .leaflet-control-layers-expanded {
+    max-width: calc(100vw - 30px);
+    font-size: 0.8rem;
+    padding: 10px 12px;
+  }
+
+  /* Mobile Responsive Screen Adaptations */
+  @media (max-width: 640px) {
+    .floating-panel {
+      top: 8px;
+      left: 8px;
+      padding: 8px 10px;
+      max-width: calc(100vw - 68px); /* Leaves clear tap room for top-right layer button */
+    }
+    .map-logo {
+      height: 32px;
+    }
+    .floating-panel h1 {
+      font-size: 0.82rem;
+    }
+    .floating-panel p {
+      font-size: 0.65rem;
+    }
+    .stat-badge {
+      font-size: 0.66rem;
+      padding: 2px 6px;
+    }
+    .btn-directory-toggle {
+      font-size: 0.66rem;
+      padding: 3px 8px;
+    }
+    .search-box-row input {
+      font-size: 0.72rem;
+      padding: 5px 8px;
+    }
+    .search-box-row button {
+      font-size: 0.72rem;
+      padding: 5px 8px;
+    }
+  }
+
+  /* Reset Leaflet divIcon box constraints */
+  .leaflet-marker-icon.custom-label-icon {
+    background: none !important;
     border: none !important;
     width: auto !important;
     height: auto !important;
-  }
-
-  /* High-Contrast Draggable Callout Badge */
-  .callout-label {
-    background: #0f172a; /* Solid Deep Slate */
-    color: #ffffff;
-    border-radius: 8px;
-    padding: 5px 10px;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.6);
-    white-space: nowrap;
-    cursor: grab;
-    user-select: none;
-    display: inline-flex;
-    flex-direction: column;
-    align-items: center;
-    line-height: 1.25;
-    pointer-events: auto;
-  }
-  .callout-label:active {
-    cursor: grabbing;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.8);
-  }
-  .callout-header {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.82rem;
-    font-weight: 800;
-    color: #ffffff; /* Crisp Pure White */
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
-  }
-  .callout-crops-icon {
-    font-size: 0.95rem;
-  }
-  .callout-label small { 
-    font-size: 0.66rem; 
-    color: #cbd5e1; /* Silver Gray for Sub-text */
-    font-weight: 600;
-    margin-top: 1px;
   }
 
   /* Detailed Click Popup */
@@ -249,8 +266,8 @@
   });
 
   const farmBoundsGroup = L.featureGroup().addTo(map);
+  // Both markers AND leader lines belong to labelsGroup so they toggle together!
   const labelsGroup = L.layerGroup().addTo(map);
-  const leaderLinesGroup = L.layerGroup().addTo(map);
 
   let rawFarmersData = [];
 
@@ -376,7 +393,6 @@
   function renderFarms(farms) {
     farmBoundsGroup.clearLayers();
     labelsGroup.clearLayers();
-    leaderLinesGroup.clearLayers();
     let totalAcres = 0;
     let validCount = 0;
 
@@ -410,32 +426,63 @@
         const parcelTag = f['Parcel Identifier'] || `Plot ${idx + 1}`;
         const centerLatLng = polygon.getBounds().getCenter();
 
-        // Initial Callout Offset: 35 meters North
         const initialLabelLat = centerLatLng.lat + 0.00035;
         const initialLabelLng = centerLatLng.lng;
 
-        // Leader line connecting field center to draggable callout box
+        // BIND LEADER LINE DIRECTLY INTO labelsGroup
         const leaderLine = L.polyline([[centerLatLng.lat, centerLatLng.lng], [initialLabelLat, initialLabelLng]], {
           color: color,
           weight: 2,
           dashArray: '4, 4',
           opacity: 0.95
-        }).addTo(leaderLinesGroup);
+        }).addTo(labelsGroup);
 
-        // High-Contrast Pill Marker with iconSize: null
-        const labelIcon = L.divIcon({
-          className: 'custom-callout-wrapper',
-          iconSize: null,
-          iconAnchor: [50, 20],
-          html: `
-            <div class="callout-label" style="border: 2px solid ${color};">
-              <div class="callout-header">
-                <span class="callout-crops-icon">${cropEmojis}</span>
-                <span>${farmerName}</span>
-              </div>
-              <small>${parcelTag} &bull; ${f['Parcel Acres'] || ''}</small>
+        const badgeHTML = `
+          <div style="
+            background: #0f172a !important;
+            border: 2px solid ${color} !important;
+            border-radius: 8px !important;
+            padding: 4px 8px !important;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6) !important;
+            display: inline-flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            min-width: max-content !important;
+            width: max-content !important;
+            white-space: nowrap !important;
+            pointer-events: auto !important;
+            cursor: grab !important;
+            user-select: none !important;
+          ">
+            <div style="
+              display: flex !important;
+              align-items: center !important;
+              gap: 5px !important;
+              color: #ffffff !important;
+              font-size: 11px !important;
+              font-weight: 800 !important;
+              line-height: 1.2 !important;
+              text-shadow: 0 1px 2px rgba(0,0,0,0.9) !important;
+            ">
+              <span style="font-size: 12px;">${cropEmojis}</span>
+              <span style="color: #ffffff !important;">${farmerName}</span>
             </div>
-          `
+            <div style="
+              font-size: 9px !important;
+              color: #cbd5e1 !important;
+              font-weight: 600 !important;
+              margin-top: 2px !important;
+              line-height: 1 !important;
+            ">
+              ${parcelTag} &bull; ${f['Parcel Acres'] || ''}
+            </div>
+          </div>
+        `;
+
+        const labelIcon = L.divIcon({
+          className: 'custom-label-icon',
+          html: badgeHTML,
+          iconAnchor: [55, 18]
         });
 
         const labelMarker = L.marker([initialLabelLat, initialLabelLng], {
@@ -443,7 +490,7 @@
           draggable: true
         }).addTo(labelsGroup);
 
-        // Dynamically update leader line when user drags the badge
+        // Update leader line synchronously on drag
         labelMarker.on('drag', function(e) {
           const currentPos = e.target.getLatLng();
           leaderLine.setLatLngs([
@@ -452,7 +499,6 @@
           ]);
         });
 
-        // Detailed Popup Content
         const certVintageText = f['Cert Vintage (Practicing Since)'] ? `<br><small style="color:#64748b;">Practicing Since: ${f['Cert Vintage (Practicing Since)']}</small>` : '';
         const labReportLink = (f['Lab Report Drive Link'] && f['Lab Report Drive Link'].startsWith('http')) 
           ? `<div class="data-row"><a href="${f['Lab Report Drive Link']}" target="_blank" class="btn-report">📄 View Verified Lab Report</a></div>` 
