@@ -1400,5 +1400,61 @@
   }
 </script>
 
+<!-- VISITOR ANALYTICS & ACTIVITY LOGGER -->
+<script>
+  (function initTelemetry() {
+    let visitorData = {
+      action: "log_visitor",
+      page: "Registration Portal (index.html)",
+      stage: "Page View",
+      farmerRef: "Anonymous Visitor",
+      userAgent: navigator.userAgent.includes("iPhone") ? "iPhone" : (navigator.userAgent.includes("Android") ? "Android" : "Desktop"),
+      lang: document.getElementById('langSwitcher') ? document.getElementById('langSwitcher').value : "en",
+      location: "Locating...",
+      isp: ""
+    };
+
+    // Anonymous, privacy-safe IP lookup for city/network
+    fetch("https://ipapi.co/json/")
+      .then(res => res.json())
+      .then(geo => {
+        visitorData.location = `${geo.city || ''}, ${geo.region || ''} (${geo.country_name || ''})`;
+        visitorData.isp = geo.org || '';
+        sendLog(visitorData);
+      })
+      .catch(() => sendLog(visitorData));
+
+    function sendLog(payload) {
+      if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_YOUR")) return;
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+    }
+
+    // Ping admin once when farmer types their name or phone
+    let formStartedPinged = false;
+    function checkFormStart() {
+      if (formStartedPinged) return;
+      const nameVal = document.getElementById('name') ? document.getElementById('name').value.trim() : '';
+      const phoneVal = document.getElementById('phone') ? document.getElementById('phone').value.trim() : '';
+      if (nameVal.length > 2 || phoneVal.length >= 5) {
+        formStartedPinged = true;
+        visitorData.stage = "Form Started";
+        visitorData.farmerRef = `${nameVal || 'Unentered'} (${phoneVal || 'No Phone'})`;
+        sendLog(visitorData);
+      }
+    }
+
+    document.addEventListener("input", function(e) {
+      if (e.target && (e.target.id === "name" || e.target.id === "phone")) {
+        checkFormStart();
+      }
+    });
+  })();
+</script>
+  
 </body>
 </html>
