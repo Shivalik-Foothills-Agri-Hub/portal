@@ -29,7 +29,7 @@
     backdrop-filter: blur(4px);
     border-radius: 10px;
     padding: 12px 16px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.22);
     max-width: 380px;
     border: 1px solid var(--border);
   }
@@ -69,24 +69,47 @@
     border: 1px solid #c8e6c9;
   }
 
-  /* Always-Visible Farm Plot Badges */
+  /* Search Bar inside Floating Panel */
+  .search-box-row {
+    display: flex;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .search-box-row input {
+    flex: 1;
+    padding: 6px 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e1;
+    font-size: 0.78rem;
+    outline: none;
+  }
+  .search-box-row button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* Permanent Farmer Plot Labels */
   .farmer-label-badge {
-    background: rgba(15, 23, 42, 0.82) !important;
-    border: 1.5px solid rgba(255, 255, 255, 0.9) !important;
+    background: rgba(15, 23, 42, 0.85) !important;
+    border: 1.5px solid rgba(255, 255, 255, 0.95) !important;
     color: #ffffff !important;
     font-size: 0.72rem !important;
     font-weight: 700 !important;
     padding: 2px 8px !important;
     border-radius: 6px !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4) !important;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45) !important;
     white-space: nowrap !important;
     pointer-events: none !important;
     text-align: center;
     line-height: 1.25;
   }
-  .farmer-label-badge::before {
-    display: none !important; /* Removes default tooltip arrow pointer */
-  }
+  .farmer-label-badge::before { display: none !important; }
   .farmer-label-badge span {
     display: block;
     font-size: 0.62rem;
@@ -94,17 +117,15 @@
     font-weight: 500;
   }
 
-  /* Detailed Click Popup */
   .leaflet-popup-content { font-size: 0.82rem; line-height: 1.45; min-width: 260px; max-width: 340px; }
-  .popup-header { background: var(--brand); color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
+  .popup-header { color: #fff; margin: -14px -20px 10px -20px; padding: 10px 14px; border-radius: 4px 4px 0 0; }
   .popup-header h3 { font-size: 0.95rem; margin-bottom: 2px; }
-  .popup-header div { font-size: 0.72rem; color: #b7e4c7; }
+  .popup-header div { font-size: 0.72rem; color: #f1f5f9; }
   .badge-cert { display: inline-block; background: #059669; color: #fff; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-bottom: 6px; }
   .data-row { margin-bottom: 5px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 3px; }
   .data-row:last-child { border-bottom: none; }
   .data-label { font-weight: 700; color: #1e293b; }
   .btn-report { display: inline-block; background: #0284c7; color: #fff; text-decoration: none; padding: 3px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; margin-top: 4px; }
-  .btn-report:hover { background: #0369a1; }
 </style>
 </head>
 <body>
@@ -122,49 +143,56 @@
     <span class="stat-badge" id="lbl-total-farms">Plots: 0</span>
     <span class="stat-badge" id="lbl-total-acres">Acreage: 0.00 Ac</span>
   </div>
+
+  <div class="search-box-row">
+    <input type="text" id="villageQuery" placeholder="Search village (e.g. Nurpur Bedi, Ropar)">
+    <button type="button" onclick="searchLocation()">🔍 Find</button>
+  </div>
 </div>
 
 <div id="map"></div>
 
 <script>
-  // ⚠️ PASTE YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL HERE:
+  // Active Google Apps Script URL:
   const API_ENDPOINT = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
+  // Initialize Map directly at field zoom (14) centered on Rupnagar/Shivalik foothills
   const map = L.map('map', {
-    center: [31.05, 76.45],
-    zoom: 11,
+    center: [30.965, 76.530],
+    zoom: 14,
+    maxZoom: 22,
     zoomControl: false
   });
   L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-  const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-    attribution: 'Esri Satellite &copy; Shivalik Collaborative GIS',
-    maxZoom: 19
+  // 1. High-Resolution Google Hybrid Satellite (Imagery + Field Paths)
+  const googleHybrid = L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+    maxZoom: 22,
+    maxNativeZoom: 20,
+    attribution: '&copy; Google Satellite'
   }).addTo(map);
 
+  // 2. Esri High-Resolution Satellite
+  const esriSat = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 22,
+    maxNativeZoom: 19,
+    attribution: 'Esri Satellite'
+  });
+
+  // 3. OpenStreetMap Streets
   const osmStreets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    maxZoom: 19,
+    attribution: '&copy; OpenStreetMap'
   });
 
   const farmBoundsGroup = L.featureGroup().addTo(map);
 
-  // Distinct High-Contrast Palette for Farmers
   const FARMER_PALETTE = [
-    '#00f5d4', // Bright Turquoise
-    '#ffbe0b', // Amber Gold
-    '#fb5607', // Coral Orange
-    '#ff006e', // Magenta
-    '#8338ec', // Purple
-    '#3a86ff', // Royal Blue
-    '#06d6a0', // Mint Green
-    '#e63946', // Ruby Red
-    '#ffb703', // Sunflower Yellow
-    '#52b788', // Emerald
-    '#a2d2ff', // Sky Blue
-    '#f72585'  // Deep Rose
+    '#00f5d4', '#ffbe0b', '#fb5607', '#ff006e', 
+    '#8338ec', '#3a86ff', '#06d6a0', '#e63946', 
+    '#ffb703', '#52b788', '#a2d2ff', '#f72585'
   ];
 
-  // Hash function to assign a consistent, distinct color to each unique farmer
   function getFarmerColor(identifier) {
     if (!identifier) return FARMER_PALETTE[0];
     let hash = 0;
@@ -172,41 +200,24 @@
     for (let i = 0; i < str.length; i++) {
       hash = str.charCodeAt(i) + ((hash << 5) - hash);
     }
-    const index = Math.abs(hash) % FARMER_PALETTE.length;
-    return FARMER_PALETTE[index];
+    return FARMER_PALETTE[Math.abs(hash) % FARMER_PALETTE.length];
   }
 
-  // Notified Kandi Sub-Mountainous Tract Coordinates
+  // Notified Kandi Sub-Mountainous Tract definition
   const kandiFootprintGeoJSON = {
     "type": "FeatureCollection",
     "features": [
       {
         "type": "Feature",
-        "properties": {
-          "name": "Punjab & Adjoining Kandi Sub-Mountainous Tract",
-          "description": "Notified sub-mountainous agro-ecological zone covering Pathankot, Hoshiarpur, SBS Nagar, Rupnagar, Mohali & Panchkula foothills."
-        },
+        "properties": { "name": "Punjab & Adjoining Kandi Sub-Mountainous Tract" },
         "geometry": {
           "type": "Polygon",
           "coordinates": [[
-            [75.75, 32.45],
-            [75.95, 32.30],
-            [76.05, 32.05],
-            [76.18, 31.75],
-            [76.35, 31.45],
-            [76.50, 31.25],
-            [76.58, 31.05],
-            [76.72, 30.88],
-            [76.92, 30.75],
-            [77.05, 30.60],
-            [76.82, 30.55],
-            [76.65, 30.75],
-            [76.45, 30.95],
-            [76.30, 31.15],
-            [76.00, 31.45],
-            [75.70, 31.75],
-            [75.55, 32.15],
-            [75.75, 32.45]
+            [75.75, 32.45], [75.95, 32.30], [76.05, 32.05], [76.18, 31.75],
+            [76.35, 31.45], [76.50, 31.25], [76.58, 31.05], [76.72, 30.88],
+            [76.92, 30.75], [77.05, 30.60], [76.82, 30.55], [76.65, 30.75],
+            [76.45, 30.95], [76.30, 31.15], [76.00, 31.45], [75.70, 31.75],
+            [75.55, 32.15], [75.75, 32.45]
           ]]
         }
       }
@@ -228,28 +239,45 @@
         Delineated sub-mountainous Shivalik foothill tract covering designated blocks of 
         <b>Pathankot, Hoshiarpur, SBS Nagar, Rupnagar (Ropar), SAS Nagar (Mohali)</b> and adjoining Panchkula fringes.
       </p>
-      <div style="border-top:1px dashed #cbd5e1; padding-top:6px; font-size:0.73rem; color:#64748b;">
-        <b>Statutory References:</b><br>
-        &bull; Dept. of Soil & Water Conservation / Irrigation, Punjab<br>
-        &bull; Punjab Land Improvement & Kandi Watershed Projects
-      </div>
     </div>
   `);
 
-  kandiLayer.addTo(map);
-
+  // Notice: kandiLayer is NOT added via .addTo(map) here, keeping it off by default.
+  // It is available on-demand inside the layer switcher:
   L.control.layers({
-    "🛰️ Satellite Imagery": esriSat,
+    "🛰️ High-Res Satellite (Hybrid)": googleHybrid,
+    "🛰️ Esri Satellite": esriSat,
     "🗺️ Street Map": osmStreets
   }, {
-    "📍 Notified Kandi Belt": kandiLayer,
+    "📍 Notified Kandi Belt (Reference)": kandiLayer,
     "🌾 Member Farm Boundaries": farmBoundsGroup
   }, { position: 'topright' }).addTo(map);
 
+  function searchLocation() {
+    const q = document.getElementById('villageQuery').value.trim();
+    if (!q) return;
+    const query = q.toLowerCase().includes("punjab") ? q : `${q}, Punjab, India`;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(results => {
+        if (results && results.length > 0) {
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          map.setView([lat, lon], 16);
+          L.popup()
+            .setLatLng([lat, lon])
+            .setContent(`<b>📍 ${results[0].display_name.split(',')[0]}</b>`)
+            .openOn(map);
+        } else {
+          alert("Location not found. Try entering a nearby tehsil or landmark.");
+        }
+      })
+      .catch(err => alert("Search error: " + err));
+  }
+
   function loadFarms() {
-    if (!API_ENDPOINT || API_ENDPOINT.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
-      return;
-    }
+    if (!API_ENDPOINT || API_ENDPOINT.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) return;
 
     fetch(API_ENDPOINT)
       .then(res => res.json())
@@ -295,7 +323,6 @@
         const parcelTag = f['Parcel Identifier'] || '';
         const badgeHTML = `<b>${farmerName}</b>${parcelTag ? `<span>${parcelTag} (${f['Parcel Acres'] || ''})</span>` : ''}`;
 
-        // Permanent, centered label over the plot
         polygon.bindTooltip(badgeHTML, {
           permanent: true,
           direction: 'center',
@@ -308,11 +335,11 @@
           : '';
 
         const popupContent = `
-          <div class="popup-header" style="background:${color}; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.5);">
+          <div class="popup-header" style="background:${color};">
             <h3>${farmerName}</h3>
             <div>${parcelTag ? parcelTag + ' &bull; ' : ''}${f['Village'] || ''}</div>
           </div>
-          <div>
+          <div style="padding-top:4px;">
             <span class="badge-cert">${f['NPOP/PGS Status'] || 'Chemical-Free'}</span>
             ${certVintageText}
             <div class="data-row"><span class="data-label">Plot Size:</span> ${f['Parcel Acres'] || f['Total Acres'] || 'N/A'} (Total Holding: ${f['Total Farmer Acres'] || f['Total Acres'] || 'N/A'})</div>
@@ -346,6 +373,7 @@
     document.getElementById('lbl-total-farms').innerText = `Plots: ${validCount}`;
     document.getElementById('lbl-total-acres').innerText = `Acreage: ${totalAcres.toFixed(2)} Ac`;
 
+    // Zoom directly to registered plots once loaded
     if (farmBoundsGroup.getLayers().length > 0) {
       map.fitBounds(farmBoundsGroup.getBounds(), { padding: [40, 40] });
     }
