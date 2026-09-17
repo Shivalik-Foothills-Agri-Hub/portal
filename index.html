@@ -227,7 +227,7 @@
 <body>
 
 <div class="container">
-  <!-- Language Toggle -->
+  <!-- Language Selector -->
   <div class="lang-bar">
     <span>ਭਾਸ਼ਾ / Language / भाषा:</span>
     <select id="langSwitcher" onchange="switchLanguage(this.value)">
@@ -237,7 +237,7 @@
     </select>
   </div>
 
-  <!-- Header Card -->
+  <!-- Header Section -->
   <div class="header-card">
     <h1 id="txtTitle">Shivalik Foothills Innovative Farmers Hub</h1>
     <p id="txtSubtitle">ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ • किसान साझा केंद्र • Unified Community Circle (Est. 2026)</p>
@@ -250,7 +250,7 @@
       <span id="txtSec1">1. Member Identity & Locality</span>
     </div>
 
-    <!-- Lookup / Retrieve Profile Box -->
+    <!-- Record Lookup Box -->
     <div class="lookup-box">
       <div style="font-size: 0.8rem; font-weight: 700; color: #166534;" id="txtLookupLabel">
         Already registered with the Hub? Retrieve your record to update or edit plots:
@@ -321,7 +321,7 @@
       <button type="button" class="btn btn-danger" onclick="clearActiveSketch()">✕ Clear Sketch</button>
     </div>
 
-    <!-- Active Plot Metadata Details -->
+    <!-- Active Plot Details -->
     <div style="background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-top: 10px;">
       <div style="font-weight: 700; font-size: 0.86rem; margin-bottom: 8px; color: var(--primary);">
         Active Field Plot Metadata
@@ -356,18 +356,18 @@
         </div>
         <div class="form-group">
           <label id="lblHort">Orchards / Agroforestry on Plot</label>
-          <input type="text" id="parcelHort" placeholder="e.g. Citrus (80 trees), Bamboo border">
+          <input type="text" id="parcelHort" placeholder="e.g. Citrus (80 trees), Poplar trees, Local Mini Forest">
         </div>
       </div>
 
       <div class="grid-2">
         <div class="form-group">
           <label id="lblSOC">Soil Organic Carbon (%) & pH</label>
-          <input type="text" id="parcelSOC" placeholder="e.g. SOC 0.75%, pH 7.2">
+          <input type="text" id="parcelSOC" placeholder="e.g. SOC 0.65%, pH 7.4">
         </div>
         <div class="form-group">
           <label id="lblLivestock">Desi Cattle / Livestock Managed</label>
-          <input type="text" id="parcelLivestock" placeholder="e.g. 2 cows, 1 buffalo">
+          <input type="text" id="parcelLivestock" placeholder="e.g. 0 (or 2 cows, 1 buffalo)">
         </div>
       </div>
 
@@ -376,7 +376,7 @@
       </button>
     </div>
 
-    <!-- Mapped Plots Inventory -->
+    <!-- Plots Inventory List -->
     <div id="parcelsInventoryContainer" style="margin-top: 14px;">
       <div style="font-weight: 700; font-size: 0.86rem;">Mapped Plots Inventory / ਦਰਜ ਕੀਤੇ ਖੇਤ:</div>
       <div id="parcelsList"></div>
@@ -386,7 +386,7 @@
     </div>
   </div>
 
-  <!-- Section 3: Collaboration Focus -->
+  <!-- Section 3: Collaboration Focus & Certification -->
   <div class="section-card">
     <div class="section-header">
       <span>🤝</span>
@@ -395,38 +395,54 @@
     
     <div class="grid-2">
       <div class="form-group">
-        <label id="lblCollab">Primary Collaboration Interest *</label>
+        <label id="lblCollab">Primary Collaboration Focus *</label>
         <select id="legal_preference">
-          <option value="Bio-Inputs Sharing, Seed Preservation & Vermicompost">Bio-Inputs Sharing & Seed Preservation</option>
-          <option value="Machinery Pooling & Custom Hiring Center">Machinery Pooling (CHC)</option>
-          <option value="Joint Aggregation & Direct Consumer Marketing">Joint Aggregation & Direct Marketing</option>
-          <option value="FPO / Farmer Cooperative Formation">FPO / Cooperative Formation</option>
+          <option value="Comprehensive Partner">Comprehensive Partner</option>
+          <option value="Machinery & Tool Pooling">Machinery & Tool Pooling</option>
+          <option value="Bio-Inputs Sharing, Seed Preservation & Vermicompost">Bio-Inputs Sharing, Seed Preservation & Vermicompost</option>
+          <option value="Joint Aggregation, Processing & Farm-Gate Logistics">Joint Aggregation & Farm-Gate Logistics</option>
+          <option value="Participatory PGS Organic Cluster Group">Participatory PGS Organic Cluster Group</option>
+          <option value="Producer Group / Informal Farmers Collective">Producer Group / Informal Collective</option>
         </select>
       </div>
       <div class="form-group">
-        <label id="lblNpop">Production / Verification Method</label>
+        <label id="lblNpop">Production / Verification Status</label>
         <select id="npop_status">
-          <option value="Chemical-Free / Traditional Desi Practices">Chemical-Free / Desi Practices</option>
-          <option value="NPOP Certified Organic">NPOP Certified Organic</option>
-          <option value="PGS-India Certified">PGS-India Certified</option>
-          <option value="In-Conversion (Transition Stage)">In-Conversion Stage</option>
+          <option value="Certified NPOP">Certified NPOP</option>
+          <option value="Chemical-Free Traditional">Chemical-Free Traditional / Desi</option>
+          <option value="PGS-India Certified Organic">PGS-India Certified Organic</option>
+          <option value="In-Conversion Stage">In-Conversion Stage</option>
+          <option value="Zero Budget Natural Farming (ZBNF) / Jaivik Kheti">ZBNF / Jaivik Kheti</option>
         </select>
       </div>
     </div>
 
     <div class="grid-2">
       <div class="form-group">
-        <label id="lblAgency">Certification Body / Scope No (if any)</label>
-        <input type="text" id="npop_agency" placeholder="e.g. Punjab Agro (PAGREXCO) / Reg No">
+        <label id="lblAgency">Certification Body / Verification Agency</label>
+        <select id="npop_agency">
+          <option value="SGS India">SGS India</option>
+          <option value="Punjab Agro (PAGREXCO)">Punjab Agro (PAGREXCO)</option>
+          <option value="OneCert International">OneCert International</option>
+          <option value="Aditi Organic Certifications">Aditi Organic Certifications</option>
+          <option value="Desi / Traditional (Uncertified)">Desi / Traditional (Uncertified)</option>
+          <option value="Self-Certified Peer Group">Self-Certified Peer Group</option>
+          <option value="None / Not Applicable">None / Not Applicable</option>
+        </select>
       </div>
       <div class="form-group">
-        <label id="lblVintage">Practicing Natural Methods Since</label>
-        <input type="text" id="cert_vintage" placeholder="e.g. October, 2021">
+        <label id="lblVintage">Practicing / Certified Since (Month & Year) *</label>
+        <input type="text" id="cert_vintage" placeholder="e.g. May, 2023 or October, 2022">
       </div>
+    </div>
+
+    <div class="form-group">
+      <label id="lblScopeCert">Scope Certificate / Reg No. (if any)</label>
+      <input type="text" id="npop_cert_no" placeholder="e.g. ORG/SC/1203/000348">
     </div>
   </div>
 
-  <!-- Section 4: Machinery & Processing Pool -->
+  <!-- Section 4: Shared Machinery Pool & Processing Assets -->
   <div class="section-card">
     <div class="section-header">
       <span>🚜</span>
@@ -435,38 +451,38 @@
 
     <div class="form-group">
       <label id="lblMachOwned">Equipment / Tools You Own & Can Share in the Pool</label>
-      <input type="text" id="machinery_owned" placeholder="e.g. Rotary Weeder, Bed Maker, Seed Drill, Spray Pump">
+      <input type="text" id="machinery_owned" placeholder="e.g. BCS 8HP Weeder, Bed Maker, Happy Seeder, Spray Pump">
     </div>
 
     <div class="form-group">
       <label id="lblMachNeeded">Equipment You Need from the Group Tool Pool</label>
-      <input type="text" id="machinery_needed" placeholder="e.g. Turmeric Polisher/Boiler, Solar Dehydrator, Flour Mill">
+      <input type="text" id="machinery_needed" placeholder="e.g. Tractor Bed Maker, Turmeric Polisher/Boiler, Oil Expeller">
     </div>
 
     <div class="form-group">
       <label id="lblProcessing">On-Farm Value Addition & Processing Facilities</label>
-      <input type="text" id="processing_facilities" placeholder="e.g. Jaggery pan (Kohlu), Honey extractor, Cold press oil mill">
+      <input type="text" id="processing_facilities" placeholder="e.g. Compost screening machine, Jaggery pan (Kohlu), Honey extractor">
     </div>
 
     <div class="grid-2">
       <div class="form-group">
         <label id="lblWorkforce">On-Farm Workforce (Family + Help)</label>
-        <input type="text" id="workforce" placeholder="e.g. 3">
+        <input type="text" id="workforce" placeholder="e.g. 6">
       </div>
       <div class="form-group">
-        <label id="lblDeficit">Peak Labour Deficit Months</label>
-        <input type="text" id="labour_deficit" placeholder="e.g. April (Wheat Harvest), October (Paddy/Sowing)">
+        <label id="lblDeficit">Peak Labour Deficit Months (For Work Sharing)</label>
+        <input type="text" id="labour_deficit" placeholder="e.g. 10 (October/April)">
       </div>
     </div>
   </div>
 
-  <!-- Action Submissions -->
+  <!-- Action Submissions & Transitions -->
   <div style="margin-top: 10px;">
     <button type="button" id="submitBtn" class="btn btn-primary btn-submit-main" onclick="submitHoldingRegistration()">
       🚀 Submit Farm Holding Registration
     </button>
 
-    <!-- Post-Submission Transition Navigation -->
+    <!-- Post-Submission Transition Elements -->
     <a id="viewMapBtn" href="map.html" style="display: none; margin-top: 14px; padding: 14px 20px; background: linear-gradient(135deg, #15803d, #16a34a); color: #ffffff; text-decoration: none; text-align: center; font-size: 1rem; font-weight: 700; border-radius: 8px; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.35); align-items: center; justify-content: center; gap: 8px;">
       🗺️ View Farm on Master Map / ਲਾਈਵ ਮੈਪ 'ਤੇ ਖੇਤ ਦੇਖੋ ➔
     </a>
@@ -485,7 +501,6 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
-  // Unified Apps Script Web App Endpoint
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
   let map;
@@ -495,20 +510,16 @@
   let isDrawing = false;
   let completedParcels = [];
   let isUpdateMode = false;
-  let currentLang = "en";
 
-  // Init Form Map
   function initFormMap() {
-    map = L.map('formMap', { maxZoom: 22 }).setView([30.9753, 76.5270], 13); // Default Rupnagar Center
+    map = L.map('formMap', { maxZoom: 22 }).setView([30.9753, 76.5270], 13);
 
-    // High resolution Satellite layer
     L.tileLayer('https://mt1.google.com/vt/lyrs=s,h&x={x}&y={y}&z={z}', {
       maxZoom: 22,
       attribution: 'Google Satellite Imagery'
     }).addTo(map);
 
     drawnItems = new L.FeatureGroup().addTo(map);
-
     map.on('click', handleMapClick);
   }
 
@@ -523,7 +534,6 @@
       tempPolyline = L.polyline(activeDrawingPoints, { color: '#fbbf24', weight: 3, dashArray: '5, 5' }).addTo(map);
     }
 
-    // Auto-calculate rough acres on clicking corners
     if (activeDrawingPoints.length >= 3) {
       const acres = calculatePolygonAcres(activeDrawingPoints);
       document.getElementById('parcelAcres').value = acres.toFixed(2);
@@ -597,10 +607,21 @@
     completedParcels.push(parcel);
     renderParcelsList();
 
-    // Reset sketch inputs
     clearActiveSketch();
     document.getElementById('parcelName').value = '';
     document.getElementById('parcelCrops').value = '';
+  }
+
+  // Normalizes coordinate arrays if returned as objects [{lat, lng}]
+  function normalizeCoordinates(coords) {
+    if (!Array.isArray(coords)) return [];
+    return coords.map(pt => {
+      if (Array.isArray(pt)) return pt;
+      if (pt && typeof pt === 'object' && pt.lat !== undefined && pt.lng !== undefined) {
+        return [parseFloat(pt.lat), parseFloat(pt.lng)];
+      }
+      return null;
+    }).filter(Boolean);
   }
 
   function renderParcelsList() {
@@ -609,12 +630,14 @@
     let total = 0;
 
     completedParcels.forEach((p, idx) => {
-      total += parseFloat(p.acres) || 0;
+      const cleanAcres = parseFloat(String(p.acres).replace(/[^0-9.]/g, "")) || 0;
+      total += cleanAcres;
+
       const card = document.createElement('div');
       card.className = 'parcel-card';
       card.innerHTML = `
         <div>
-          <strong>${p.parcel_name}</strong> (${p.acres} Ac)<br>
+          <strong>${p.parcel_name}</strong> (${cleanAcres.toFixed(2)} Ac)<br>
           <span style="font-size: 0.78rem; color: #475569;">${p.crops} • ${p.water_source}</span>
         </div>
         <button type="button" class="btn btn-danger" style="padding: 4px 8px; font-size: 0.72rem;" onclick="removePlot(${idx})">✕</button>
@@ -630,7 +653,28 @@
     renderParcelsList();
   }
 
-  // Lookup / Retrieve Profile
+  // Set select value safely or fallback
+  function setSelectValue(selectId, targetVal) {
+    const sel = document.getElementById(selectId);
+    if (!sel) return;
+    const cleanTarget = String(targetVal || "").trim().toLowerCase();
+    
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value.toLowerCase() === cleanTarget) {
+        sel.selectedIndex = i;
+        return;
+      }
+    }
+    // Partial inclusion fallback
+    for (let i = 0; i < sel.options.length; i++) {
+      if (cleanTarget && sel.options[i].value.toLowerCase().includes(cleanTarget)) {
+        sel.selectedIndex = i;
+        return;
+      }
+    }
+  }
+
+  // Lookup & Retrieve Profile
   function lookupFarmerProfile() {
     const phone = document.getElementById('lookupPhone').value.trim().replace(/\D/g, "");
     const statusDiv = document.getElementById('lookupStatus');
@@ -656,18 +700,25 @@
           document.getElementById('id_number').value = p.id_number || '';
           document.getElementById('district').value = p.district || 'Rupnagar (Ropar)';
           document.getElementById('village').value = p.village || '';
-          document.getElementById('legal_preference').value = p.legal_preference || 'Bio-Inputs Sharing, Seed Preservation & Vermicompost';
-          document.getElementById('npop_status').value = p.npop_status || 'Chemical-Free / Traditional Desi Practices';
-          document.getElementById('npop_agency').value = p.npop_agency || '';
+
+          setSelectValue('legal_preference', p.legal_preference);
+          setSelectValue('npop_status', p.npop_status);
+          setSelectValue('npop_agency', p.npop_agency);
+
           document.getElementById('cert_vintage').value = p.cert_vintage || '';
+          document.getElementById('npop_cert_no').value = p.npop_cert_no || '';
           document.getElementById('machinery_owned').value = p.machinery_owned || '';
           document.getElementById('machinery_needed').value = p.machinery_needed || '';
           document.getElementById('processing_facilities').value = p.processing_facilities || '';
           document.getElementById('workforce').value = p.workforce || '';
           document.getElementById('labour_deficit').value = p.labour_deficit || '';
 
-          // Populate parcels
-          completedParcels = p.parcels || [];
+          completedParcels = (p.parcels || []).map(item => ({
+            ...item,
+            acres: parseFloat(String(item.acres).replace(/[^0-9.]/g, "")) || 0,
+            geojson: normalizeCoordinates(item.geojson)
+          }));
+
           renderParcelsList();
 
           drawnItems.clearLayers();
@@ -759,7 +810,7 @@
     }).then(() => {
       const actionMsg = isUpdateMode ? "Profile updated successfully!" : "Registration Successful!";
 
-      // 1. Lock submit button to prevent accidental duplicates
+      // Lock submit button
       btn.disabled = true;
       btn.style.background = "#475569";
       btn.style.cursor = "not-allowed";
@@ -767,14 +818,14 @@
         ? "✓ Profile Successfully Updated" 
         : "✓ Registration Complete & Saved";
 
-      // 2. Configure View on Map deep link
+      // Enable View on Master Map
       const mapBtn = document.getElementById('viewMapBtn');
       if (mapBtn) {
         mapBtn.href = `map.html?phone=${encodeURIComponent(phone)}`;
         mapBtn.style.display = "flex";
       }
 
-      // 3. Configure Pre-filled WhatsApp Share
+      // Enable Pre-filled WhatsApp Share
       const cropList = completedParcels.map(p => p.crops).filter(Boolean).join(", ") || "Diverse Agroecological Crops";
       const waMsg = 
 `🌾 *ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿੱਲਜ਼ ਇਨੋਵੇਟਿਵ ਫਾਰਮਰਜ਼ ਹੱਬ* 🚜
@@ -801,7 +852,7 @@ https://shivalik-foothills-agri-hub.github.io/map.html?phone=${encodeURIComponen
         waBtn.style.display = "flex";
       }
 
-      // 4. Reveal "Register Another Farmer" option
+      // Show Register Another Farmer option
       const resetBtn = document.getElementById('resetFormBtn');
       if (resetBtn) resetBtn.style.display = "block";
 
@@ -840,7 +891,7 @@ https://shivalik-foothills-agri-hub.github.io/map.html?phone=${encodeURIComponen
   });
 </script>
 
-<!-- VISITOR ANALYTICS & TELEMETRY -->
+<!-- VISITOR TELEMETRY SCRIPT -->
 <script>
   (function initPortalTelemetry() {
     let visitorData = {
