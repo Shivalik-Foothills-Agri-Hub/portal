@@ -57,7 +57,6 @@
   .section-card { background: var(--card); border: 1px solid #e0e0e0; border-radius: 10px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
   .section-card h2 { font-size: 1rem; color: var(--brand); border-bottom: 2px solid var(--border); padding-bottom: 6px; margin-bottom: 14px; }
   
-  /* Retrieval and Profile Actions */
   .retrieve-tray {
     background: #e8f5e9;
     border: 1.5px solid #c8e6c9;
@@ -83,15 +82,8 @@
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
   }
-  .btn-lookup-toggle:hover {
-    background: var(--accent);
-    color: #ffffff;
-  }
-  .lookup-input-group {
-    display: flex;
-    gap: 8px;
-    margin-top: 10px;
-  }
+  .btn-lookup-toggle:hover { background: var(--accent); color: #ffffff; }
+  .lookup-input-group { display: flex; gap: 8px; margin-top: 10px; }
   .btn-lookup-fetch {
     background: var(--accent);
     color: #fff;
@@ -125,10 +117,7 @@
     cursor: pointer;
     transition: background 0.15s, color 0.15s;
   }
-  .btn-delete-profile:hover {
-    background: #dc2626;
-    color: #ffffff;
-  }
+  .btn-delete-profile:hover { background: #dc2626; color: #ffffff; }
 
   .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   @media (max-width: 640px) { 
@@ -147,7 +136,30 @@
   label { display: block; font-size: 0.8rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
   input, select, textarea { width: 100%; padding: 9px; border: 1px solid #cbd5e0; border-radius: 6px; font-size: 0.88rem; background: #fff; }
 
-  #map { height: 380px; width: 100%; border-radius: 8px; border: 2px solid var(--accent); margin: 8px 0; background: #e2e8f0; }
+  /* Map Search Toolbar */
+  .map-search-bar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .map-search-bar input {
+    flex: 1;
+    padding: 8px 10px;
+    font-size: 0.82rem;
+  }
+  .btn-map-search {
+    background: #0f172a;
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+
+  #map { height: 420px; width: 100%; border-radius: 8px; border: 2px solid var(--accent); margin: 8px 0; background: #e2e8f0; }
   .map-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 6px; }
   .btn-map { padding: 8px 12px; font-size: 0.8rem; font-weight: 700; border-radius: 6px; border: 1.5px solid var(--accent); background: #fff; color: var(--accent); cursor: pointer; }
   .btn-map.active { background: #d90429; border-color: #d90429; color: #fff; }
@@ -183,10 +195,7 @@
     align-items: center;
     gap: 10px;
   }
-  .parcel-item-card.editing {
-    border-color: #0284c7;
-    background: #f0f9ff;
-  }
+  .parcel-item-card.editing { border-color: #0284c7; background: #f0f9ff; }
   .parcel-item-info { font-size: 0.78rem; line-height: 1.4; flex: 1; }
   .parcel-item-info b { color: var(--brand); font-size: 0.82rem; }
   .parcel-btn-group { display: flex; align-items: center; gap: 6px; }
@@ -208,12 +217,84 @@
   .submit-bar { margin-top: 20px; padding-bottom: 16px; }
   .btn-submit { width: 100%; background: var(--accent); color: #fff; border: none; padding: 15px; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.15); transition: background 0.2s; }
   .btn-submit.update-mode { background: #0284c7; }
+
+  /* GPS Permission Guidance Modal */
+  .gps-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(15, 23, 42, 0.72);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    padding: 16px;
+    backdrop-filter: blur(3px);
+  }
+  .gps-modal-card {
+    background: #ffffff;
+    border-radius: 12px;
+    max-width: 520px;
+    width: 100%;
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+    border-top: 5px solid #d97706;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .gps-modal-card h3 {
+    font-size: 1.05rem;
+    color: #92400e;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .gps-modal-body {
+    font-size: 0.84rem;
+    color: #334155;
+    line-height: 1.5;
+  }
+  .gps-steps-list {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px 14px 10px 28px;
+    margin: 10px 0;
+  }
+  .gps-steps-list li { margin-bottom: 6px; }
+  .gps-steps-list li:last-child { margin-bottom: 0; }
+  .gps-modal-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  .btn-modal-close {
+    background: #e2e8f0;
+    color: #334155;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .btn-modal-search {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
 </style>
 </head>
 <body>
 
 <div class="shell">
-  <!-- LANGUAGE SELECTOR -->
   <div class="lang-bar">
     <label for="langSwitcher">🌐 ਭਾਸ਼ਾ / Language / भाषा:</label>
     <select id="langSwitcher" onchange="switchLanguage(this.value)">
@@ -233,7 +314,7 @@
 
   <form id="registryForm" onsubmit="handleRegistration(event)">
 
-    <!-- 1. MEMBER IDENTITY & RETRIEVAL / DELETION -->
+    <!-- 1. MEMBER IDENTITY -->
     <div class="section-card">
       <h2 data-i18n="sec_identity">👤 1. Member Identity & Locality</h2>
 
@@ -289,12 +370,18 @@
       </div>
     </div>
 
-    <!-- 2. MULTI-PLOT SATELLITE MAPPING & INDEPENDENT DETAILS -->
+    <!-- 2. HIGH-RES SATELLITE MAPPING -->
     <div class="section-card">
       <h2 data-i18n="sec_map">🛰️ 2. Multi-Plot Mapping & Independent Field Details</h2>
       <p data-i18n="map_guide" style="font-size:0.8rem; color:var(--muted); margin-bottom:8px;">
-        Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save This Plot to Holding"</b>.
+        Search your village or tap GPS, zoom into your field borders, mark boundary corners, and save plot details.
       </p>
+
+      <!-- Village / Area Search Toolbar -->
+      <div class="map-search-bar">
+        <input type="text" id="mapSearchInput" placeholder="Type village or town name (e.g. Nurpur Bedi, Ropar, Chamkaur Sahib)">
+        <button type="button" class="btn-map-search" onclick="searchVillageLocation()">🔍 Find on Map</button>
+      </div>
 
       <div class="map-actions">
         <button type="button" class="btn-map" onclick="locateGPS()" data-i18n="btn_gps">📍 Find GPS Location</button>
@@ -446,8 +533,21 @@
   </form>
 </div>
 
+<!-- DYNAMIC GPS PERMISSION GUIDANCE MODAL -->
+<div class="gps-modal-overlay" id="gpsModal">
+  <div class="gps-modal-card">
+    <h3 id="modalHeading">📍 Location Permission Required</h3>
+    <div class="gps-modal-body" id="modalInstructions">
+      <!-- Injected dynamically based on device & language -->
+    </div>
+    <div class="gps-modal-actions">
+      <button type="button" class="btn-modal-search" onclick="focusSearchInput()" id="btnModalSearch">🔍 Search by Village Name Instead</button>
+      <button type="button" class="btn-modal-close" onclick="closeGpsModal()" id="btnModalClose">Dismiss</button>
+    </div>
+  </div>
+</div>
+
 <script>
-  // ⚠️ PASTE YOUR ACTIVE GOOGLE APPS SCRIPT /exec URL HERE:
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxX5pR1pPwDPnUJuCwlDPzlS_0nGLggxlBAig741l-oqzcmX-VdFdQfvgwA6xmsPmTP/exec";
 
   let currentLang = 'en';
@@ -472,7 +572,7 @@
       lbl_district: "Region / District *",
       lbl_village: "Village, Tehsil & Postal Address *",
       sec_map: "🛰️ 2. Multi-Plot Mapping & Independent Field Details",
-      map_guide: 'Draw your plot on the satellite map, specify its individual crops, water, soil & lab report, then tap <b>"Save This Plot to Holding"</b>.',
+      map_guide: 'Search your village or tap GPS, zoom into your field borders, mark boundary corners, and save plot details.',
       btn_gps: "📍 Find GPS Location",
       btn_draw: "✏️ Tap Corners to Draw Field",
       btn_draw_active: "🛑 Finish Active Sketch",
@@ -495,7 +595,9 @@
       lbl_labour_deficit: "Peak Labour Deficit Months (For Work Sharing)",
       lbl_consent: "🔒 <b>Data Governance & Mutual Trust:</b> In accordance with digital data privacy principles, sensitive KYC identifiers and raw lab certifications remain restricted to cluster coordination stewards. Crop volumes, land boundaries, and shared equipment are visible across cluster peers to coordinate joint logistics, machinery pooling, and verified consumer traceability.",
       btn_submit: "💾 Submit Profile to Collaborative Registry",
-      btn_update_mode: "🔄 Update Existing Profile Record"
+      btn_update_mode: "🔄 Update Existing Profile Record",
+      btn_modal_search: "🔍 Search Village Name Instead",
+      btn_modal_dismiss: "Close"
     },
     pa: {
       app_title: "ਸ਼ਿਵਾਲਿਕ ਫੁੱਟਹਿਲਜ਼ ਇਨੋਵੇਟਿਵ ਫਾਰਮਰਜ਼ ਹੱਬ",
@@ -514,7 +616,7 @@
       lbl_district: "ਇਲਾਕਾ / ਜ਼ਿਲ੍ਹਾ *",
       lbl_village: "ਪਿੰਡ, ਤਹਿਸੀਲ ਅਤੇ ਡਾਕਖਾਨਾ *",
       sec_map: "🛰️ 2. ਸੈਟੇਲਾਈਟ ਜ਼ਮੀਨ ਮੈਪਿੰਗ ਅਤੇ ਖੇਤਾਂ ਦਾ ਵੱਖਰਾ ਵੇਰਵਾ",
-      map_guide: 'ਸੈਟੇਲਾਈਟ ਨਕਸ਼ੇ \'ਤੇ ਖੇਤ ਬਣਾਓ, ਉਸ ਖੇਤ ਦੀਆਂ ਫ਼ਸਲਾਂ, ਪਾਣੀ ਤੇ ਲੈਬ ਰਿਪੋਰਟ ਭਰੋ, ਫਿਰ <b>"ਇਹ ਖੇਤ ਸੂਚੀ ਵਿੱਚ ਦਰਜ ਕਰੋ"</b> ਦਬਾਓ।',
+      map_guide: 'ਆਪਣਾ ਪਿੰਡ ਲੱਭੋ ਜਾਂ GPS ਦਬਾਓ, ਵੱਟਾਂ ਤੱਕ ਜ਼ੂਮ ਕਰੋ, ਹੱਦਾਂ ਦੇ ਨਿਸ਼ਾਨ ਲਗਾਓ ਅਤੇ ਖੇਤ ਦਰਜ ਕਰੋ।',
       btn_gps: "📍 ਮੇਰਾ ਖੇਤ ਲੱਭੋ (GPS)",
       btn_draw: "✏️ ਵੱਟਾਂ 'ਤੇ ਟੈਪ ਕਰਕੇ ਨਿਸ਼ਾਨ ਲਗਾਓ",
       btn_draw_active: "🛑 ਨਿਸ਼ਾਨ ਲਗਾਉਣਾ ਬੰਦ ਕਰੋ",
@@ -537,7 +639,9 @@
       lbl_labour_deficit: "ਮਜ਼ਦੂਰਾਂ ਦੀ ਵੱਧ ਘਾਟ ਵਾਲੇ ਮਹੀਨੇ",
       lbl_consent: "🔒 <b>ਡੇਟਾ ਸੁਰੱਖਿਆ ਅਤੇ ਆਪਸੀ ਭਰੋਸਾ:</b> ਸਰਕਾਰੀ ਪਛਾਣ ਪੱਤਰ ਅਤੇ ਲੈਬ ਸਰਟੀਫਿਕੇਟ ਸਿਰਫ਼ ਕੋਆਰਡੀਨੇਟਰ ਕੋਲ ਸੁਰੱਖਿਅਤ ਰਹਿਣਗੇ। ਫ਼ਸਲਾਂ ਦਾ ਵੇਰਵਾ, ਰਕਬਾ ਅਤੇ ਸਾਂਝੀ ਮਸ਼ੀਨਰੀ ਮੈਂਬਰਾਂ ਨਾਲ ਸਾਂਝੀ ਕੀਤੀ ਜਾਵੇਗੀ ਤਾਂ ਜੋ ਮੰਡੀਕਰਨ ਸੁਖਾਲਾ ਹੋ ਸਕੇ।",
       btn_submit: "💾 ਕਿਸਾਨ ਸਾਂਝ ਕੇਂਦਰ ਰਜਿਸਟਰ ਵਿੱਚ ਦਰਜ ਕਰੋ",
-      btn_update_mode: "🔄 ਮੌਜੂਦਾ ਰਿਕਾਰਡ ਅਪਡੇਟ ਕਰੋ"
+      btn_update_mode: "🔄 ਮੌਜੂਦਾ ਰਿਕਾਰਡ ਅਪਡੇਟ ਕਰੋ",
+      btn_modal_search: "🔍 ਪਿੰਡ ਦੇ ਨਾਂ ਨਾਲ ਲੱਭੋ",
+      btn_modal_dismiss: "ਬੰਦ ਕਰੋ"
     },
     hi: {
       app_title: "शिवालिक तलहटी इनोवेटिव फार्मर्स हब",
@@ -556,7 +660,7 @@
       lbl_district: "क्षेत्र / जिला *",
       lbl_village: "गांव, तहसील और डाक पता *",
       sec_map: "🛰️ 2. सैटेलाइट जमीन मैपिंग और खेतों का स्वतंत्र विवरण",
-      map_guide: 'सैटेलाइट नक्शे पर खेत बनाएं, उस खेत की फसलें, पानी व लैब रिपोर्ट भरें, फिर <b>"यह खेत सूची में सहेजें"</b> दबाएं।',
+      map_guide: 'अपना गांव खोजें या GPS दबाएं, खेत की मेड़ों तक ज़ूम करें, सीमाएं बनाएं और खेत सहेजें।',
       btn_gps: "📍 मेरा खेत ढूंढें (GPS)",
       btn_draw: "✏️ मेड़ों पर टैप करके निशान लगाएं",
       btn_draw_active: "🛑 निशान लगाना पूरा करें",
@@ -579,7 +683,9 @@
       lbl_labour_deficit: "मजदूरों की अधिक कमी वाले महीने",
       lbl_consent: "🔒 <b>डेटा सुरक्षा और पारस्परिक विश्वास:</b> सरकारी पहचान पत्र और मूल लैब प्रमाणपत्र केवल समन्वयकों के पास सुरक्षित रहेंगे। फसलों का विवरण, भूमि सीमाएं और साझा उपकरण सदस्यों के साथ साझा किए जाएंगे ताकि विपणन सुगम हो सके।",
       btn_submit: "💾 किसान साझ केंद्र रजिस्टर में दर्ज करें",
-      btn_update_mode: "🔄 मौजूदा रिकॉर्ड अपडेट करें"
+      btn_update_mode: "🔄 मौजूदा रिकॉर्ड अपडेट करें",
+      btn_modal_search: "🔍 गांव के नाम से खोजें",
+      btn_modal_dismiss: "बंद करें"
     }
   };
 
@@ -608,14 +714,19 @@
     const submitBtn = document.getElementById('submitBtn');
     if (submitBtn) submitBtn.innerText = isUpdateMode ? dict.btn_update_mode : dict.btn_submit;
 
+    const btnModalSearch = document.getElementById('btnModalSearch');
+    if (btnModalSearch) btnModalSearch.innerText = dict.btn_modal_search;
+
+    const btnModalClose = document.getElementById('btnModalClose');
+    if (btnModalClose) btnModalClose.innerText = dict.btn_modal_dismiss;
+
     renderParcelTray();
   }
 
   function toggleLookupBox() {
     const box = document.getElementById('lookupContainer');
     if (!box) return;
-    const isCurrentlyHidden = window.getComputedStyle(box).display === 'none';
-    box.style.display = isCurrentlyHidden ? 'block' : 'none';
+    box.style.display = (window.getComputedStyle(box).display === 'none') ? 'block' : 'none';
   }
 
   function fetchFarmerProfile() {
@@ -717,9 +828,7 @@
     }
 
     const dict = translations[currentLang] || translations.en;
-    if (!confirm(dict.confirm_delete)) {
-      return;
-    }
+    if (!confirm(dict.confirm_delete)) return;
 
     const statusMsg = document.getElementById('lookup_status');
     statusMsg.style.color = "#dc2626";
@@ -729,10 +838,7 @@
       method: "POST",
       mode: "no-cors",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        mode: "delete",
-        phone: targetPhone
-      })
+      body: JSON.stringify({ mode: "delete", phone: targetPhone })
     }).then(() => {
       alert(dict.delete_success);
       resetEntireForm();
@@ -770,11 +876,17 @@
   const parcelColors = ['#00ff88', '#f59e0b', '#06b6d4', '#ec4899', '#8b5cf6'];
 
   window.addEventListener('DOMContentLoaded', function() {
-    map = L.map('map', { center: [30.9503, 76.5055], zoom: 13, zoomControl: true });
+    map = L.map('map', { 
+      center: [30.965, 76.530], 
+      zoom: 14, 
+      maxZoom: 22,
+      zoomControl: true 
+    });
 
-    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      attribution: 'Esri Satellite &copy; Shivalik Collaborative GIS',
-      maxZoom: 19
+    L.tileLayer('https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+      maxZoom: 22,
+      maxNativeZoom: 20,
+      attribution: '&copy; Google Satellite Imagery'
     }).addTo(map);
 
     setTimeout(() => { map.invalidateSize(); }, 500);
@@ -796,6 +908,183 @@
       }
     });
   });
+
+  function searchVillageLocation() {
+    const query = document.getElementById('mapSearchInput').value.trim();
+    if (!query) {
+      alert("Please enter a village, tehsil, or landmark name.");
+      return;
+    }
+
+    const searchQuery = query.toLowerCase().includes("punjab") ? query : `${query}, Punjab, India`;
+
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(searchQuery)}`)
+      .then(res => res.json())
+      .then(results => {
+        if (results && results.length > 0) {
+          const lat = parseFloat(results[0].lat);
+          const lon = parseFloat(results[0].lon);
+          map.setView([lat, lon], 17);
+          L.popup()
+            .setLatLng([lat, lon])
+            .setContent(`<b>📍 ${results[0].display_name.split(',')[0]}</b><br>Zoom into your field borders and tap 'Tap Corners to Draw Field'.`)
+            .openOn(map);
+        } else {
+          alert("Location not found. Try entering a nearby tehsil or landmark.");
+        }
+      })
+      .catch(err => alert("Error searching location: " + err));
+  }
+
+  /* GPS GEOLOCATION WITH DEVICE-SPECIFIC GUIDANCE */
+  function locateGPS() {
+    if (!navigator.geolocation) {
+      showGpsGuidanceModal("unsupported");
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const lat = pos.coords.latitude;
+        const lng = pos.coords.longitude;
+        map.setView([lat, lng], 18);
+        L.marker([lat, lng]).addTo(map).bindPopup("<b>📍 Current GPS Position</b><br>Zooming to your fields.").openPopup();
+      },
+      err => {
+        showGpsGuidanceModal(detectDeviceType());
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  }
+
+  function detectDeviceType() {
+    const ua = navigator.userAgent || navigator.vendor || window.opera;
+    if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+      return "ios";
+    }
+    if (/android/i.test(ua)) {
+      return "android";
+    }
+    return "desktop";
+  }
+
+  function showGpsGuidanceModal(device) {
+    const modal = document.getElementById('gpsModal');
+    const heading = document.getElementById('modalHeading');
+    const container = document.getElementById('modalInstructions');
+
+    if (currentLang === 'pa') {
+      heading.innerHTML = "📍 GPS ਲੋਕੇਸ਼ਨ ਚਾਲੂ ਕਰਨ ਦੀ ਲੋੜ ਹੈ";
+      if (device === "ios") {
+        container.innerHTML = `
+          <p>ਤੁਹਾਡੇ <b>iPhone (Safari / WhatsApp)</b> 'ਤੇ ਲੋਕੇਸ਼ਨ ਬੰਦ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਇਹ ਕਦਮ ਚੁੱਕੋ:</p>
+          <ol class="gps-steps-list">
+            <li>ਸਕ੍ਰੀਨ 'ਤੇ ਹੇਠਾਂ ਜਾਂ ਉੱਪਰ URL ਪੱਟੀ ਵਿੱਚ <b>'aA'</b> ਜਾਂ <b>ਪੈਡਲਾਕ 🔒</b> ਆਈਕਨ 'ਤੇ ਟੈਪ ਕਰੋ।</li>
+            <li><b>Website Settings</b> (ਵੈੱਬਸਾਈਟ ਸੈਟਿੰਗਜ਼) ਚੁਣੋ।</li>
+            <li><b>Location</b> 'ਤੇ ਜਾ ਕੇ <b>Allow</b> (ਮਨਜ਼ੂਰ) ਕਰੋ।</li>
+            <li>ਜਾਂ ਆਪਣੇ ਆਈਫੋਨ ਦੀ <i>Settings ➔ Privacy ➔ Location Services ➔ Safari</i> ਵਿੱਚ ਜਾ ਕੇ <b>While Using the App</b> ਚਾਲੂ ਕਰੋ।</li>
+          </ol>
+          <p style="font-size:0.78rem; color:#64748b;">ਜੇਕਰ GPS ਵਿੱਚ ਸਮੱਸਿਆ ਰਹੇ, ਤਾਂ ਤੁਸੀਂ ਹੇਠਾਂ ਦਿੱਤੇ ਬਟਨ ਰਾਹੀਂ ਆਪਣੇ ਪਿੰਡ ਦਾ ਨਾਂ ਲਿਖ ਕੇ ਵੀ ਖੇਤ ਲੱਭ ਸਕਦੇ ਹੋ।</p>
+        `;
+      } else if (device === "android") {
+        container.innerHTML = `
+          <p>ਤੁਹਾਡੇ <b>Android (Chrome)</b> 'ਤੇ ਲੋਕੇਸ਼ਨ ਬੰਦ ਹੈ। ਕਿਰਪਾ ਕਰਕੇ ਇਹ ਕਦਮ ਚੁੱਕੋ:</p>
+          <ol class="gps-steps-list">
+            <li>ਉੱਪਰ ਐਡਰੈੱਸ ਬਾਰ ਦੇ ਖੱਬੇ ਪਾਸੇ <b>ਸੈਟਿੰਗਜ਼/ਲਾਕ 🔒</b> ਆਈਕਨ 'ਤੇ ਟੈਪ ਕਰੋ।</li>
+            <li><b>Permissions</b> (ਇਜਾਜ਼ਤਾਂ) ➔ <b>Location</b> ਚੁਣੋ।</li>
+            <li>ਇਸਨੂੰ <b>Allow</b> (ਚਾਲੂ) ਕਰੋ ਅਤੇ ਪੇਜ ਨੂੰ ਰੀਫ੍ਰੈਸ਼ ਕਰੋ।</li>
+          </ol>
+        `;
+      } else {
+        container.innerHTML = `
+          <p>ਤੁਹਾਡੇ <b>ਲੈਪਟਾਪ / ਬ੍ਰਾਊਜ਼ਰ</b> 'ਤੇ ਲੋਕੇਸ਼ਨ ਬੰਦ ਹੈ:</p>
+          <ol class="gps-steps-list">
+            <li>ਬ੍ਰਾਊਜ਼ਰ ਵਿੱਚ ਵੈੱਬਸਾਈਟ ਦੇ ਪਤੇ (URL) ਦੇ ਖੱਬੇ ਪਾਸੇ <b>ਲਾਕ 🔒</b> ਆਈਕਨ 'ਤੇ ਕਲਿੱਕ ਕਰੋ।</li>
+            <li><b>Location</b> ਨੂੰ <b>Allow</b> (ਚਾਲੂ) ਸੈੱਟ ਕਰੋ।</li>
+            <li>ਪੇਜ ਨੂੰ ਰੀਲੋਡ (F5) ਕਰੋ।</li>
+          </ol>
+        `;
+      }
+    } else if (currentLang === 'hi') {
+      heading.innerHTML = "📍 GPS लोकेशन अनुमति आवश्यक है";
+      if (device === "ios") {
+        container.innerHTML = `
+          <p>आपके <b>iPhone (Safari / WhatsApp)</b> पर लोकेशन बंद है। कृपया यह चरण अपनाएं:</p>
+          <ol class="gps-steps-list">
+            <li>URL बार में <b>'aA'</b> या <b>ताले 🔒</b> के निशान पर टैप करें।</li>
+            <li><b>Website Settings</b> चुनें।</li>
+            <li><b>Location</b> में जाकर <b>Allow</b> (अनुमति दें) चुनें।</li>
+            <li>या फोन की <i>Settings ➔ Privacy ➔ Location Services ➔ Safari</i> में जाकर <b>While Using the App</b> सक्रिय करें।</li>
+          </ol>
+          <p style="font-size:0.78rem; color:#64748b;">यदि GPS में कठिनाई हो, तो नीचे दिए गए बटन से अपने गांव का नाम खोजें।</p>
+        `;
+      } else if (device === "android") {
+        container.innerHTML = `
+          <p>आपके <b>Android (Chrome)</b> पर लोकेशन बंद है:</p>
+          <ol class="gps-steps-list">
+            <li>एड्रेस बार के बाईं ओर <b>ताले 🔒</b> या सेटिंग्स आइकन पर टैप करें।</li>
+            <li><b>Permissions</b> ➔ <b>Location</b> चुनें।</li>
+            <li>इसे <b>Allow</b> करें और पेज को रीफ्रेश करें।</li>
+          </ol>
+        `;
+      } else {
+        container.innerHTML = `
+          <p>आपके <b>लैपटॉप / कंप्यूटर</b> पर लोकेशन बंद है:</p>
+          <ol class="gps-steps-list">
+            <li>ब्राउज़र एड्रेस बार के बाईं ओर <b>ताला 🔒</b> आइकन पर क्लिक करें।</li>
+            <li><b>Location</b> को <b>Allow</b> पर सेट करें।</li>
+            <li>पेज रीलोड (F5) करें।</li>
+          </ol>
+        `;
+      }
+    } else {
+      // English
+      heading.innerHTML = "📍 Location Access Required";
+      if (device === "ios") {
+        container.innerHTML = `
+          <p>Location access was blocked on your <b>iPhone (Safari / WhatsApp browser)</b>. Follow these quick steps:</p>
+          <ol class="gps-steps-list">
+            <li>Tap the <b>'aA'</b> or <b>Lock 🔒</b> icon in the browser address bar at the bottom/top.</li>
+            <li>Select <b>Website Settings</b>.</li>
+            <li>Tap <b>Location</b> and select <b>Allow</b>.</li>
+            <li>If still disabled, open iPhone <i>Settings ➔ Privacy & Security ➔ Location Services ➔ Safari Websites</i> and choose <b>While Using the App</b>.</li>
+          </ol>
+          <p style="font-size:0.78rem; color:#64748b;">Tip: You can also find your farm immediately by typing your village name below.</p>
+        `;
+      } else if (device === "android") {
+        container.innerHTML = `
+          <p>Location access is blocked on your <b>Android phone</b>:</p>
+          <ol class="gps-steps-list">
+            <li>Tap the <b>Lock 🔒 / Tune</b> icon to the left of the URL bar in Chrome.</li>
+            <li>Tap <b>Permissions</b> ➔ <b>Location</b>.</li>
+            <li>Toggle it to <b>Allow</b> and reload the page.</li>
+          </ol>
+        `;
+      } else {
+        container.innerHTML = `
+          <p>Location access is blocked on your <b>Laptop / Computer browser</b>:</p>
+          <ol class="gps-steps-list">
+            <li>Click the <b>Padlock 🔒</b> icon right next to the web address at the top.</li>
+            <li>Change the <b>Location</b> setting from <i>Block</i> to <b>Allow</b>.</li>
+            <li>Reload the page (press F5 or Ctrl+R).</li>
+          </ol>
+        `;
+      }
+    }
+
+    modal.style.display = "flex";
+  }
+
+  function closeGpsModal() {
+    document.getElementById('gpsModal').style.display = "none";
+  }
+
+  function focusSearchInput() {
+    closeGpsModal();
+    const searchBar = document.getElementById('mapSearchInput');
+    searchBar.focus();
+    searchBar.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
 
   function toggleDrawTool() {
     isDrawing = !isDrawing;
@@ -869,7 +1158,6 @@
       return;
     }
 
-    // PATH 1: UPDATING AN EXISTING PLOT
     if (editingParcelIndex >= 0) {
       const p = completedParcels[editingParcelIndex];
       p.parcel_name = document.getElementById('active_parcel_name').value.trim() || p.parcel_name;
@@ -918,7 +1206,6 @@
       return;
     }
 
-    // PATH 2: SAVING A BRAND NEW PLOT
     if (activePoints.length < 3) {
       alert("Please tap at least 3 boundary corners on the satellite map before saving this plot.");
       return;
@@ -1035,16 +1322,6 @@
     return Math.abs(total * 6378137 * 6378137 / 2.0);
   }
 
-  function locateGPS() {
-    if (!navigator.geolocation) return alert("Geolocation not supported.");
-    navigator.geolocation.getCurrentPosition(pos => {
-      const lat = pos.coords.latitude;
-      const lng = pos.coords.longitude;
-      map.setView([lat, lng], 17);
-      L.marker([lat, lng]).addTo(map).bindPopup("Current GPS Position").openPopup();
-    }, () => alert("Please enable GPS permissions."), { enableHighAccuracy: true });
-  }
-
   function handleRegistration(e) {
     e.preventDefault();
 
@@ -1092,11 +1369,6 @@
         geojson: p.geojson
       }))
     };
-
-    if (!SCRIPT_URL || SCRIPT_URL.includes("PASTE_YOUR_GOOGLE_APPS_SCRIPT_URL_HERE")) {
-      alert("Please configure your SCRIPT_URL with your active Google Apps Script link.");
-      return;
-    }
 
     btn.disabled = true;
     btn.innerText = "⏳ Transmitting Holding Record...";
